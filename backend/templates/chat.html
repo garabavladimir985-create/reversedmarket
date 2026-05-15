@@ -15,7 +15,7 @@ background:#050816;
 color:white;
 font-family:Arial;
 margin:0;
-padding-bottom:145px;
+padding-bottom:125px;
 }
 
 .old-bottom-nav,
@@ -28,23 +28,17 @@ display:none!important;
 padding:18px;
 }
 
-.chat-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:18px;
-}
-
 .chat-header h1{
 color:#3ea6ff;
-font-size:34px;
+font-size:42px;
+margin-bottom:24px;
 }
 
 .chat-box{
 background:#111827;
 border-radius:24px;
 padding:18px;
-min-height:420px;
+min-height:350px;
 margin-bottom:18px;
 border:1px solid rgba(255,255,255,.06);
 }
@@ -62,7 +56,7 @@ color:#3ea6ff;
 
 .message img{
 width:100%;
-max-height:260px;
+max-height:240px;
 object-fit:cover;
 border-radius:14px;
 margin-top:10px;
@@ -71,7 +65,7 @@ margin-top:10px;
 .chat-form{
 background:#111827;
 border-radius:24px;
-padding:18px;
+padding:16px;
 border:1px solid rgba(255,255,255,.06);
 }
 
@@ -89,13 +83,13 @@ box-sizing:border-box;
 }
 
 .chat-form textarea{
-min-height:90px;
+min-height:85px;
 resize:none;
 }
 
 .chat-form button{
 width:100%;
-height:56px;
+height:54px;
 border:none;
 border-radius:16px;
 background:#3ea6ff;
@@ -107,22 +101,23 @@ font-weight:800;
 .premium-bottom-nav{
 position:fixed!important;
 bottom:0!important;
-left:50%!important;
-transform:translateX(-50%)!important;
+left:0!important;
+transform:none!important;
 width:100%!important;
-max-width:900px!important;
-height:105px!important;
-background:rgba(17,24,39,.96)!important;
+max-width:100%!important;
+height:86px!important;
+background:rgba(17,24,39,.97)!important;
 backdrop-filter:blur(20px)!important;
-border-top-left-radius:34px!important;
-border-top-right-radius:34px!important;
+border-radius:24px 24px 0 0!important;
 display:flex!important;
 align-items:center!important;
-justify-content:space-around!important;
-padding:8px 12px!important;
+justify-content:space-evenly!important;
+padding:4px 2px!important;
 z-index:999999!important;
 box-shadow:0 -10px 40px rgba(0,0,0,.45)!important;
 border:1px solid rgba(255,255,255,.06)!important;
+overflow:hidden!important;
+box-sizing:border-box!important;
 }
 
 .premium-nav-item{
@@ -130,12 +125,12 @@ display:flex!important;
 flex-direction:column!important;
 align-items:center!important;
 justify-content:center!important;
-gap:5px!important;
+gap:3px!important;
 text-decoration:none!important;
 color:#8d94a8!important;
-font-size:13px!important;
+font-size:9px!important;
 font-weight:700!important;
-min-width:58px!important;
+min-width:40px!important;
 }
 
 .premium-nav-item.active{
@@ -143,36 +138,36 @@ color:#3ea6ff!important;
 }
 
 .premium-icon{
-font-size:28px!important;
+font-size:20px!important;
 line-height:1!important;
 }
 
 .premium-shop-btn{
 position:relative!important;
-margin-top:-45px!important;
+margin-top:-32px!important;
 display:flex!important;
 flex-direction:column!important;
 align-items:center!important;
 text-decoration:none!important;
 color:#8d94a8!important;
-font-size:12px!important;
+font-size:9px!important;
 font-weight:800!important;
-min-width:82px!important;
+min-width:54px!important;
 }
 
 .premium-shop-circle{
-width:88px!important;
-height:88px!important;
+width:66px!important;
+height:66px!important;
 border-radius:50%!important;
 background:#3ea6ff!important;
 display:flex!important;
 align-items:center!important;
 justify-content:center!important;
-font-size:42px!important;
+font-size:30px!important;
 color:white!important;
-border:8px solid #050816!important;
+border:6px solid #050816!important;
 box-shadow:0 0 35px rgba(62,166,255,.85)!important;
-margin-bottom:5px!important;
+margin-bottom:4px!important;
 }
 </style>
 </head>
@@ -181,93 +176,89 @@ margin-bottom:5px!important;
 
 <div class="chat-page">
 
-    <div class="chat-header">
-        <h1>CHAT</h1>
-        <a href="/">🏠</a>
-    </div>
+<div class="chat-header">
+<h1>CHAT</h1>
+</div>
 
-    <div class="chat-box">
+<div class="chat-box">
 
-        {% if messages|length == 0 %}
-        <div class="message">
-            No messages yet
-        </div>
-        {% endif %}
+{% if messages|length == 0 %}
+<div class="message">
+No messages yet
+</div>
+{% endif %}
 
-        {% for message in messages %}
-        <div class="message">
-            <strong>{{ message.sender }}</strong>
-            <p>{{ message.text }}</p>
+{% for message in messages %}
+<div class="message">
+<strong>{{ message.sender }}</strong>
+<p>{{ message.text }}</p>
 
-            {% if message.image %}
-            <img src="{{ message.image }}">
-            {% endif %}
-        </div>
-        {% endfor %}
+{% if message.image %}
+<img src="{{ message.image }}">
+{% endif %}
+</div>
+{% endfor %}
 
-    </div>
+</div>
 
-    <form class="chat-form" method="POST" enctype="multipart/form-data">
+<form class="chat-form" method="POST" enctype="multipart/form-data">
 
-        <input name="sender" placeholder="Your name" value="Buyer">
+<input name="sender" placeholder="Your name" value="Buyer">
 
-        <textarea name="text" placeholder="Message..."></textarea>
+<textarea name="text" placeholder="Message..."></textarea>
 
-        <input type="file" name="image_file">
+<input type="file" name="image_file">
 
-        <button type="submit">
-            Send Message
-        </button>
+<button type="submit">Send</button>
 
-    </form>
+</form>
 
 </div>
 
 <div class="premium-bottom-nav">
 
-    <a href="/" class="premium-nav-item">
-        <div class="premium-icon">🏠</div>
-        <span>Главная</span>
-    </a>
+<a href="/" class="premium-nav-item">
+<div class="premium-icon">🏠</div>
+<span>Главная</span>
+</a>
 
-    <a href="/cart" class="premium-nav-item">
-        <div class="premium-icon">🛒</div>
-        <span>Корзина</span>
-    </a>
+<a href="/cart" class="premium-nav-item">
+<div class="premium-icon">🛒</div>
+<span>Корзина</span>
+</a>
 
-    <a href="/favorites-products" class="premium-nav-item">
-        <div class="premium-icon">📁</div>
-        <span>Каталог</span>
-    </a>
+<a href="/favorites-products" class="premium-nav-item">
+<div class="premium-icon">📁</div>
+<span>Каталог</span>
+</a>
 
-    <a href="/my-shop" class="premium-shop-btn">
-        <div class="premium-shop-circle">💎</div>
-        <span>ReversedShop</span>
-    </a>
+<a href="/my-shop" class="premium-shop-btn">
+<div class="premium-shop-circle">💎</div>
+<span>ReversedShop</span>
+</a>
 
-    <a href="/chat" class="premium-nav-item active">
-        <div class="premium-icon">💬</div>
-        <span>Чат</span>
-    </a>
+<a href="/chat/general" class="premium-nav-item active">
+<div class="premium-icon">💬</div>
+<span>Чат</span>
+</a>
 
-    <a href="/vip" class="premium-nav-item">
-        <div class="premium-icon">👑</div>
-        <span>Вип</span>
-    </a>
+<a href="/vip" class="premium-nav-item">
+<div class="premium-icon">👑</div>
+<span>Вип</span>
+</a>
 
-    <a href="/profile" class="premium-nav-item">
-        <div class="premium-icon">👤</div>
-        <span>Профиль</span>
-    </a>
+<a href="/profile" class="premium-nav-item">
+<div class="premium-icon">👤</div>
+<span>Профиль</span>
+</a>
 
 </div>
 
 <script>
 const tg = window.Telegram?.WebApp;
-
 if(tg){
-    tg.ready();
-    tg.expand();
+tg.ready();
+tg.expand();
 }
 </script>
 

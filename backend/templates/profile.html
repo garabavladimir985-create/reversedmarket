@@ -16,7 +16,7 @@ color:white;
 font-family:Arial;
 margin:0;
 padding:0;
-padding-bottom:150px;
+padding-bottom:125px;
 }
 
 .old-bottom-nav,
@@ -30,7 +30,7 @@ padding:18px;
 }
 
 .page-title{
-font-size:52px;
+font-size:44px;
 font-weight:900;
 color:#3ea6ff;
 margin-bottom:24px;
@@ -39,9 +39,8 @@ margin-bottom:24px;
 .profile-card{
 background:#111827;
 border-radius:28px;
-padding:26px;
-border:1px solid rgba(255,255,255,.05);
-margin-bottom:20px;
+padding:24px;
+border:1px solid rgba(255,255,255,.06);
 }
 
 .profile-top{
@@ -52,15 +51,14 @@ margin-bottom:22px;
 }
 
 .profile-avatar{
-width:92px;
-height:92px;
+width:82px;
+height:82px;
 border-radius:50%;
 background:#3ea6ff;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:42px;
-font-weight:900;
+font-size:38px;
 box-shadow:0 0 30px rgba(62,166,255,.55);
 overflow:hidden;
 }
@@ -72,50 +70,25 @@ object-fit:cover;
 }
 
 .profile-name{
-font-size:30px;
-font-weight:800;
+font-size:28px;
+font-weight:900;
 }
 
 .profile-id{
 opacity:.65;
 margin-top:6px;
+line-height:1.4;
 }
 
 .vip-status{
-margin-top:8px;
+margin-top:10px;
 display:inline-block;
 padding:7px 12px;
 border-radius:999px;
-background:#111522;
-border:1px solid rgba(255,255,255,.08);
+background:#0d1220;
 color:#3ea6ff;
 font-weight:800;
 font-size:13px;
-}
-
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px;
-margin-top:10px;
-}
-
-.stat-box{
-background:#0d1220;
-border-radius:22px;
-padding:22px;
-}
-
-.stat-title{
-opacity:.6;
-font-size:14px;
-margin-bottom:8px;
-}
-
-.stat-value{
-font-size:28px;
-font-weight:800;
-color:#3ea6ff;
 }
 
 .profile-actions{
@@ -126,10 +99,10 @@ margin-top:24px;
 }
 
 .profile-btn{
-height:62px;
+height:58px;
 border:none;
 border-radius:20px;
-font-size:18px;
+font-size:17px;
 font-weight:800;
 cursor:pointer;
 text-decoration:none;
@@ -154,32 +127,26 @@ background:#ff4b6e;
 color:white;
 }
 
-.loading-box{
-background:#111827;
-border-radius:24px;
-padding:22px;
-opacity:.8;
-}
-
 .premium-bottom-nav{
 position:fixed!important;
 bottom:0!important;
-left:50%!important;
-transform:translateX(-50%)!important;
+left:0!important;
+transform:none!important;
 width:100%!important;
-max-width:900px!important;
-height:105px!important;
-background:rgba(17,24,39,.96)!important;
+max-width:100%!important;
+height:86px!important;
+background:rgba(17,24,39,.97)!important;
 backdrop-filter:blur(20px)!important;
-border-top-left-radius:34px!important;
-border-top-right-radius:34px!important;
+border-radius:24px 24px 0 0!important;
 display:flex!important;
 align-items:center!important;
-justify-content:space-around!important;
-padding:8px 12px!important;
+justify-content:space-evenly!important;
+padding:4px 2px!important;
 z-index:999999!important;
 box-shadow:0 -10px 40px rgba(0,0,0,.45)!important;
 border:1px solid rgba(255,255,255,.06)!important;
+overflow:hidden!important;
+box-sizing:border-box!important;
 }
 
 .premium-nav-item{
@@ -187,12 +154,12 @@ display:flex!important;
 flex-direction:column!important;
 align-items:center!important;
 justify-content:center!important;
-gap:5px!important;
+gap:3px!important;
 text-decoration:none!important;
 color:#8d94a8!important;
-font-size:13px!important;
+font-size:9px!important;
 font-weight:700!important;
-min-width:58px!important;
+min-width:40px!important;
 }
 
 .premium-nav-item.active{
@@ -200,95 +167,36 @@ color:#3ea6ff!important;
 }
 
 .premium-icon{
-font-size:28px!important;
+font-size:20px!important;
 line-height:1!important;
 }
 
 .premium-shop-btn{
 position:relative!important;
-margin-top:-45px!important;
+margin-top:-32px!important;
 display:flex!important;
 flex-direction:column!important;
 align-items:center!important;
 text-decoration:none!important;
 color:#8d94a8!important;
-font-size:12px!important;
+font-size:9px!important;
 font-weight:800!important;
-min-width:82px!important;
-}
-
-.premium-shop-circle{
-width:88px!important;
-height:88px!important;
-border-radius:50%!important;
-background:#3ea6ff!important;
-display:flex!important;
-align-items:center!important;
-justify-content:center!important;
-font-size:42px!important;
-color:white!important;
-border:8px solid #050816!important;
-box-shadow:0 0 35px rgba(62,166,255,.85)!important;
-margin-bottom:5px!important;
-}
-
-@media(max-width:600px){
-.page-title{
-font-size:38px;
-}
-
-.profile-avatar{
-width:72px;
-height:72px;
-font-size:32px;
-}
-
-.profile-name{
-font-size:24px;
-}
-
-.stat-value{
-font-size:22px;
-}
-
-.profile-btn{
-height:56px;
-font-size:16px;
-}
-
-.premium-bottom-nav{
-width:100%!important;
-max-width:100%!important;
-left:0!important;
-transform:none!important;
-height:86px!important;
-border-radius:24px 24px 0 0!important;
-padding:4px 2px!important;
-overflow:hidden!important;
-}
-
-.premium-nav-item{
-min-width:40px!important;
-font-size:9px!important;
-gap:3px!important;
-}
-
-.premium-icon{
-font-size:20px!important;
-}
-
-.premium-shop-btn{
 min-width:54px!important;
-font-size:9px!important;
-margin-top:-32px!important;
 }
 
 .premium-shop-circle{
 width:66px!important;
 height:66px!important;
+border-radius:50%!important;
+background:#3ea6ff!important;
+display:flex!important;
+align-items:center!important;
+justify-content:center!important;
 font-size:30px!important;
+color:white!important;
 border:6px solid #050816!important;
-}
+box-shadow:0 0 35px rgba(62,166,255,.85)!important;
+margin-bottom:4px!important;
 }
 </style>
 </head>
@@ -297,13 +205,17 @@ border:6px solid #050816!important;
 
 <div class="profile-page">
 
-<div class="page-title">
-PROFILE
-</div>
+<div class="page-title">PROFILE</div>
 
 <div id="profile-root">
-<div class="loading-box">
-Loading Telegram profile...
+<div class="profile-card">
+<div class="profile-top">
+<div class="profile-avatar">👤</div>
+<div>
+<div class="profile-name">Loading...</div>
+<div class="profile-id">Checking Telegram profile</div>
+</div>
+</div>
 </div>
 </div>
 
@@ -353,137 +265,81 @@ const tg = window.Telegram?.WebApp;
 const root = document.getElementById("profile-root");
 
 if(tg){
-    tg.ready();
-    tg.expand();
+tg.ready();
+tg.expand();
 }
 
-function renderProfile(userData){
-    const avatarHtml = userData.avatar
-        ? `<img src="${userData.avatar}">`
-        : `👤`;
+function renderProfile(data){
+const avatar = data.avatar ? `<img src="${data.avatar}">` : "👤";
+const username = data.username ? "@" + data.username : "@unknown";
+const vip = data.is_vip ? "VIP ACTIVE" : "NO VIP";
 
-    const username = userData.username
-        ? "@" + userData.username
-        : "@unknown";
+root.innerHTML = `
+<div class="profile-card">
 
-    const vipText = userData.is_vip ? "VIP ACTIVE" : "NO VIP";
+<div class="profile-top">
+<div class="profile-avatar">${avatar}</div>
+<div>
+<div class="profile-name">${data.name || "Telegram User"}</div>
+<div class="profile-id">${username}<br>ID: ${data.telegram_id || "Unknown"}</div>
+<div class="vip-status">${vip}</div>
+</div>
+</div>
 
-    root.innerHTML = `
-        <div class="profile-card">
+<div class="profile-actions">
+<a href="/my-orders?telegram_id=${data.telegram_id || ""}" class="profile-btn blue">My Orders</a>
+<a href="/favorites-products" class="profile-btn dark">Favorites</a>
+<a href="/vip" class="profile-btn dark">Get VIP</a>
+<a href="/" class="profile-btn red">Back Home</a>
+</div>
 
-            <div class="profile-top">
-
-                <div class="profile-avatar">
-                    ${avatarHtml}
-                </div>
-
-                <div>
-                    <div class="profile-name">
-                        ${userData.name || "Telegram User"}
-                    </div>
-
-                    <div class="profile-id">
-                        ${username}<br>
-                        ID: ${userData.telegram_id || "Unknown"}
-                    </div>
-
-                    <div class="vip-status">
-                        ${vipText}
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="stats">
-
-                <div class="stat-box">
-                    <div class="stat-title">Orders</div>
-                    <div class="stat-value">0</div>
-                </div>
-
-                <div class="stat-box">
-                    <div class="stat-title">Favorites</div>
-                    <div class="stat-value">0</div>
-                </div>
-
-            </div>
-
-            <div class="profile-actions">
-
-                <a href="/my-orders?telegram_id=${userData.telegram_id}" class="profile-btn blue">
-                    My Orders
-                </a>
-
-                <a href="/favorites-products" class="profile-btn dark">
-                    Favorites
-                </a>
-
-                <a href="/vip" class="profile-btn dark">
-                    Get VIP
-                </a>
-
-                <a href="/" class="profile-btn red">
-                    Back Home
-                </a>
-
-            </div>
-
-        </div>
-    `;
+</div>
+`;
 }
 
-async function registerTelegramUser(){
-    const tgUser = tg?.initDataUnsafe?.user;
+async function start(){
+let tgUser = tg?.initDataUnsafe?.user;
 
-    if(!tgUser){
-        const saved = localStorage.getItem("telegram_user");
-
-        if(saved){
-            renderProfile(JSON.parse(saved));
-            return;
-        }
-
-        root.innerHTML = `
-            <div class="profile-card">
-                <div class="profile-top">
-                    <div class="profile-avatar">👤</div>
-                    <div>
-                        <div class="profile-name">Telegram not detected</div>
-                        <div class="profile-id">Open app through Telegram bot</div>
-                    </div>
-                </div>
-                <div class="profile-actions">
-                    <a href="/" class="profile-btn blue">Back Home</a>
-                </div>
-            </div>
-        `;
-        return;
-    }
-
-    const res = await fetch("/api/telegram-auth", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(tgUser)
-    });
-
-    const data = await res.json();
-
-    if(data.ok){
-        localStorage.setItem("telegram_user", JSON.stringify(data));
-        renderProfile(data);
-    }else{
-        root.innerHTML = `
-            <div class="profile-card">
-                <div class="profile-name">Auth error</div>
-                <div class="profile-id">${data.error || "Unknown error"}</div>
-            </div>
-        `;
-    }
+if(!tgUser){
+const saved = localStorage.getItem("telegram_user");
+if(saved){
+renderProfile(JSON.parse(saved));
+return;
 }
 
-registerTelegramUser();
+renderProfile({
+telegram_id:"",
+name:"Telegram User",
+username:"open_from_bot",
+avatar:"",
+is_vip:false
+});
+return;
+}
+
+const res = await fetch("/api/telegram-auth", {
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(tgUser)
+});
+
+const data = await res.json();
+
+if(data.ok){
+localStorage.setItem("telegram_user", JSON.stringify(data));
+renderProfile(data);
+}else{
+renderProfile({
+telegram_id:"",
+name:"Auth error",
+username:data.error || "unknown",
+avatar:"",
+is_vip:false
+});
+}
+}
+
+start();
 </script>
 
 </body>
