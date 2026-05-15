@@ -1,60 +1,320 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<title>{{ shop_name }}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Shop</title>
+
 <link rel="stylesheet" href="/static/css/style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+body{
+background:#050816;
+color:white;
+font-family:Arial;
+margin:0;
+padding:0;
+padding-bottom:140px;
+overflow-x:hidden;
+}
+
+.old-bottom-nav,
+.bottom-nav,
+.navbar{
+display:none!important;
+}
+
+.shop-page{
+padding:22px;
+min-height:100vh;
+box-sizing:border-box;
+}
+
+.shop-locked{
+max-width:720px;
+margin:80px auto 0;
+background:#111827;
+border-radius:34px;
+padding:40px 28px;
+text-align:center;
+border:1px solid rgba(255,255,255,.06);
+box-shadow:0 0 40px rgba(0,0,0,.35);
+}
+
+.shop-icon{
+width:160px;
+height:160px;
+margin:0 auto 26px;
+border-radius:50%;
+background:#3ea6ff;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:72px;
+box-shadow:0 0 50px rgba(62,166,255,.85);
+}
+
+.shop-title{
+font-size:64px;
+font-weight:900;
+margin-bottom:18px;
+}
+
+.shop-text{
+font-size:22px;
+line-height:1.7;
+opacity:.82;
+max-width:580px;
+margin:0 auto;
+}
+
+.locked-actions{
+display:flex;
+gap:14px;
+margin-top:34px;
+}
+
+.locked-btn{
+flex:1;
+height:60px;
+border-radius:20px;
+display:flex;
+align-items:center;
+justify-content:center;
+text-decoration:none!important;
+font-weight:900;
+font-size:20px;
+white-space:nowrap;
+transition:.2s;
+}
+
+.locked-btn:hover{
+transform:translateY(-2px);
+}
+
+.locked-btn.primary{
+background:#3ea6ff;
+color:white;
+}
+
+.locked-btn.secondary{
+background:#0d1220;
+color:white;
+border:1px solid #3ea6ff;
+}
+
+.premium-bottom-nav{
+position:fixed!important;
+left:50%!important;
+bottom:0!important;
+transform:translateX(-50%)!important;
+width:100%!important;
+max-width:430px!important;
+height:92px!important;
+background:rgba(17,24,39,.98)!important;
+backdrop-filter:blur(22px)!important;
+border-radius:30px 30px 0 0!important;
+display:flex!important;
+align-items:center!important;
+justify-content:space-around!important;
+padding:6px 4px!important;
+z-index:2147483647!important;
+box-shadow:0 -12px 45px rgba(0,0,0,.65)!important;
+border:1px solid rgba(255,255,255,.08)!important;
+box-sizing:border-box!important;
+overflow:visible!important;
+}
+
+.premium-nav-item{
+width:48px!important;
+min-width:48px!important;
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+justify-content:center!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:11px!important;
+font-weight:800!important;
+gap:4px!important;
+}
+
+.premium-nav-item.active{
+color:#3ea6ff!important;
+}
+
+.premium-icon{
+font-size:24px!important;
+line-height:1!important;
+}
+
+.premium-shop-btn{
+width:78px!important;
+min-width:78px!important;
+margin-top:-44px!important;
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+justify-content:center!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:10px!important;
+font-weight:900!important;
+gap:3px!important;
+}
+
+.premium-shop-btn.active{
+color:#3ea6ff!important;
+}
+
+.premium-shop-circle{
+width:78px!important;
+height:78px!important;
+border-radius:50%!important;
+background:#3ea6ff!important;
+display:flex!important;
+align-items:center!important;
+justify-content:center!important;
+font-size:38px!important;
+border:7px solid #050816!important;
+box-shadow:0 0 38px rgba(62,166,255,.9)!important;
+}
+
+@media(max-width:600px){
+
+.shop-page{
+padding:16px;
+}
+
+.shop-locked{
+margin-top:40px;
+padding:34px 18px;
+border-radius:28px;
+}
+
+.shop-icon{
+width:120px;
+height:120px;
+font-size:56px;
+}
+
+.shop-title{
+font-size:42px;
+}
+
+.shop-text{
+font-size:16px;
+line-height:1.6;
+}
+
+.locked-actions{
+gap:8px;
+margin-top:24px;
+}
+
+.locked-btn{
+height:48px;
+font-size:15px;
+border-radius:14px;
+}
+
+.premium-bottom-nav{
+height:86px!important;
+}
+
+.premium-shop-circle{
+width:70px!important;
+height:70px!important;
+font-size:32px!important;
+}
+
+}
+</style>
 </head>
+
 <body>
 
-<div class="topbar">
-<h1>{{ shop_name }}</h1>
-<a href="/">🏠</a>
+<div class="shop-page">
+
+<div class="shop-locked">
+
+<div class="shop-icon">
+💎
 </div>
 
-<div class="shop-profile-box">
-<h2>⭐ {{ rating }} · ❤️ {{ likes }}</h2>
-<p>{{ description }}</p>
-<a class="chat-btn" href="/chat/{{ shop_name }}">Message Seller</a>
+<div class="shop-title">
+Shop
 </div>
 
-<div class="grid">
-{% for product in products %}
-<div class="card product-card">
+<div class="shop-text">
+Для создания собственного магазина вам требуется получить верификацию или иметь VIP статус.
+</div>
 
-<button
-class="product-fav-btn"
-onclick="toggleProductFavorite('{{ product.name }}', '{{ product.price }}', '{{ product.image }}')">
-❤️
-</button>
+<div class="locked-actions">
 
-<a href="/product/{{ product.id }}">
-<img src="{{ product.image }}">
+<a href="/vip" class="locked-btn primary">
+Получить VIP
 </a>
 
-<div class="info">
-<h2>{{ product.name }}</h2>
-<p>${{ product.price }}</p>
+<a href="/" class="locked-btn secondary">
+На главную
+</a>
 
-{% if product.vip %}
-<small class="vip-badge">VIP</small>
-{% endif %}
-
-<button onclick="addToCart('{{ product.name }}', '{{ product.price }}')">
-Add to Cart
-</button>
-</div>
-</div>
-{% endfor %}
 </div>
 
-<div class="navbar">
-<a href="/">🏠<small>HOME</small></a>
-<a href="/seller">🛍<small>SELLER</small></a>
-<a href="/chat/{{ shop_name }}">💬<small>CHAT</small></a>
-<a href="/cart">🛒<small>CART</small></a>
-<a href="/vip">⭐<small>VIP</small></a>
 </div>
 
-<script src="/static/js/app.js"></script>
+</div>
+
+<div class="premium-bottom-nav">
+
+<a href="/" class="premium-nav-item">
+<div class="premium-icon">🏠</div>
+<span>Главная</span>
+</a>
+
+<a href="/cart" class="premium-nav-item">
+<div class="premium-icon">🛒</div>
+<span>Корзина</span>
+</a>
+
+<a href="/favorites-products" class="premium-nav-item">
+<div class="premium-icon">📁</div>
+<span>Каталог</span>
+</a>
+
+<a href="/my-shop" class="premium-shop-btn active">
+<div class="premium-shop-circle">💎</div>
+<span>Магазин</span>
+</a>
+
+<a href="/chat/general" class="premium-nav-item">
+<div class="premium-icon">💬</div>
+<span>Чат</span>
+</a>
+
+<a href="/vip" class="premium-nav-item">
+<div class="premium-icon">👑</div>
+<span>Вип</span>
+</a>
+
+<a href="/profile" class="premium-nav-item">
+<div class="premium-icon">👤</div>
+<span>Профиль</span>
+</a>
+
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+
+if(tg){
+tg.ready();
+tg.expand();
+}
+</script>
+
 </body>
 </html>
