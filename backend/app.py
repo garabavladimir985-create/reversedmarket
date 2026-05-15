@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 import os
 import json
+import requests
 from datetime import datetime
 
 app = Flask(__name__)
@@ -12,6 +13,33 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["UPLOAD_FOLDER"] = "static/uploads"
 
 db = SQLAlchemy(app)
+
+BOT_TOKEN = os.environ.get("8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU")
+
+ADMIN_IDS = [
+    "1940136851",
+    "910641302"
+]
+
+
+def send_admin_notification(text):
+    if not BOT_TOKEN:
+        return
+
+    for admin_id in ADMIN_IDS:
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                data={
+                    "chat_id": admin_id,
+                    "text": text
+                },
+                timeout=5
+            )
+        except Exception as e:
+            print("Telegram notify error:", e)
+
+
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 
@@ -75,9 +103,11 @@ class Order(db.Model):
 def save_file(file):
     if not file or file.filename == "":
         return None
+
     filename = secure_filename(file.filename)
     path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(path)
+
     return "/static/uploads/" + filename
 
 
@@ -92,12 +122,31 @@ def home():
         products=products
     )
 
+
 @app.route("/seller")
 def seller_dashboard():
     sellers = Seller.query.all()
     products = Product.query.all()
     orders = Order.query.order_by(Order.id.desc()).all()
-    return render_template("seller.html", sellers=sellers, products=products, orders=orders)
+
+    return render_template(
+        "seller.html",
+        sellers=sellers,
+        products=products,
+        orders=orders
+    )
+
+
+@app.route("/my-shop")
+def my_shop():
+    sellers = Seller.query.all()
+    products = Product.query.all()
+
+    return render_template(
+        "my_shop.html",
+        sellers=sellers,
+        products=products
+    )
 
 
 @app.route("/add-seller", methods=["POST"])
@@ -118,15 +167,26 @@ def add_seller():
     db.session.add(seller)
     db.session.commit()
 
-    return redirect("/seller")
+    send_admin_notification(
+        f"🏪 NEW SHOP\n\n"
+        f"Shop: {seller.shop_name}\n"
+        f"Category: {seller.category}\n"
+        f"Telegram: @{seller.telegram}"
+    )
+
+    return redirect("/my-shop")
 
 
 @app.route("/delete-seller/<int:id>")
 def delete_seller(id):
     seller = Seller.query.get_or_404(id)
+
+    Product.query.filter_by(seller_id=seller.id).delete()
+
     db.session.delete(seller)
     db.session.commit()
-    return redirect("/seller")
+
+    return redirect("/my-shop")
 
 
 @app.route("/add-seller-product", methods=["POST"])
@@ -155,7 +215,15 @@ def add_seller_product():
     db.session.add(product)
     db.session.commit()
 
-    return redirect("/seller")
+    send_admin_notification(
+        f"👕 NEW ITEM\n\n"
+        f"Shop: {seller.shop_name}\n"
+        f"Item: {product.name}\n"
+        f"Price: ${product.price}\n"
+        f"Category: {product.category}"
+    )
+
+    return redirect("/my-shop")
 
 
 @app.route("/shop/<int:seller_id>")
@@ -176,14 +244,30 @@ def shop(seller_id):
 @app.route("/product/<int:id>")
 def product_page(id):
     product = Product.query.get_or_404(id)
-    return render_template("product.html", product=product)
+
+    return render_template(
+        "product.html",
+        product=product
+    )
 
 
 @app.route("/search")
 def search():
     q = request.args.get("q", "")
-    sellers = Seller.query.filter(Seller.shop_name.contains(q)).all()
-    return render_template("index.html", sellers=sellers)
+
+    sellers = Seller.query.filter(
+        Seller.shop_name.contains(q)
+    ).all()
+
+    products = Product.query.filter(
+        Product.name.contains(q)
+    ).all()
+
+    return render_template(
+        "index.html",
+        sellers=sellers,
+        products=products
+    )
 
 
 @app.route("/admin")
@@ -192,15 +276,24 @@ def admin():
     orders = Order.query.order_by(Order.id.desc()).all()
     users = User.query.order_by(User.id.desc()).all()
     sellers = Seller.query.all()
-    return render_template("admin.html", products=products, orders=orders, users=users, sellers=sellers)
+
+    return render_template(
+        "admin.html",
+        products=products,
+        orders=orders,
+        users=users,
+        sellers=sellers
+    )
 
 
 @app.route("/delete-product/<int:id>")
 def delete_product(id):
     product = Product.query.get_or_404(id)
+
     db.session.delete(product)
     db.session.commit()
-    return redirect("/seller")
+
+    return redirect("/my-shop")
 
 
 @app.route("/cart")
@@ -215,7 +308,11 @@ def create_order():
     user_telegram_id = request.form.get("telegram_id", "")
 
     cart = json.loads(items)
-    total = sum(int(item["price"]) for item in cart)
+
+    total = sum(
+        int(item.get("price", 0))
+        for item in cart
+    )
 
     order = Order(
         user_telegram_id=user_telegram_id,
@@ -228,6 +325,20 @@ def create_order():
     db.session.add(order)
     db.session.commit()
 
+    items_text = ""
+
+    for item in cart:
+        items_text += f"- {item.get('name')} — ${item.get('price')}\n"
+
+    send_admin_notification(
+        f"🛒 NEW ORDER #{order.id}\n\n"
+        f"Total: ${total}\n"
+        f"Payment: {payment}\n"
+        f"User TG ID: {user_telegram_id}\n\n"
+        f"Items:\n{items_text}\n"
+        f"Admin: {os.environ.get('WEBAPP_URL', '')}/admin"
+    )
+
     return redirect("/order-success")
 
 
@@ -236,16 +347,50 @@ def order_success():
     return render_template("order_success.html")
 
 
+@app.route("/my-orders")
+def my_orders():
+    telegram_id = request.args.get("telegram_id", "")
+
+    if telegram_id:
+        orders = Order.query.filter_by(
+            user_telegram_id=telegram_id
+        ).order_by(Order.id.desc()).all()
+    else:
+        orders = Order.query.order_by(Order.id.desc()).all()
+
+    parsed_orders = []
+
+    for order in orders:
+        try:
+            items = json.loads(order.items)
+        except Exception:
+            items = []
+
+        parsed_orders.append({
+            "order": order,
+            "items": items
+        })
+
+    return render_template(
+        "my_orders.html",
+        parsed_orders=parsed_orders
+    )
+
+
 @app.route("/order/<int:id>")
 def order_detail(id):
     order = Order.query.get_or_404(id)
 
     try:
         items = json.loads(order.items)
-    except:
+    except Exception:
         items = []
 
-    return render_template("order_detail.html", order=order, items=items)
+    return render_template(
+        "order_detail.html",
+        order=order,
+        items=items
+    )
 
 
 @app.route("/order/<int:id>/status/<status>")
@@ -255,6 +400,11 @@ def update_order_status(id, status):
     if status in ["pending", "paid", "shipped", "delivered"]:
         order.status = status
         db.session.commit()
+
+        send_admin_notification(
+            f"📦 ORDER #{order.id} STATUS UPDATED\n\n"
+            f"New status: {order.status}"
+        )
 
     return redirect(f"/order/{id}")
 
@@ -275,10 +425,22 @@ def chat(shop):
         db.session.add(message)
         db.session.commit()
 
+        send_admin_notification(
+            f"💬 NEW CHAT MESSAGE\n\n"
+            f"Shop: {shop}\n"
+            f"Sender: {message.sender}\n"
+            f"Text: {message.text}"
+        )
+
         return redirect(f"/chat/{shop}")
 
     messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
-    return render_template("chat.html", messages=messages, shop=shop)
+
+    return render_template(
+        "chat.html",
+        messages=messages,
+        shop=shop
+    )
 
 
 @app.route("/chat")
@@ -314,50 +476,15 @@ def favorites():
 @app.route("/favorites-products")
 def favorites_products():
     return render_template("favorites_products.html")
-@app.route("/my-orders")
-def my_orders():
-    telegram_id = request.args.get("telegram_id", "")
 
-    if telegram_id:
-        orders = Order.query.filter_by(user_telegram_id=telegram_id).order_by(Order.id.desc()).all()
-    else:
-        orders = Order.query.order_by(Order.id.desc()).all()
 
-    parsed_orders = []
-
-    for order in orders:
-        try:
-            items = json.loads(order.items)
-        except:
-            items = []
-
-        parsed_orders.append({
-            "order": order,
-            "items": items
-        })
-
-    return render_template(
-        "my_orders.html",
-        parsed_orders=parsed_orders
-    )
 with app.app_context():
     db.create_all()
 
 print("SERVER STARTED")
 
-@app.route("/my-shop")
-def my_shop():
-    sellers = Seller.query.all()
-    products = Product.query.all()
-    return render_template(
-        "my_shop.html",
-        sellers=sellers,
-        products=products
-    )
 
 if __name__ == "__main__":
-    import os
-
     port = int(os.environ.get("PORT", 8080))
 
     app.run(
