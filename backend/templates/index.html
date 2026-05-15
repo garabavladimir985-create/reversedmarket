@@ -1,53 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reversed Market</title>
-<link rel="stylesheet" href="/static/css/style.css">
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReversedMarket</title>
 
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
 <body>
 
-<div class="market-header">
-    <div class="brand">REVERSED<span>MARKET</span></div>
-    <a class="menu-btn" href="/seller">☰</a>
+<div class="topbar">
+
+    <div class="logo">
+        REVERSED<span>MARKET</span>
+    </div>
+
+    <div class="menu-btn">
+        ☰
+    </div>
+
 </div>
 
-<div class="shop-search-row">
-    <form action="/search" class="shop-search">
-        <input name="q" placeholder="Search shop...">
-    </form>
-    <button class="filter active" onclick="location.href='/favorites'">❤️</button>
-    <button class="filter">⭐</button>
+<div class="search-box">
+    <input type="text" placeholder="Search shop...">
 </div>
 
-<div class="shop-grid">
+<div class="top-actions">
+
+    <a href="/favorites" class="action-btn">
+        ❤️
+    </a>
+
+    <a href="/vip" class="action-btn gold">
+        ⭐
+    </a>
+
+</div>
+
+<div class="products-grid">
 
 {% for seller in sellers %}
-<div class="shop-card">
-    <button class="favorite-btn" onclick="toggleFavorite('{{ seller.shop_name }}')">❤️</button>
 
-    <a href="/shop/{{ seller.id }}">
-        <img src="{{ seller.avatar }}">
-        <h2>{{ seller.shop_name }}</h2>
-        <div class="stats">⭐ {{ seller.rating }} · ❤️ {{ seller.likes }}</div>
-        <div class="stock">{{ seller.category }}</div>
-    </a>
-</div>
+<a class="product-card" href="/shop/{{ seller.id }}">
+
+    <img src="{{ seller.avatar }}" class="product-image">
+
+    <div class="product-info">
+
+        <h3>{{ seller.shop_name }}</h3>
+
+        <p class="product-category">
+            {{ seller.category }}
+        </p>
+
+        <p class="product-description">
+            {{ seller.description }}
+        </p>
+
+    </div>
+
+</a>
+
 {% endfor %}
 
 </div>
 
-<div class="navbar">
-    <a href="/">🏠<small>HOME</small></a>
-    <a href="/seller">🛍<small>SELLER</small></a>
-    <a href="/chat">💬<small>CHAT</small></a>
-    <a href="/cart">🛒<small>CART</small></a>
-    <a href="/profile">👤<small>LOGIN</small></a>
+<a href="/my-shop" class="my-shop-float">
+    🏪
+</a>
+
+<div class="bottom-nav">
+
+    <a href="/" class="nav-item active">
+        <div>🏠</div>
+        <span>HOME</span>
+    </a>
+
+    <a href="/seller" class="nav-item">
+        <div>🏪</div>
+        <span>SELLER</span>
+    </a>
+
+    <a href="/chat" class="nav-item">
+        <div>💬</div>
+        <span>CHAT</span>
+    </a>
+
+    <a href="/cart" class="nav-item">
+        <div>🛒</div>
+        <span>CART</span>
+    </a>
+
+    <a href="/profile" class="nav-item">
+        <div>👤</div>
+        <span>LOGIN</span>
+    </a>
+
 </div>
 
-<script src="/static/js/app.js"></script>
-<a class="my-shop-float" href="/my-shop">🏪</a>
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+</script>
+
 </body>
 </html>
