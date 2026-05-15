@@ -1,140 +1,40 @@
-<style>
-.bottom-nav,
-.old-bottom-nav,
-.navbar{
-    display:none!important;
-}
+<div class="bottom-nav">
 
-body{
-    padding-bottom:92px!important;
-    overflow-x:hidden!important;
-    background:#050816!important;
-}
+    <a href="/" class="nav-item">
+        <div class="nav-icon">🏠</div>
+        <span>Главная</span>
+    </a>
 
-body > .premium-shop-btn{
-    display:none!important;
-}
+    <a href="/cart" class="nav-item">
+        <div class="nav-icon">🛒</div>
+        <span>Корзина</span>
+    </a>
 
-.premium-bottom-nav{
-    position:fixed!important;
-    left:50%!important;
-    bottom:0!important;
-    transform:translateX(-50%)!important;
-    width:100%!important;
-    max-width:430px!important;
-    height:78px!important;
-    background:rgba(17,24,39,.97)!important;
-    backdrop-filter:blur(22px)!important;
-    border-radius:24px 24px 0 0!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:space-between!important;
-    padding:5px 10px!important;
-    z-index:2147483647!important;
-    box-sizing:border-box!important;
-    overflow:visible!important;
-    box-shadow:0 -10px 35px rgba(0,0,0,.55)!important;
-}
+    <a href="/catalog" class="nav-item">
+        <div class="nav-icon">📁</div>
+        <span>Каталог</span>
+    </a>
 
-.premium-nav-item{
-    width:42px!important;
-    min-width:42px!important;
-    max-width:42px!important;
-    display:flex!important;
-    flex-direction:column!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:3px!important;
-    text-decoration:none!important;
-    color:#8f96a8!important;
-    font-size:8px!important;
-    font-weight:500!important;
-    line-height:1!important;
-    white-space:nowrap!important;
-}
+    <a href="/my-shop" class="nav-item center-shop">
+        <div class="shop-circle">
+            💎
+        </div>
+        <span>Shop</span>
+    </a>
 
-.premium-icon{
-    font-size:19px!important;
-    line-height:1!important;
-}
+    <a href="/chat" class="nav-item">
+        <div class="nav-icon">💬</div>
+        <span>Чат</span>
+    </a>
 
-.premium-bottom-nav .premium-shop-btn{
-    display:flex!important;
-    width:58px!important;
-    min-width:58px!important;
-    max-width:58px!important;
-    margin-top:-34px!important;
-    flex-direction:column!important;
-    align-items:center!important;
-    justify-content:center!important;
-    text-decoration:none!important;
-    color:#8f96a8!important;
-    font-size:8px!important;
-    font-weight:500!important;
-    gap:3px!important;
-    line-height:1!important;
-    white-space:nowrap!important;
-}
+    <a href="/vip" class="nav-item">
+        <div class="nav-icon">👑</div>
+        <span>Вип</span>
+    </a>
 
-.premium-shop-circle{
-    width:58px!important;
-    height:58px!important;
-    border-radius:50%!important;
-    background:#3ea6ff!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    font-size:27px!important;
-    border:6px solid #050816!important;
-    box-shadow:0 0 28px rgba(62,166,255,.8)!important;
-}
-
-.premium-nav-item.active,
-.premium-shop-btn.active{
-    color:#3ea6ff!important;
-}
-
-.premium-bottom-nav span{
-    font-weight:500!important;
-    text-decoration:none!important;
-}
-</style>
-
-<div class="premium-bottom-nav">
-
-<a href="/" class="premium-nav-item">
-<div class="premium-icon">🏠</div>
-<span>Главная</span>
-</a>
-
-<a href="/cart" class="premium-nav-item">
-<div class="premium-icon">🛒</div>
-<span>Корзина</span>
-</a>
-
-<a href="/catalog" class="premium-nav-item">
-<div class="premium-icon">📁</div>
-<span>Каталог</span>
-</a>
-
-<a href="/my-shop" class="premium-shop-btn">
-<div class="premium-shop-circle">💎</div>
-<span>Shop</span>
-</a>
-
-<a href="/chat/general" class="premium-nav-item">
-<div class="premium-icon">💬</div>
-<span>Чат</span>
-</a>
-
-<a href="/vip" class="premium-nav-item">
-<div class="premium-icon">👑</div>
-<span>Вип</span>
-</a>
-
-<a href="/profile" class="premium-nav-item">
-<div class="premium-icon">👤</div>
-<span>Профиль</span>
-</a>
+    <a href="/profile" class="nav-item">
+        <div class="nav-icon">👤</div>
+        <span>Профиль</span>
+    </a>
 
 </div>
