@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Shop</title>
+<title>ReversedShop</title>
 <link rel="stylesheet" href="/static/css/style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -12,25 +12,41 @@
 
 {% if not is_admin %}
 
-<div class="success-page">
-    <div class="success-icon">🔒</div>
-    <h1>Access Denied</h1>
-    <p>This page is only for admins.</p>
-    <a href="/" class="buy-btn">Back Home</a>
+<div class="shop-locked-page">
+
+    <div class="locked-card">
+        <div class="locked-icon">💎</div>
+
+        <h1>ReversedShop</h1>
+
+        <p>
+            Для создания собственного магазина вам требуется получить верификацию
+            или иметь VIP статус.
+        </p>
+
+        <a href="/vip" class="buy-btn">
+            Получить VIP
+        </a>
+
+        <a href="/" class="buy-btn crypto">
+            На главную
+        </a>
+    </div>
+
 </div>
 
 {% else %}
 
 <div class="topbar">
-    <h1>MY SHOP</h1>
+    <h1>REVERSEDSHOP</h1>
     <a href="/">🏠</a>
 </div>
 
 <div class="admin-box">
-<h2>Create My Shop</h2>
+<h2>Create Shop</h2>
 
 <form action="/add-seller" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="admin_id" value="{{ tg_id }}">
+<input type="hidden" name="key" value="{{ key }}">
 
 <input name="shop_name" placeholder="Shop name" required>
 <input name="category" placeholder="Category: Hoodies / Sneakers / Vintage / Luxury" required>
@@ -47,7 +63,7 @@
 <h2>Add Item</h2>
 
 <form action="/add-seller-product" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="admin_id" value="{{ tg_id }}">
+<input type="hidden" name="key" value="{{ key }}">
 
 <select name="seller_id" required>
 {% for seller in sellers %}
@@ -76,7 +92,7 @@ VIP item
 </div>
 
 <div class="admin-box">
-<h2>My Shops</h2>
+<h2>Shops</h2>
 
 {% if sellers|length == 0 %}
 <p>No shops yet</p>
@@ -96,14 +112,14 @@ VIP item
 
 <a class="pay-btn" href="/shop/{{ seller.id }}">Open Shop</a>
 <a class="pay-btn" href="/chat/{{ seller.shop_name }}">Open Chat</a>
-<a class="pay-btn danger" href="/delete-seller/{{ seller.id }}?admin_id={{ tg_id }}">Delete</a>
+<a class="pay-btn danger" href="/delete-seller/{{ seller.id }}?key={{ key }}">Delete</a>
 
 </div>
 {% endfor %}
 </div>
 
 <div class="admin-box">
-<h2>My Items</h2>
+<h2>Items</h2>
 
 {% if products|length == 0 %}
 <p>No items yet</p>
@@ -112,20 +128,53 @@ VIP item
 {% for product in products %}
 <div class="admin-item">
 <span>{{ product.name }} — ${{ product.price }}</span>
-<a href="/delete-product/{{ product.id }}?admin_id={{ tg_id }}">Delete</a>
+<a href="/delete-product/{{ product.id }}?key={{ key }}">Delete</a>
 </div>
 {% endfor %}
 </div>
 
-<div class="bottom-nav">
-<a href="/" class="nav-item"><div>🏠</div><span>HOME</span></a>
-<a href="/my-shop?tg_id={{ tg_id }}" class="nav-item active"><div>🏪</div><span>MY SHOP</span></a>
-<a href="/my-orders" class="nav-item"><div>📦</div><span>ORDERS</span></a>
-<a href="/cart" class="nav-item"><div>🛒</div><span>CART</span></a>
-<a href="/profile" class="nav-item"><div>👤</div><span>LOGIN</span></a>
-</div>
-
 {% endif %}
+
+<div class="premium-bottom-nav">
+
+    <a href="/" class="premium-nav-item">
+        <div class="premium-icon">🏠</div>
+        <span>Главная</span>
+    </a>
+
+    <a href="/cart" class="premium-nav-item">
+        <div class="premium-icon">🛒</div>
+        <span>Корзина</span>
+    </a>
+
+    <a href="/favorites-products" class="premium-nav-item">
+        <div class="premium-icon">📁</div>
+        <span>Каталог</span>
+    </a>
+
+    <a href="/my-shop" class="premium-shop-btn active">
+        <div class="premium-shop-circle">
+            💎
+        </div>
+        <span>ReversedShop</span>
+    </a>
+
+    <a href="/chat" class="premium-nav-item">
+        <div class="premium-icon">💬</div>
+        <span>Чат</span>
+    </a>
+
+    <a href="/vip" class="premium-nav-item">
+        <div class="premium-icon">👑</div>
+        <span>Вип</span>
+    </a>
+
+    <a href="/profile" class="premium-nav-item">
+        <div class="premium-icon">👤</div>
+        <span>Профиль</span>
+    </a>
+
+</div>
 
 </body>
 </html>

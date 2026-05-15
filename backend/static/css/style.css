@@ -1252,3 +1252,126 @@ margin-bottom:6px;
 color:#3ea6ff;
 font-weight:800;
 }
+.premium-bottom-nav{
+position:fixed;
+bottom:0;
+left:50%;
+transform:translateX(-50%);
+width:100%;
+max-width:900px;
+height:105px;
+background:rgba(17,24,39,.96);
+backdrop-filter:blur(20px);
+border-top-left-radius:34px;
+border-top-right-radius:34px;
+display:flex;
+align-items:center;
+justify-content:space-around;
+padding:8px 12px;
+z-index:999999;
+box-shadow:0 -10px 40px rgba(0,0,0,.45);
+border:1px solid rgba(255,255,255,.06);
+}
+
+.premium-nav-item{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:5px;
+text-decoration:none;
+color:#8d94a8;
+font-size:13px;
+font-weight:700;
+min-width:58px;
+}
+
+.premium-nav-item.active{
+color:#3ea6ff;
+}
+
+.premium-icon{
+font-size:28px;
+line-height:1;
+}
+
+.premium-shop-btn{
+position:relative;
+margin-top:-45px;
+display:flex;
+flex-direction:column;
+align-items:center;
+text-decoration:none;
+color:#8d94a8;
+font-size:12px;
+font-weight:800;
+min-width:82px;
+}
+
+.premium-shop-circle{
+width:88px;
+height:88px;
+border-radius:50%;
+background:#3ea6ff;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:42px;
+color:white;
+border:8px solid #050816;
+box-shadow:0 0 35px rgba(62,166,255,.85);
+margin-bottom:5px;
+}
+
+.premium-shop-btn.active{
+color:#3ea6ff;
+}
+
+.shop-locked-page{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:24px;
+padding-bottom:140px;
+}
+
+.locked-card{
+width:100%;
+max-width:480px;
+background:#111827;
+border-radius:28px;
+padding:28px;
+text-align:center;
+border:1px solid rgba(255,255,255,.07);
+box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+.locked-icon{
+width:100px;
+height:100px;
+border-radius:50%;
+background:#3ea6ff;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:50px;
+margin:0 auto 18px;
+box-shadow:0 0 35px rgba(62,166,255,.75);
+}
+
+.locked-card h1{
+font-size:34px;
+margin-bottom:14px;
+}
+
+.locked-card p{
+font-size:17px;
+line-height:1.6;
+opacity:.8;
+margin-bottom:22px;
+}
+
+body{
+padding-bottom:120px;
+}
