@@ -158,7 +158,7 @@ Pay by Crypto
 </form>
 
 <button class="clear-cart-btn" onclick="clearCart()">Clear Cart</button>
-{% include "_nav.html" %}
+
 
 <script>
 const tg = window.Telegram?.WebApp;
@@ -229,5 +229,6 @@ function checkout(method){
 renderCart();
 </script>
 
+{% include "_nav.html" %}
 </body>
 </html>

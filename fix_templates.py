@@ -1,4 +1,9 @@
-<style>
+from pathlib import Path
+import re
+
+templates = Path("backend/templates")
+
+nav_code = """<style>
 .bottom-nav,.old-bottom-nav,.navbar{display:none!important}
 
 body{
@@ -97,3 +102,42 @@ body{
 <a href="/vip" class="premium-nav-item"><div class="premium-icon">👑</div><span>Вип</span></a>
 <a href="/profile" class="premium-nav-item"><div class="premium-icon">👤</div><span>Профиль</span></a>
 </div>
+"""
+
+(templates / "_nav.html").write_text(nav_code, encoding="utf-8")
+
+for file in templates.glob("*.html"):
+    if file.name == "_nav.html":
+        continue
+
+    text = file.read_text(encoding="utf-8")
+
+    text = re.sub(
+        r'<div class="premium-bottom-nav">.*?</div>\s*</div>',
+        '',
+        text,
+        flags=re.DOTALL
+    )
+
+    text = re.sub(
+        r'<div class="bottom-nav">.*?</div>',
+        '',
+        text,
+        flags=re.DOTALL
+    )
+
+    text = re.sub(
+        r'<nav class="bottom-nav">.*?</nav>',
+        '',
+        text,
+        flags=re.DOTALL
+    )
+
+    text = text.replace('{% include "_nav.html" %}', '')
+
+    if "</body>" in text:
+        text = text.replace("</body>", '{% include "_nav.html" %}\n</body>')
+
+    file.write_text(text, encoding="utf-8")
+
+print("DONE: all templates now use _nav.html")

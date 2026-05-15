@@ -566,6 +566,11 @@ def pay_crypto():
     return render_template("pay_crypto.html")
 
 
+@app.route("/catalog")
+def catalog():
+    return render_template("catalog.html")
+
+
 @app.route("/favorites")
 def favorites():
     return render_template("favorites.html")

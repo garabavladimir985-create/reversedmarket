@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalog</title>
+<link rel="stylesheet" href="/static/css/style.css">
+
+<style>
+body{
+background:#050816;
+color:white;
+font-family:Arial;
+margin:0;
+}
+
+.catalog-page{
+padding:26px;
+padding-bottom:140px;
+}
+
+.page-title{
+font-size:48px;
+font-weight:900;
+color:#3ea6ff;
+margin-bottom:26px;
+}
+
+.category-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+}
+
+.category-card{
+background:#111827;
+border-radius:26px;
+padding:28px 18px;
+text-decoration:none;
+color:white;
+font-size:20px;
+font-weight:700;
+border:1px solid rgba(255,255,255,.06);
+}
+
+.category-card span{
+font-size:38px;
+display:block;
+margin-bottom:12px;
+}
+
+.empty{
+margin-top:22px;
+background:#111827;
+border-radius:26px;
+padding:26px;
+font-size:18px;
+opacity:.75;
+}
+</style>
+</head>
+
+<body>
+
+<div class="catalog-page">
+
+<div class="page-title">CATALOG</div>
+
+<div class="category-grid">
+
+<a href="/search?q=Shoes" class="category-card">
+<span>👟</span>
+Shoes
+</a>
+
+<a href="/search?q=Hoodies" class="category-card">
+<span>🧥</span>
+Hoodies
+</a>
+
+<a href="/search?q=Luxury" class="category-card">
+<span>💎</span>
+Luxury
+</a>
+
+<a href="/search?q=Accessories" class="category-card">
+<span>👜</span>
+Accessories
+</a>
+
+<a href="/search?q=Vintage" class="category-card">
+<span>📦</span>
+Vintage
+</a>
+
+<a href="/search?q=VIP" class="category-card">
+<span>👑</span>
+VIP
+</a>
+
+</div>
+
+<div class="empty">
+Выбери категорию, чтобы посмотреть товары.
+</div>
+
+</div>
+
+
+
+{% include "_nav.html" %}
+</body>
+</html>
