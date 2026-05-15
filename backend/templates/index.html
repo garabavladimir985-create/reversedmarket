@@ -1,54 +1,394 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>ReversedMarket</title>
+
 <link rel="stylesheet" href="/static/css/style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+body{
+background:#050816;
+color:white;
+font-family:Arial;
+margin:0;
+padding:0;
+padding-bottom:150px;
+}
+
+.old-bottom-nav,
+.bottom-nav,
+.navbar{
+display:none!important;
+}
+
+.home-page{
+padding:18px;
+}
+
+.brand{
+font-size:72px;
+font-weight:900;
+font-style:italic;
+margin-bottom:20px;
+line-height:1;
+}
+
+.brand span{
+color:#3ea6ff;
+}
+
+.shop-search-row{
+display:flex;
+gap:16px;
+align-items:center;
+margin-bottom:30px;
+}
+
+.shop-search{
+flex:1;
+}
+
+.shop-search input{
+width:100%;
+height:66px;
+border-radius:24px;
+border:2px solid rgba(255,255,255,.08);
+background:#0d1220;
+padding:0 22px;
+font-size:22px;
+color:white;
+box-sizing:border-box;
+outline:none;
+}
+
+.filters{
+display:flex;
+gap:12px;
+}
+
+.filter{
+width:66px;
+height:66px;
+border-radius:22px;
+background:#111827;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:32px;
+cursor:pointer;
+}
+
+.filter.active{
+background:#3ea6ff;
+}
+
+.section-title{
+font-size:32px;
+font-weight:800;
+margin-bottom:18px;
+}
+
+.products-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+gap:18px;
+}
+
+.product-card{
+background:#111827;
+border-radius:26px;
+overflow:hidden;
+text-decoration:none;
+color:white;
+border:1px solid rgba(255,255,255,.05);
+transition:.2s;
+position:relative;
+}
+
+.product-card:hover{
+transform:translateY(-4px);
+}
+
+.product-card img{
+width:100%;
+height:260px;
+object-fit:cover;
+}
+
+.product-info{
+padding:16px;
+}
+
+.product-name{
+font-size:22px;
+font-weight:700;
+margin-bottom:10px;
+}
+
+.product-price{
+font-size:24px;
+font-weight:800;
+color:#3ea6ff;
+margin-bottom:12px;
+}
+
+.product-shop{
+font-size:15px;
+opacity:.7;
+}
+
+.vip-badge{
+position:absolute;
+top:14px;
+right:14px;
+background:gold;
+color:black;
+font-size:13px;
+font-weight:800;
+padding:6px 10px;
+border-radius:999px;
+}
+
+.empty{
+background:#111827;
+padding:30px;
+border-radius:24px;
+font-size:18px;
+opacity:.7;
+}
+
+.premium-bottom-nav{
+position:fixed!important;
+bottom:0!important;
+left:50%!important;
+transform:translateX(-50%)!important;
+width:100%!important;
+max-width:900px!important;
+height:105px!important;
+background:rgba(17,24,39,.96)!important;
+backdrop-filter:blur(20px)!important;
+border-top-left-radius:34px!important;
+border-top-right-radius:34px!important;
+display:flex!important;
+align-items:center!important;
+justify-content:space-around!important;
+padding:8px 12px!important;
+z-index:999999!important;
+box-shadow:0 -10px 40px rgba(0,0,0,.45)!important;
+border:1px solid rgba(255,255,255,.06)!important;
+}
+
+.premium-nav-item{
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+justify-content:center!important;
+gap:5px!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:13px!important;
+font-weight:700!important;
+min-width:58px!important;
+}
+
+.premium-nav-item.active{
+color:#3ea6ff!important;
+}
+
+.premium-icon{
+font-size:28px!important;
+line-height:1!important;
+}
+
+.premium-shop-btn{
+position:relative!important;
+margin-top:-45px!important;
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:12px!important;
+font-weight:800!important;
+min-width:82px!important;
+}
+
+.premium-shop-circle{
+width:88px!important;
+height:88px!important;
+border-radius:50%!important;
+background:#3ea6ff!important;
+display:flex!important;
+align-items:center!important;
+justify-content:center!important;
+font-size:42px!important;
+color:white!important;
+border:8px solid #050816!important;
+box-shadow:0 0 35px rgba(62,166,255,.85)!important;
+margin-bottom:5px!important;
+}
+
+@media(max-width:600px){
+
+.brand{
+font-size:38px;
+}
+
+.shop-search-row{
+gap:10px;
+}
+
+.shop-search input{
+height:56px;
+font-size:18px;
+border-radius:18px;
+}
+
+.filter{
+width:56px;
+height:56px;
+font-size:26px;
+border-radius:18px;
+}
+
+.products-grid{
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+
+.product-card img{
+height:180px;
+}
+
+.product-name{
+font-size:16px;
+}
+
+.product-price{
+font-size:18px;
+}
+
+.premium-bottom-nav{
+width:96%!important;
+max-width:96%!important;
+height:92px!important;
+border-top-left-radius:28px!important;
+border-top-right-radius:28px!important;
+padding:6px!important;
+}
+
+.premium-nav-item{
+font-size:10px!important;
+min-width:42px!important;
+}
+
+.premium-icon{
+font-size:21px!important;
+}
+
+.premium-shop-btn{
+margin-top:-36px!important;
+font-size:10px!important;
+min-width:60px!important;
+}
+
+.premium-shop-circle{
+width:74px!important;
+height:74px!important;
+font-size:34px!important;
+}
+}
+</style>
 </head>
 
 <body>
 
-<div class="market-header">
-    <div class="brand">REVERSED<span>MARKET</span></div>
-    <a class="menu-btn" href="/vip">☰</a>
+<div class="home-page">
+
+<div class="brand">
+REVERSED<span>MARKET</span>
 </div>
 
 <div class="shop-search-row">
-    <form action="/search" class="shop-search">
-        <input name="q" placeholder="Search shop...">
-    </form>
 
-    <a class="filter active" href="/favorites">❤️</a>
-    <a class="filter" href="/vip">⭐</a>
+<form class="shop-search" action="/search">
+<input
+type="text"
+name="q"
+placeholder="Search shop..."
+>
+</form>
+
+<div class="filters">
+
+<div class="filter active">
+❤️
 </div>
 
-<div class="shop-grid">
+<div class="filter">
+⭐
+</div>
+
+</div>
+
+</div>
+
+<div class="section-title">
+Latest Items
+</div>
+
+{% if products|length == 0 %}
+
+<div class="empty">
+No items yet
+</div>
+
+{% else %}
+
+<div class="products-grid">
 
 {% for product in products %}
-<div class="product-card">
-    <a href="/product/{{ product.id }}">
-        <img class="product-image" src="{{ product.image }}">
-        <div class="product-info">
-            <div class="product-name">{{ product.name }}</div>
-            <div class="product-price">${{ product.price }}</div>
-            <div class="product-brand">{{ product.brand }}</div>
-        </div>
-    </a>
+
+<a
+href="/product/{{ product.id }}"
+class="product-card"
+>
+
+{% if product.vip %}
+<div class="vip-badge">
+VIP
 </div>
+{% endif %}
+
+<img src="{{ product.image }}">
+
+<div class="product-info">
+
+<div class="product-name">
+{{ product.name }}
+</div>
+
+<div class="product-price">
+${{ product.price }}
+</div>
+
+<div class="product-shop">
+{{ product.brand }}
+</div>
+
+</div>
+
+</a>
+
 {% endfor %}
 
-{% for seller in sellers %}
-<div class="shop-card">
-    <a href="/shop/{{ seller.id }}">
-        <img src="{{ seller.avatar }}">
-        <h2>{{ seller.shop_name }}</h2>
-        <div class="stats">⭐ {{ seller.rating }} · ❤️ {{ seller.likes }}</div>
-        <div class="stock">{{ seller.category }}</div>
-    </a>
 </div>
-{% endfor %}
+
+{% endif %}
 
 </div>
 
@@ -70,13 +410,11 @@
     </a>
 
     <a href="/my-shop" class="premium-shop-btn">
-        <div class="premium-shop-circle">
-            💎
-        </div>
+        <div class="premium-shop-circle">💎</div>
         <span>ReversedShop</span>
     </a>
 
-    <a href="/chat" class="premium-nav-item">
+    <a href="/chat/general" class="premium-nav-item">
         <div class="premium-icon">💬</div>
         <span>Чат</span>
     </a>
@@ -95,7 +433,8 @@
 
 <script>
 const tg = window.Telegram?.WebApp;
-if (tg) {
+
+if(tg){
     tg.ready();
     tg.expand();
 }
