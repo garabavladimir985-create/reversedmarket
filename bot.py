@@ -1,12 +1,24 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo, LabeledPrice, PreCheckoutQuery
+from aiogram.types import (
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    WebAppInfo,
+    LabeledPrice,
+    PreCheckoutQuery
+)
+
 import asyncio
 import urllib.parse
+import os
 
-TOKEN = "8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU"
+TOKEN = os.environ.get("BOT_TOKEN")
 
-WEBAPP_URL = "https://reversedmarket-production.up.railway.app"
+WEBAPP_URL = os.environ.get(
+    "8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU",
+    "https://reversedmarket-production.up.railway.app"
+)
+
 
 async def main():
     bot = Bot(token=TOKEN)
@@ -40,7 +52,16 @@ async def main():
             resize_keyboard=True
         )
 
-        await message.answer("Fashion Marketplace 👕", reply_markup=kb)
+        await message.answer(
+            "Fashion Marketplace 👕",
+            reply_markup=kb
+        )
+
+    @dp.message(lambda message: message.text == "/userid")
+    async def user_id(message: types.Message):
+        await message.answer(
+            f"Your Telegram ID:\n\n{message.from_user.id}"
+        )
 
     @dp.message(lambda message: message.text == "⭐ Buy VIP")
     async def vip_payment(message: types.Message):
@@ -51,9 +72,16 @@ async def main():
             provider_token="",
             currency="XTR",
             prices=[
-                LabeledPrice(label="VIP", amount=100)
+                LabeledPrice(
+                    label="VIP",
+                    amount=100
+                )
             ]
         )
+
+    @dp.message(lambda message: message.text == "/vip")
+    async def vip_command(message: types.Message):
+        await vip_payment(message)
 
     @dp.pre_checkout_query()
     async def pre_checkout(pre_checkout_query: PreCheckoutQuery):
@@ -61,7 +89,9 @@ async def main():
 
     @dp.message(lambda message: message.successful_payment is not None)
     async def successful_payment(message: types.Message):
-        await message.answer("✅ VIP успешно активирован!")
+        await message.answer(
+            "✅ VIP успешно активирован!"
+        )
 
     print("BOT STARTED")
     await dp.start_polling(bot)
