@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,68 +7,390 @@
 <title>Profile</title>
 
 <link rel="stylesheet" href="/static/css/style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+<style>
+body{
+background:#050816;
+color:white;
+font-family:Arial;
+margin:0;
+padding:0;
+padding-bottom:150px;
+}
+
+.old-bottom-nav,
+.bottom-nav,
+.navbar{
+display:none!important;
+}
+
+.profile-page{
+padding:18px;
+}
+
+.page-title{
+font-size:52px;
+font-weight:900;
+color:#3ea6ff;
+margin-bottom:24px;
+}
+
+.profile-card{
+background:#111827;
+border-radius:28px;
+padding:26px;
+border:1px solid rgba(255,255,255,.05);
+margin-bottom:20px;
+}
+
+.profile-top{
+display:flex;
+align-items:center;
+gap:18px;
+margin-bottom:22px;
+}
+
+.profile-avatar{
+width:92px;
+height:92px;
+border-radius:50%;
+background:#3ea6ff;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:42px;
+font-weight:900;
+box-shadow:0 0 30px rgba(62,166,255,.55);
+}
+
+.profile-name{
+font-size:30px;
+font-weight:800;
+}
+
+.profile-id{
+opacity:.65;
+margin-top:6px;
+}
+
+.stats{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+margin-top:10px;
+}
+
+.stat-box{
+background:#0d1220;
+border-radius:22px;
+padding:22px;
+}
+
+.stat-title{
+opacity:.6;
+font-size:14px;
+margin-bottom:8px;
+}
+
+.stat-value{
+font-size:28px;
+font-weight:800;
+color:#3ea6ff;
+}
+
+.profile-actions{
+display:flex;
+flex-direction:column;
+gap:14px;
+margin-top:24px;
+}
+
+.profile-btn{
+height:62px;
+border:none;
+border-radius:20px;
+font-size:18px;
+font-weight:800;
+cursor:pointer;
+text-decoration:none;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.profile-btn.blue{
+background:#3ea6ff;
+color:white;
+}
+
+.profile-btn.dark{
+background:#0d1220;
+color:white;
+border:1px solid rgba(255,255,255,.06);
+}
+
+.profile-btn.red{
+background:#ff4b6e;
+color:white;
+}
+
+.premium-bottom-nav{
+position:fixed!important;
+bottom:0!important;
+left:50%!important;
+transform:translateX(-50%)!important;
+width:100%!important;
+max-width:900px!important;
+height:105px!important;
+background:rgba(17,24,39,.96)!important;
+backdrop-filter:blur(20px)!important;
+border-top-left-radius:34px!important;
+border-top-right-radius:34px!important;
+display:flex!important;
+align-items:center!important;
+justify-content:space-around!important;
+padding:8px 12px!important;
+z-index:999999!important;
+box-shadow:0 -10px 40px rgba(0,0,0,.45)!important;
+border:1px solid rgba(255,255,255,.06)!important;
+}
+
+.premium-nav-item{
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+justify-content:center!important;
+gap:5px!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:13px!important;
+font-weight:700!important;
+min-width:58px!important;
+}
+
+.premium-nav-item.active{
+color:#3ea6ff!important;
+}
+
+.premium-icon{
+font-size:28px!important;
+line-height:1!important;
+}
+
+.premium-shop-btn{
+position:relative!important;
+margin-top:-45px!important;
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:12px!important;
+font-weight:800!important;
+min-width:82px!important;
+}
+
+.premium-shop-circle{
+width:88px!important;
+height:88px!important;
+border-radius:50%!important;
+background:#3ea6ff!important;
+display:flex!important;
+align-items:center!important;
+justify-content:center!important;
+font-size:42px!important;
+color:white!important;
+border:8px solid #050816!important;
+box-shadow:0 0 35px rgba(62,166,255,.85)!important;
+margin-bottom:5px!important;
+}
+
+@media(max-width:600px){
+
+.page-title{
+font-size:38px;
+}
+
+.profile-avatar{
+width:72px;
+height:72px;
+font-size:32px;
+}
+
+.profile-name{
+font-size:24px;
+}
+
+.stat-value{
+font-size:22px;
+}
+
+.profile-btn{
+height:56px;
+font-size:16px;
+}
+
+.premium-bottom-nav{
+width:100%!important;
+max-width:100%!important;
+left:0!important;
+transform:none!important;
+height:86px!important;
+border-radius:24px 24px 0 0!important;
+padding:4px 2px!important;
+overflow:hidden!important;
+}
+
+.premium-nav-item{
+min-width:40px!important;
+font-size:9px!important;
+gap:3px!important;
+}
+
+.premium-icon{
+font-size:20px!important;
+}
+
+.premium-shop-btn{
+min-width:54px!important;
+font-size:9px!important;
+margin-top:-32px!important;
+}
+
+.premium-shop-circle{
+width:66px!important;
+height:66px!important;
+font-size:30px!important;
+border:6px solid #050816!important;
+}
+
+}
+</style>
 </head>
 
 <body>
 
-<div class="topbar">
-    <h1>PROFILE</h1>
-    <a href="/">🏠</a>
+<div class="profile-page">
+
+<div class="page-title">
+PROFILE
 </div>
 
-<div class="profile-box" id="profileBox">
+<div class="profile-card">
 
-<div class="big-avatar">👤</div>
+<div class="profile-top">
 
-<div class="profile-info">
+<div class="profile-avatar">
+👤
+</div>
 
-<input id="name" placeholder="Name">
-<input id="username" placeholder="Telegram username">
+<div>
+<div class="profile-name">
+{{ username if username else "Telegram User" }}
+</div>
 
-<button onclick="saveProfile()">
-Save Profile
-</button>
+<div class="profile-id">
+ID: {{ telegram_id if telegram_id else "Unknown" }}
+</div>
+</div>
 
 </div>
+
+<div class="stats">
+
+<div class="stat-box">
+<div class="stat-title">
+Orders
+</div>
+
+<div class="stat-value">
+{{ orders_count if orders_count else 0 }}
+</div>
+</div>
+
+<div class="stat-box">
+<div class="stat-title">
+Favorites
+</div>
+
+<div class="stat-value">
+{{ favorites_count if favorites_count else 0 }}
+</div>
+</div>
+
+</div>
+
+<div class="profile-actions">
+
+<a href="/my-orders" class="profile-btn blue">
+My Orders
+</a>
+
+<a href="/favorites-products" class="profile-btn dark">
+Favorites
+</a>
+
+<a href="/vip" class="profile-btn dark">
+Get VIP
+</a>
+
+<a href="/" class="profile-btn red">
+Logout
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="premium-bottom-nav">
+
+<a href="/" class="premium-nav-item">
+<div class="premium-icon">🏠</div>
+<span>Главная</span>
+</a>
+
+<a href="/cart" class="premium-nav-item">
+<div class="premium-icon">🛒</div>
+<span>Корзина</span>
+</a>
+
+<a href="/favorites-products" class="premium-nav-item">
+<div class="premium-icon">📁</div>
+<span>Каталог</span>
+</a>
+
+<a href="/my-shop" class="premium-shop-btn">
+<div class="premium-shop-circle">💎</div>
+<span>ReversedShop</span>
+</a>
+
+<a href="/chat/general" class="premium-nav-item">
+<div class="premium-icon">💬</div>
+<span>Чат</span>
+</a>
+
+<a href="/vip" class="premium-nav-item">
+<div class="premium-icon">👑</div>
+<span>Вип</span>
+</a>
+
+<a href="/profile" class="premium-nav-item active">
+<div class="premium-icon">👤</div>
+<span>Профиль</span>
+</a>
 
 </div>
 
 <script>
+const tg = window.Telegram?.WebApp;
 
-const savedName = localStorage.getItem("profile_name");
-const savedUser = localStorage.getItem("profile_user");
-
-if(savedName){
-
-    document.getElementById("profileBox").innerHTML = `
-        <div class="big-avatar">👤</div>
-
-        <div class="profile-info">
-
-            <h2>${savedName}</h2>
-
-            <p>@${savedUser}</p>
-
-            <a class="pay-btn" href="/vip">
-                Buy VIP
-            </a>
-
-        </div>
-    `;
+if(tg){
+    tg.ready();
+    tg.expand();
 }
-
-function saveProfile(){
-
-    const name = document.getElementById("name").value;
-    const username = document.getElementById("username").value;
-
-    localStorage.setItem("profile_name", name);
-    localStorage.setItem("profile_user", username);
-
-    location.reload();
-}
-
 </script>
 
 </body>
