@@ -14,12 +14,18 @@ app.config["UPLOAD_FOLDER"] = "static/uploads"
 
 db = SQLAlchemy(app)
 
-BOT_TOKEN = os.environ.get("8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 ADMIN_IDS = [
     "1940136851",
     "910641302"
 ]
+
+ADMIN_KEY = "admin123"
+
+
+def is_admin_key(key):
+    return str(key) == ADMIN_KEY
 
 
 def send_admin_notification(text):
@@ -106,7 +112,6 @@ def save_file(file):
 
     filename = secure_filename(file.filename)
     path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-
     file.save(path)
 
     return "/static/uploads/" + filename
@@ -124,45 +129,29 @@ def home():
     )
 
 
-@app.route("/seller")
-def seller_dashboard():
-    sellers = Seller.query.all()
-    products = Product.query.all()
-    orders = Order.query.order_by(Order.id.desc()).all()
-
-    return render_template(
-        "seller.html",
-        sellers=sellers,
-        products=products,
-        orders=orders
-    )
-
-
 @app.route("/my-shop")
 def my_shop():
+    key = request.args.get("key", "")
+    is_admin = is_admin_key(key)
 
-    tg_id = request.args.get("tg_id", "")
-    is_admin = str(tg_id) in ADMIN_IDS
-
-    sellers = Seller.query.all()
-    products = Product.query.all()
+    sellers = Seller.query.all() if is_admin else []
+    products = Product.query.all() if is_admin else []
 
     return render_template(
         "my_shop.html",
         sellers=sellers,
         products=products,
         is_admin=is_admin,
-        tg_id=tg_id
+        key=key
     )
 
 
 @app.route("/add-seller", methods=["POST"])
 def add_seller():
+    key = request.form.get("key", "")
 
-    admin_id = request.form.get("admin_id")
-
-    if str(admin_id) not in ADMIN_IDS:
-        return "ACCESS DENIED"
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
 
     file = request.files.get("avatar_file")
     uploaded_avatar = save_file(file)
@@ -183,19 +172,19 @@ def add_seller():
     send_admin_notification(
         f"🏪 NEW SHOP\n\n"
         f"Shop: {seller.shop_name}\n"
-        f"Category: {seller.category}"
+        f"Category: {seller.category}\n"
+        f"Telegram: @{seller.telegram}"
     )
 
-    return redirect(f"/my-shop?tg_id={admin_id}")
+    return redirect(f"/my-shop?key={key}")
 
 
 @app.route("/add-seller-product", methods=["POST"])
 def add_seller_product():
+    key = request.form.get("key", "")
 
-    admin_id = request.form.get("admin_id")
-
-    if str(admin_id) not in ADMIN_IDS:
-        return "ACCESS DENIED"
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
 
     file = request.files.get("image_file")
     uploaded_image = save_file(file)
@@ -228,7 +217,53 @@ def add_seller_product():
         f"Price: ${product.price}"
     )
 
-    return redirect(f"/my-shop?tg_id={admin_id}")
+    return redirect(f"/my-shop?key={key}")
+
+
+@app.route("/delete-product/<int:id>")
+def delete_product(id):
+    key = request.args.get("key", "")
+
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
+
+    product = Product.query.get_or_404(id)
+
+    db.session.delete(product)
+    db.session.commit()
+
+    return redirect(f"/my-shop?key={key}")
+
+
+@app.route("/delete-seller/<int:id>")
+def delete_seller(id):
+    key = request.args.get("key", "")
+
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
+
+    seller = Seller.query.get_or_404(id)
+
+    Product.query.filter_by(seller_id=seller.id).delete()
+
+    db.session.delete(seller)
+    db.session.commit()
+
+    return redirect(f"/my-shop?key={key}")
+
+
+@app.route("/seller")
+def seller_dashboard():
+    sellers = Seller.query.all()
+    products = Product.query.all()
+    orders = Order.query.order_by(Order.id.desc()).all()
+
+    return render_template(
+        "seller.html",
+        sellers=sellers,
+        products=products,
+        orders=orders
+    )
 
 
 @app.route("/shop/<int:seller_id>")
@@ -294,38 +329,6 @@ def admin():
     )
 
 
-@app.route("/delete-product/<int:id>")
-def delete_product(id):
-
-    admin_id = request.args.get("admin_id")
-
-    if str(admin_id) not in ADMIN_IDS:
-        return "ACCESS DENIED"
-
-    product = Product.query.get_or_404(id)
-
-    db.session.delete(product)
-    db.session.commit()
-
-    return redirect(f"/my-shop?tg_id={admin_id}")
-
-
-@app.route("/delete-seller/<int:id>")
-def delete_seller(id):
-
-    admin_id = request.args.get("admin_id")
-
-    if str(admin_id) not in ADMIN_IDS:
-        return "ACCESS DENIED"
-
-    seller = Seller.query.get_or_404(id)
-
-    db.session.delete(seller)
-    db.session.commit()
-
-    return redirect(f"/my-shop?tg_id={admin_id}")
-
-
 @app.route("/cart")
 def cart():
     return render_template("cart.html")
@@ -355,10 +358,17 @@ def create_order():
     db.session.add(order)
     db.session.commit()
 
+    items_text = ""
+
+    for item in cart:
+        items_text += f"- {item.get('name')} — ${item.get('price')}\n"
+
     send_admin_notification(
         f"🛒 NEW ORDER #{order.id}\n\n"
         f"Total: ${total}\n"
-        f"Payment: {payment}"
+        f"Payment: {payment}\n"
+        f"User TG ID: {user_telegram_id}\n\n"
+        f"Items:\n{items_text}"
     )
 
     return redirect("/order-success")
@@ -371,7 +381,6 @@ def order_success():
 
 @app.route("/my-orders")
 def my_orders():
-
     telegram_id = request.args.get("telegram_id", "")
 
     if telegram_id:
@@ -388,7 +397,7 @@ def my_orders():
     for order in orders:
         try:
             items = json.loads(order.items)
-        except:
+        except Exception:
             items = []
 
         parsed_orders.append({
@@ -402,11 +411,41 @@ def my_orders():
     )
 
 
+@app.route("/order/<int:id>")
+def order_detail(id):
+    order = Order.query.get_or_404(id)
+
+    try:
+        items = json.loads(order.items)
+    except Exception:
+        items = []
+
+    return render_template(
+        "order_detail.html",
+        order=order,
+        items=items
+    )
+
+
+@app.route("/order/<int:id>/status/<status>")
+def update_order_status(id, status):
+    order = Order.query.get_or_404(id)
+
+    if status in ["pending", "paid", "shipped", "delivered"]:
+        order.status = status
+        db.session.commit()
+
+        send_admin_notification(
+            f"📦 ORDER #{order.id} STATUS UPDATED\n\n"
+            f"New status: {order.status}"
+        )
+
+    return redirect(f"/order/{id}")
+
+
 @app.route("/chat/<shop>", methods=["GET", "POST"])
 def chat(shop):
-
     if request.method == "POST":
-
         file = request.files.get("image_file")
         image_url = save_file(file)
 
@@ -419,6 +458,13 @@ def chat(shop):
 
         db.session.add(message)
         db.session.commit()
+
+        send_admin_notification(
+            f"💬 NEW CHAT MESSAGE\n\n"
+            f"Shop: {shop}\n"
+            f"Sender: {message.sender}\n"
+            f"Text: {message.text}"
+        )
 
         return redirect(f"/chat/{shop}")
 
@@ -474,7 +520,6 @@ with app.app_context():
 print("SERVER STARTED")
 
 if __name__ == "__main__":
-
     port = int(os.environ.get("PORT", 8080))
 
     app.run(
