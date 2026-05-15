@@ -10,17 +10,20 @@ from aiogram.types import (
 
 import asyncio
 import urllib.parse
+import os
 
-TOKEN = "8993845960:AAGkwKzlw_-1X-AgWg2kFVzO0WgoBEGUK4g"
+TOKEN = os.environ.get("8993845960:AAGkwKzlw_-1X-AgWg2kFVzO0WgoBEGUK4g")
 
 WEBAPP_URL = "https://reversedmarket-production.up.railway.app"
 
 bot = Bot(token=TOKEN)
+
 dp = Dispatcher()
 
 
 @dp.message(CommandStart())
 async def start(message: types.Message):
+
     user_id = message.from_user.id
     first_name = message.from_user.first_name or "User"
     username = message.from_user.username or ""
@@ -39,7 +42,9 @@ async def start(message: types.Message):
                 )
             ],
             [
-                KeyboardButton(text="⭐ Buy VIP")
+                KeyboardButton(
+                    text="⭐ Buy VIP"
+                )
             ]
         ],
         resize_keyboard=True
@@ -53,6 +58,7 @@ async def start(message: types.Message):
 
 @dp.message(lambda message: message.text == "⭐ Buy VIP")
 async def vip_payment(message: types.Message):
+
     await message.answer_invoice(
         title="VIP Access",
         description="VIP доступ к приватным магазинам и товарам",
@@ -60,25 +66,34 @@ async def vip_payment(message: types.Message):
         provider_token="",
         currency="XTR",
         prices=[
-            LabeledPrice(label="VIP", amount=100)
+            LabeledPrice(
+                label="VIP",
+                amount=100
+            )
         ]
     )
 
 
 @dp.pre_checkout_query()
 async def pre_checkout(pre_checkout_query: PreCheckoutQuery):
+
     await pre_checkout_query.answer(ok=True)
 
 
 @dp.message(lambda message: message.successful_payment is not None)
 async def successful_payment(message: types.Message):
-    await message.answer("✅ VIP успешно активирован!")
+
+    await message.answer(
+        "✅ VIP успешно активирован!"
+    )
 
 
 async def main():
+
     print("BOT STARTED")
+
     await dp.start_polling(bot)
 
 
-
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
