@@ -19,8 +19,19 @@
 <div class="cart-total-box">
 <h2>Total: $<span id="cart-total">0</span></h2>
 
-<a class="buy-btn" href="/pay-card">Pay by Card</a>
-<a class="buy-btn crypto" href="/pay-crypto">Pay by Crypto</a>
+<form id="order-form" action="/create-order" method="POST">
+<input type="hidden" name="items" id="order-items">
+<input type="hidden" name="payment" id="payment-method">
+<input type="hidden" name="telegram_id" id="telegram-id">
+
+<button type="button" class="buy-btn" onclick="checkout('card')">
+Pay by Card
+</button>
+
+<button type="button" class="buy-btn crypto" onclick="checkout('crypto')">
+Pay by Crypto
+</button>
+</form>
 
 <button class="clear-cart-btn" onclick="clearCart()">Clear Cart</button>
 </div>
@@ -74,6 +85,23 @@ function clearCart(){
     localStorage.removeItem("cart");
     cart = [];
     renderCart();
+}
+
+function checkout(method){
+    if(cart.length === 0){
+        alert("Cart is empty");
+        return;
+    }
+
+    document.getElementById("order-items").value = JSON.stringify(cart);
+    document.getElementById("payment-method").value = method;
+
+    const tg = window.Telegram?.WebApp;
+    const userId = tg?.initDataUnsafe?.user?.id || "";
+    document.getElementById("telegram-id").value = userId;
+
+    localStorage.removeItem("cart");
+    document.getElementById("order-form").submit();
 }
 
 renderCart();
