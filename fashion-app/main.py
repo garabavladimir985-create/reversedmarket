@@ -2,13 +2,19 @@ import asyncio
 import threading
 import os
 
-from bot import main as bot_main
 from backend.app import app
+from bot import main as bot_main
 
 
 def run_flask():
     port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=False,
+        use_reloader=False
+    )
 
 
 async def main():
