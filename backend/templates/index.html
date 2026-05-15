@@ -7,12 +7,11 @@
 <link rel="stylesheet" href="/static/css/style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-
 <body>
 
 <div class="market-header">
     <div class="brand">REVERSED<span>MARKET</span></div>
-    <a class="menu-btn" href="/my-shop">☰</a>
+    <a class="menu-btn" id="admin-menu-link" href="#" style="display:none;">☰</a>
 </div>
 
 <div class="shop-search-row">
@@ -24,75 +23,63 @@
     <a class="filter" href="/vip">⭐</a>
 </div>
 
+<div class="shop-grid">
+
 {% for product in products %}
-
 <div class="product-card">
-
     <a href="/product/{{ product.id }}">
-
         <img class="product-image" src="{{ product.image }}">
-
         <div class="product-info">
-
-            <div class="product-name">
-                {{ product.name }}
-            </div>
-
-            <div class="product-price">
-                ${{ product.price }}
-            </div>
-
-            <div class="product-brand">
-                {{ product.brand }}
-            </div>
-
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-price">${{ product.price }}</div>
+            <div class="product-brand">{{ product.brand }}</div>
         </div>
-
     </a>
-
 </div>
-
 {% endfor %}
 
 {% for seller in sellers %}
 <div class="shop-card">
-
-    <button class="favorite-btn">❤️</button>
-
     <a href="/shop/{{ seller.id }}">
         <img src="{{ seller.avatar }}">
-
         <h2>{{ seller.shop_name }}</h2>
-
-        <div class="stats">
-            ⭐ {{ seller.rating }} · ❤️ {{ seller.likes }}
-        </div>
-
-        <div class="stock">
-            {{ seller.category }}
-        </div>
+        <div class="stats">⭐ {{ seller.rating }} · ❤️ {{ seller.likes }}</div>
+        <div class="stock">{{ seller.category }}</div>
     </a>
-
 </div>
 {% endfor %}
 
 </div>
 
-<a href="/my-shop" class="my-shop-float">🏪</a>
+<a href="#" id="my-shop-float" class="my-shop-float" style="display:none;">🏪</a>
 
-<div class="navbar">
-    <a href="/">🏠<small>HOME</small></a>
-    <a href="/my-shop">🏪<small>MY SHOP</small></a>
-    <a href="/my-orders">📦<small>ORDERS</small></a>
-    <a href="/cart">🛒<small>CART</small></a>
-    <a href="/profile">👤<small>LOGIN</small></a>
+<div class="bottom-nav">
+    <a href="/" class="nav-item active"><div>🏠</div><span>HOME</span></a>
+    <a href="/my-orders" class="nav-item"><div>📦</div><span>ORDERS</span></a>
+    <a href="/chat" class="nav-item"><div>💬</div><span>CHAT</span></a>
+    <a href="/cart" class="nav-item"><div>🛒</div><span>CART</span></a>
+    <a href="/profile" class="nav-item"><div>👤</div><span>LOGIN</span></a>
 </div>
 
 <script>
+const ADMINS = ["1940136851", "910641302"];
 const tg = window.Telegram?.WebApp;
+
 if (tg) {
     tg.ready();
     tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+
+    if (user && ADMINS.includes(String(user.id))) {
+        const adminUrl = "/my-shop?tg_id=" + user.id;
+
+        document.getElementById("my-shop-float").style.display = "flex";
+        document.getElementById("my-shop-float").href = adminUrl;
+
+        document.getElementById("admin-menu-link").style.display = "flex";
+        document.getElementById("admin-menu-link").href = adminUrl;
+    }
 }
 </script>
 

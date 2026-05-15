@@ -106,6 +106,7 @@ def save_file(file):
 
     filename = secure_filename(file.filename)
     path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
     file.save(path)
 
     return "/static/uploads/" + filename
@@ -139,18 +140,30 @@ def seller_dashboard():
 
 @app.route("/my-shop")
 def my_shop():
+
+    tg_id = request.args.get("tg_id", "")
+    is_admin = str(tg_id) in ADMIN_IDS
+
     sellers = Seller.query.all()
     products = Product.query.all()
 
     return render_template(
         "my_shop.html",
         sellers=sellers,
-        products=products
+        products=products,
+        is_admin=is_admin,
+        tg_id=tg_id
     )
 
 
 @app.route("/add-seller", methods=["POST"])
 def add_seller():
+
+    admin_id = request.form.get("admin_id")
+
+    if str(admin_id) not in ADMIN_IDS:
+        return "ACCESS DENIED"
+
     file = request.files.get("avatar_file")
     uploaded_avatar = save_file(file)
 
@@ -170,27 +183,20 @@ def add_seller():
     send_admin_notification(
         f"🏪 NEW SHOP\n\n"
         f"Shop: {seller.shop_name}\n"
-        f"Category: {seller.category}\n"
-        f"Telegram: @{seller.telegram}"
+        f"Category: {seller.category}"
     )
 
-    return redirect("/my-shop")
-
-
-@app.route("/delete-seller/<int:id>")
-def delete_seller(id):
-    seller = Seller.query.get_or_404(id)
-
-    Product.query.filter_by(seller_id=seller.id).delete()
-
-    db.session.delete(seller)
-    db.session.commit()
-
-    return redirect("/my-shop")
+    return redirect(f"/my-shop?tg_id={admin_id}")
 
 
 @app.route("/add-seller-product", methods=["POST"])
 def add_seller_product():
+
+    admin_id = request.form.get("admin_id")
+
+    if str(admin_id) not in ADMIN_IDS:
+        return "ACCESS DENIED"
+
     file = request.files.get("image_file")
     uploaded_image = save_file(file)
 
@@ -219,17 +225,19 @@ def add_seller_product():
         f"👕 NEW ITEM\n\n"
         f"Shop: {seller.shop_name}\n"
         f"Item: {product.name}\n"
-        f"Price: ${product.price}\n"
-        f"Category: {product.category}"
+        f"Price: ${product.price}"
     )
 
-    return redirect("/my-shop")
+    return redirect(f"/my-shop?tg_id={admin_id}")
 
 
 @app.route("/shop/<int:seller_id>")
 def shop(seller_id):
     seller = Seller.query.get_or_404(seller_id)
-    products = Product.query.filter_by(seller_id=seller.id).all()
+
+    products = Product.query.filter_by(
+        seller_id=seller.id
+    ).all()
 
     return render_template(
         "shop.html",
@@ -288,12 +296,34 @@ def admin():
 
 @app.route("/delete-product/<int:id>")
 def delete_product(id):
+
+    admin_id = request.args.get("admin_id")
+
+    if str(admin_id) not in ADMIN_IDS:
+        return "ACCESS DENIED"
+
     product = Product.query.get_or_404(id)
 
     db.session.delete(product)
     db.session.commit()
 
-    return redirect("/my-shop")
+    return redirect(f"/my-shop?tg_id={admin_id}")
+
+
+@app.route("/delete-seller/<int:id>")
+def delete_seller(id):
+
+    admin_id = request.args.get("admin_id")
+
+    if str(admin_id) not in ADMIN_IDS:
+        return "ACCESS DENIED"
+
+    seller = Seller.query.get_or_404(id)
+
+    db.session.delete(seller)
+    db.session.commit()
+
+    return redirect(f"/my-shop?tg_id={admin_id}")
 
 
 @app.route("/cart")
@@ -325,18 +355,10 @@ def create_order():
     db.session.add(order)
     db.session.commit()
 
-    items_text = ""
-
-    for item in cart:
-        items_text += f"- {item.get('name')} — ${item.get('price')}\n"
-
     send_admin_notification(
         f"🛒 NEW ORDER #{order.id}\n\n"
         f"Total: ${total}\n"
-        f"Payment: {payment}\n"
-        f"User TG ID: {user_telegram_id}\n\n"
-        f"Items:\n{items_text}\n"
-        f"Admin: {os.environ.get('WEBAPP_URL', '')}/admin"
+        f"Payment: {payment}"
     )
 
     return redirect("/order-success")
@@ -349,6 +371,7 @@ def order_success():
 
 @app.route("/my-orders")
 def my_orders():
+
     telegram_id = request.args.get("telegram_id", "")
 
     if telegram_id:
@@ -356,14 +379,16 @@ def my_orders():
             user_telegram_id=telegram_id
         ).order_by(Order.id.desc()).all()
     else:
-        orders = Order.query.order_by(Order.id.desc()).all()
+        orders = Order.query.order_by(
+            Order.id.desc()
+        ).all()
 
     parsed_orders = []
 
     for order in orders:
         try:
             items = json.loads(order.items)
-        except Exception:
+        except:
             items = []
 
         parsed_orders.append({
@@ -377,41 +402,11 @@ def my_orders():
     )
 
 
-@app.route("/order/<int:id>")
-def order_detail(id):
-    order = Order.query.get_or_404(id)
-
-    try:
-        items = json.loads(order.items)
-    except Exception:
-        items = []
-
-    return render_template(
-        "order_detail.html",
-        order=order,
-        items=items
-    )
-
-
-@app.route("/order/<int:id>/status/<status>")
-def update_order_status(id, status):
-    order = Order.query.get_or_404(id)
-
-    if status in ["pending", "paid", "shipped", "delivered"]:
-        order.status = status
-        db.session.commit()
-
-        send_admin_notification(
-            f"📦 ORDER #{order.id} STATUS UPDATED\n\n"
-            f"New status: {order.status}"
-        )
-
-    return redirect(f"/order/{id}")
-
-
 @app.route("/chat/<shop>", methods=["GET", "POST"])
 def chat(shop):
+
     if request.method == "POST":
+
         file = request.files.get("image_file")
         image_url = save_file(file)
 
@@ -425,16 +420,11 @@ def chat(shop):
         db.session.add(message)
         db.session.commit()
 
-        send_admin_notification(
-            f"💬 NEW CHAT MESSAGE\n\n"
-            f"Shop: {shop}\n"
-            f"Sender: {message.sender}\n"
-            f"Text: {message.text}"
-        )
-
         return redirect(f"/chat/{shop}")
 
-    messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
+    messages = Message.query.filter_by(
+        shop=shop
+    ).order_by(Message.id.asc()).all()
 
     return render_template(
         "chat.html",
@@ -483,8 +473,8 @@ with app.app_context():
 
 print("SERVER STARTED")
 
-
 if __name__ == "__main__":
+
     port = int(os.environ.get("PORT", 8080))
 
     app.run(
