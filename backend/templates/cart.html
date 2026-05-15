@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cart</title>
 <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
 
 <div class="topbar">
@@ -11,62 +14,69 @@
 <a href="/">🏠</a>
 </div>
 
-<div class="profile-box">
-<div id="cartItems"></div>
-<h2 id="total"></h2>
+<div id="cart-list" class="cart-list"></div>
 
-<form action="/create-order" method="POST" onsubmit="prepareOrder('card')">
-<input type="hidden" name="items" id="orderItems">
-<input type="hidden" name="payment" value="card">
-<button type="submit">Pay by Card</button>
-</form>
+<div class="cart-total-box">
+<h2>Total: $<span id="cart-total">0</span></h2>
 
-<form action="/create-order" method="POST" onsubmit="prepareOrder('crypto')">
-<input type="hidden" name="items" id="orderItemsCrypto">
-<input type="hidden" name="payment" value="crypto">
-<button type="submit">Pay by Crypto</button>
-</form>
+<a class="buy-btn" href="/pay-card">Pay by Card</a>
+<a class="buy-btn crypto" href="/pay-crypto">Pay by Crypto</a>
 
-<button onclick="clearCart()">Clear Cart</button>
+<button class="clear-cart-btn" onclick="clearCart()">Clear Cart</button>
+</div>
+
+<div class="bottom-nav">
+<a href="/" class="nav-item"><div>🏠</div><span>HOME</span></a>
+<a href="/my-shop" class="nav-item"><div>🏪</div><span>MY SHOP</span></a>
+<a href="/chat" class="nav-item"><div>💬</div><span>CHAT</span></a>
+<a href="/cart" class="nav-item active"><div>🛒</div><span>CART</span></a>
+<a href="/profile" class="nav-item"><div>👤</div><span>LOGIN</span></a>
 </div>
 
 <script>
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let box = document.getElementById("cartItems");
-let total = 0;
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+const list = document.getElementById("cart-list");
+const totalEl = document.getElementById("cart-total");
 
-if(cart.length === 0){
-box.innerHTML = "<p>Your cart is empty</p>";
-}
+function renderCart(){
+    list.innerHTML = "";
+    let total = 0;
 
-cart.forEach((item, index) => {
-total += Number(item.price);
-box.innerHTML += `
-<div class="cart-item">
-<span>${item.name} — $${item.price}</span>
-<button onclick="removeItem(${index})">Remove</button>
-</div>
-`;
-});
+    if(cart.length === 0){
+        list.innerHTML = "<div class='empty-cart'>Cart is empty</div>";
+    }
 
-document.getElementById("total").innerText = "Total: $" + total;
+    cart.forEach((item, index) => {
+        total += Number(item.price);
 
-function prepareOrder(payment){
-document.getElementById("orderItems").value = JSON.stringify(cart);
-document.getElementById("orderItemsCrypto").value = JSON.stringify(cart);
-localStorage.removeItem("cart");
+        list.innerHTML += `
+            <div class="cart-item">
+                <img src="${item.image}">
+                <div>
+                    <h3>${item.name}</h3>
+                    <p>$${item.price}</p>
+                    <button onclick="removeItem(${index})">Remove</button>
+                </div>
+            </div>
+        `;
+    });
+
+    totalEl.innerText = total;
 }
 
 function removeItem(index){
-cart.splice(index, 1);
-localStorage.setItem("cart", JSON.stringify(cart));
-location.reload();
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
 }
 
 function clearCart(){
-localStorage.removeItem("cart");
-location.reload();
+    localStorage.removeItem("cart");
+    cart = [];
+    renderCart();
 }
+
+renderCart();
 </script>
 
 </body>
