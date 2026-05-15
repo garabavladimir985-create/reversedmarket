@@ -314,7 +314,32 @@ def favorites():
 @app.route("/favorites-products")
 def favorites_products():
     return render_template("favorites_products.html")
+@app.route("/my-orders")
+def my_orders():
+    telegram_id = request.args.get("telegram_id", "")
 
+    if telegram_id:
+        orders = Order.query.filter_by(user_telegram_id=telegram_id).order_by(Order.id.desc()).all()
+    else:
+        orders = Order.query.order_by(Order.id.desc()).all()
+
+    parsed_orders = []
+
+    for order in orders:
+        try:
+            items = json.loads(order.items)
+        except:
+            items = []
+
+        parsed_orders.append({
+            "order": order,
+            "items": items
+        })
+
+    return render_template(
+        "my_orders.html",
+        parsed_orders=parsed_orders
+    )
 with app.app_context():
     db.create_all()
 

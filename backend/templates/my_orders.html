@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+
+<body>
+
+<div class="topbar">
+<h1>MY ORDERS</h1>
+<a href="/">🏠</a>
+</div>
+
+<div class="orders-list">
+
+{% if parsed_orders|length == 0 %}
+<div class="empty-cart">No orders yet</div>
+{% endif %}
+
+{% for data in parsed_orders %}
+<div class="user-order-card">
+
+    <div class="order-head">
+        <h2>Order #{{ data.order.id }}</h2>
+        <span class="order-status status-{{ data.order.status }}">
+            {{ data.order.status }}
+        </span>
+    </div>
+
+    <p class="order-meta">
+        Payment: {{ data.order.payment }}
+    </p>
+
+    <p class="order-total">
+        Total: ${{ data.order.total }}
+    </p>
+
+    <div class="order-items">
+        {% for item in data.items %}
+        <div class="order-item-row">
+            {% if item.image %}
+            <img src="{{ item.image }}">
+            {% endif %}
+
+            <div>
+                <h3>{{ item.name }}</h3>
+                <p>${{ item.price }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endfor %}
+
+</div>
+
+<div class="bottom-nav">
+<a href="/" class="nav-item"><div>🏠</div><span>HOME</span></a>
+<a href="/my-shop" class="nav-item"><div>🏪</div><span>MY SHOP</span></a>
+<a href="/my-orders" class="nav-item active"><div>📦</div><span>ORDERS</span></a>
+<a href="/cart" class="nav-item"><div>🛒</div><span>CART</span></a>
+<a href="/profile" class="nav-item"><div>👤</div><span>LOGIN</span></a>
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+
+if(tg){
+    tg.ready();
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+
+    if(user && !window.location.search.includes("telegram_id")){
+        window.location.href = "/my-orders?telegram_id=" + user.id;
+    }
+}
+</script>
+
+</body>
+</html>
