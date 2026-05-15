@@ -62,6 +62,13 @@ justify-content:center;
 font-size:42px;
 font-weight:900;
 box-shadow:0 0 30px rgba(62,166,255,.55);
+overflow:hidden;
+}
+
+.profile-avatar img{
+width:100%;
+height:100%;
+object-fit:cover;
 }
 
 .profile-name{
@@ -72,6 +79,18 @@ font-weight:800;
 .profile-id{
 opacity:.65;
 margin-top:6px;
+}
+
+.vip-status{
+margin-top:8px;
+display:inline-block;
+padding:7px 12px;
+border-radius:999px;
+background:#111522;
+border:1px solid rgba(255,255,255,.08);
+color:#3ea6ff;
+font-weight:800;
+font-size:13px;
 }
 
 .stats{
@@ -133,6 +152,13 @@ border:1px solid rgba(255,255,255,.06);
 .profile-btn.red{
 background:#ff4b6e;
 color:white;
+}
+
+.loading-box{
+background:#111827;
+border-radius:24px;
+padding:22px;
+opacity:.8;
 }
 
 .premium-bottom-nav{
@@ -207,7 +233,6 @@ margin-bottom:5px!important;
 }
 
 @media(max-width:600px){
-
 .page-title{
 font-size:38px;
 }
@@ -264,7 +289,6 @@ height:66px!important;
 font-size:30px!important;
 border:6px solid #050816!important;
 }
-
 }
 </style>
 </head>
@@ -277,70 +301,10 @@ border:6px solid #050816!important;
 PROFILE
 </div>
 
-<div class="profile-card">
-
-<div class="profile-top">
-
-<div class="profile-avatar">
-👤
+<div id="profile-root">
+<div class="loading-box">
+Loading Telegram profile...
 </div>
-
-<div>
-<div class="profile-name">
-{{ username if username else "Telegram User" }}
-</div>
-
-<div class="profile-id">
-ID: {{ telegram_id if telegram_id else "Unknown" }}
-</div>
-</div>
-
-</div>
-
-<div class="stats">
-
-<div class="stat-box">
-<div class="stat-title">
-Orders
-</div>
-
-<div class="stat-value">
-{{ orders_count if orders_count else 0 }}
-</div>
-</div>
-
-<div class="stat-box">
-<div class="stat-title">
-Favorites
-</div>
-
-<div class="stat-value">
-{{ favorites_count if favorites_count else 0 }}
-</div>
-</div>
-
-</div>
-
-<div class="profile-actions">
-
-<a href="/my-orders" class="profile-btn blue">
-My Orders
-</a>
-
-<a href="/favorites-products" class="profile-btn dark">
-Favorites
-</a>
-
-<a href="/vip" class="profile-btn dark">
-Get VIP
-</a>
-
-<a href="/" class="profile-btn red">
-Logout
-</a>
-
-</div>
-
 </div>
 
 </div>
@@ -386,11 +350,140 @@ Logout
 
 <script>
 const tg = window.Telegram?.WebApp;
+const root = document.getElementById("profile-root");
 
 if(tg){
     tg.ready();
     tg.expand();
 }
+
+function renderProfile(userData){
+    const avatarHtml = userData.avatar
+        ? `<img src="${userData.avatar}">`
+        : `👤`;
+
+    const username = userData.username
+        ? "@" + userData.username
+        : "@unknown";
+
+    const vipText = userData.is_vip ? "VIP ACTIVE" : "NO VIP";
+
+    root.innerHTML = `
+        <div class="profile-card">
+
+            <div class="profile-top">
+
+                <div class="profile-avatar">
+                    ${avatarHtml}
+                </div>
+
+                <div>
+                    <div class="profile-name">
+                        ${userData.name || "Telegram User"}
+                    </div>
+
+                    <div class="profile-id">
+                        ${username}<br>
+                        ID: ${userData.telegram_id || "Unknown"}
+                    </div>
+
+                    <div class="vip-status">
+                        ${vipText}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="stats">
+
+                <div class="stat-box">
+                    <div class="stat-title">Orders</div>
+                    <div class="stat-value">0</div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-title">Favorites</div>
+                    <div class="stat-value">0</div>
+                </div>
+
+            </div>
+
+            <div class="profile-actions">
+
+                <a href="/my-orders?telegram_id=${userData.telegram_id}" class="profile-btn blue">
+                    My Orders
+                </a>
+
+                <a href="/favorites-products" class="profile-btn dark">
+                    Favorites
+                </a>
+
+                <a href="/vip" class="profile-btn dark">
+                    Get VIP
+                </a>
+
+                <a href="/" class="profile-btn red">
+                    Back Home
+                </a>
+
+            </div>
+
+        </div>
+    `;
+}
+
+async function registerTelegramUser(){
+    const tgUser = tg?.initDataUnsafe?.user;
+
+    if(!tgUser){
+        const saved = localStorage.getItem("telegram_user");
+
+        if(saved){
+            renderProfile(JSON.parse(saved));
+            return;
+        }
+
+        root.innerHTML = `
+            <div class="profile-card">
+                <div class="profile-top">
+                    <div class="profile-avatar">👤</div>
+                    <div>
+                        <div class="profile-name">Telegram not detected</div>
+                        <div class="profile-id">Open app through Telegram bot</div>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <a href="/" class="profile-btn blue">Back Home</a>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    const res = await fetch("/api/telegram-auth", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(tgUser)
+    });
+
+    const data = await res.json();
+
+    if(data.ok){
+        localStorage.setItem("telegram_user", JSON.stringify(data));
+        renderProfile(data);
+    }else{
+        root.innerHTML = `
+            <div class="profile-card">
+                <div class="profile-name">Auth error</div>
+                <div class="profile-id">${data.error || "Unknown error"}</div>
+            </div>
+        `;
+    }
+}
+
+registerTelegramUser();
 </script>
 
 </body>
