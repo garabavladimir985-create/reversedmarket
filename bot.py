@@ -3,11 +3,10 @@ from aiogram.filters import CommandStart
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo, LabeledPrice, PreCheckoutQuery
 import asyncio
 import urllib.parse
-import os
 
-TOKEN = os.environ.get("8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU")
-WEBAPP_URL = os.environ.get("WEBAPP_URL", "https://reversedmarket-production.up.railway.app")
+TOKEN = "8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU"
 
+WEBAPP_URL = "https://reversedmarket-production.up.railway.app"
 
 async def main():
     bot = Bot(token=TOKEN)
