@@ -11,7 +11,7 @@ from aiogram.types import (
 import asyncio
 import urllib.parse
 
-TOKEN = "8993845960:AAHDk9q9iTNE0wzyZ7dSOGfwtFD2rSOalAc"
+TOKEN = "8993845960:AAGkwKzlw_-1X-AgWg2kFVzO0WgoBEGUK4g"
 
 WEBAPP_URL = "https://reversedmarket-production.up.railway.app"
 
