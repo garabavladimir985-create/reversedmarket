@@ -131,8 +131,9 @@ def home():
 
 @app.route("/my-shop")
 def my_shop():
+
     key = request.args.get("key", "")
-    is_admin = is_admin_key(key)
+    is_admin = key == ADMIN_KEY
 
     sellers = Seller.query.all() if is_admin else []
     products = Product.query.all() if is_admin else []
