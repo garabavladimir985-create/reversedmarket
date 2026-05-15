@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cart</title>
 <link rel="stylesheet" href="/static/css/style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
@@ -36,15 +37,55 @@ Pay by Crypto
 <button class="clear-cart-btn" onclick="clearCart()">Clear Cart</button>
 </div>
 
-<div class="bottom-nav">
-<a href="/" class="nav-item"><div>🏠</div><span>HOME</span></a>
-<a href="/my-shop" class="nav-item"><div>🏪</div><span>MY SHOP</span></a>
-<a href="/chat" class="nav-item"><div>💬</div><span>CHAT</span></a>
-<a href="/cart" class="nav-item active"><div>🛒</div><span>CART</span></a>
-<a href="/profile" class="nav-item"><div>👤</div><span>LOGIN</span></a>
+<div class="premium-bottom-nav">
+
+    <a href="/" class="premium-nav-item">
+        <div class="premium-icon">🏠</div>
+        <span>Главная</span>
+    </a>
+
+    <a href="/cart" class="premium-nav-item active">
+        <div class="premium-icon">🛒</div>
+        <span>Корзина</span>
+    </a>
+
+    <a href="/favorites-products" class="premium-nav-item">
+        <div class="premium-icon">📁</div>
+        <span>Каталог</span>
+    </a>
+
+    <a href="/my-shop" class="premium-shop-btn">
+        <div class="premium-shop-circle">
+            💎
+        </div>
+        <span>ReversedShop</span>
+    </a>
+
+    <a href="/chat" class="premium-nav-item">
+        <div class="premium-icon">💬</div>
+        <span>Чат</span>
+    </a>
+
+    <a href="/vip" class="premium-nav-item">
+        <div class="premium-icon">👑</div>
+        <span>Вип</span>
+    </a>
+
+    <a href="/profile" class="premium-nav-item">
+        <div class="premium-icon">👤</div>
+        <span>Профиль</span>
+    </a>
+
 </div>
 
 <script>
+const tg = window.Telegram?.WebApp;
+
+if(tg){
+    tg.ready();
+    tg.expand();
+}
+
 let cart = JSON.parse(localStorage.getItem("cart") || "[]");
 const list = document.getElementById("cart-list");
 const totalEl = document.getElementById("cart-total");
@@ -96,7 +137,6 @@ function checkout(method){
     document.getElementById("order-items").value = JSON.stringify(cart);
     document.getElementById("payment-method").value = method;
 
-    const tg = window.Telegram?.WebApp;
     const userId = tg?.initDataUnsafe?.user?.id || "";
     document.getElementById("telegram-id").value = userId;
 
