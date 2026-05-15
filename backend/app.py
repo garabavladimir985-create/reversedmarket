@@ -310,14 +310,13 @@ def favorites():
 def favorites_products():
     return render_template("favorites_products.html")
 
+with app.app_context():
+    db.create_all()
+
+print("SERVER STARTED")
 
 if __name__ == "__main__":
     import os
-
-    with app.app_context():
-        db.create_all()
-
-    print("SERVER STARTED")
 
     port = int(os.environ.get("PORT", 8080))
 
@@ -326,4 +325,3 @@ if __name__ == "__main__":
         port=port,
         debug=False
     )
-    app.run(debug=True)

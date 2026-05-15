@@ -2,8 +2,8 @@ import asyncio
 import threading
 import os
 
-from backend.app import app
 from bot import main as bot_main
+from backend.app import app
 
 
 def run_flask():
