@@ -315,6 +315,16 @@ with app.app_context():
 
 print("SERVER STARTED")
 
+@app.route("/my-shop")
+def my_shop():
+    sellers = Seller.query.all()
+    products = Product.query.all()
+    return render_template(
+        "my_shop.html",
+        sellers=sellers,
+        products=products
+    )
+
 if __name__ == "__main__":
     import os
 
