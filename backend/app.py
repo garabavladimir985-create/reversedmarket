@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 import os
@@ -14,7 +14,7 @@ app.config["UPLOAD_FOLDER"] = "static/uploads"
 
 db = SQLAlchemy(app)
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
+BOT_TOKEN = os.environ.get("8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU")
 
 ADMIN_IDS = [
     "1940136851",
@@ -117,6 +117,48 @@ def save_file(file):
     return "/static/uploads/" + filename
 
 
+@app.route("/api/telegram-auth", methods=["POST"])
+def telegram_auth():
+    data = request.get_json() or {}
+
+    telegram_id = str(data.get("id", ""))
+    name = data.get("first_name", "")
+    username = data.get("username", "")
+    avatar = data.get("photo_url", "")
+
+    if not telegram_id:
+        return jsonify({"ok": False, "error": "No Telegram ID"}), 400
+
+    user = User.query.filter_by(telegram_id=telegram_id).first()
+
+    if not user:
+        user = User(
+            telegram_id=telegram_id,
+            name=name,
+            username=username,
+            telegram=username,
+            avatar=avatar,
+            is_vip=False
+        )
+        db.session.add(user)
+    else:
+        user.name = name
+        user.username = username
+        user.telegram = username
+        user.avatar = avatar
+
+    db.session.commit()
+
+    return jsonify({
+        "ok": True,
+        "telegram_id": user.telegram_id,
+        "name": user.name,
+        "username": user.username,
+        "avatar": user.avatar,
+        "is_vip": user.is_vip
+    })
+
+
 @app.route("/")
 def home():
     sellers = Seller.query.all()
@@ -131,7 +173,6 @@ def home():
 
 @app.route("/my-shop")
 def my_shop():
-
     key = request.args.get("key", "")
     is_admin = key == ADMIN_KEY
 
@@ -291,7 +332,8 @@ def product_page(id):
 
     return render_template(
         "product.html",
-        product=product
+        product=product,
+        item=product
     )
 
 
@@ -487,7 +529,26 @@ def chat_redirect():
 
 @app.route("/profile")
 def profile():
-    return render_template("profile.html")
+    telegram_id = request.args.get("telegram_id", "")
+
+    user = None
+    orders_count = 0
+
+    if telegram_id:
+        user = User.query.filter_by(telegram_id=telegram_id).first()
+        orders_count = Order.query.filter_by(user_telegram_id=telegram_id).count()
+
+    return render_template(
+        "profile.html",
+        user=user,
+        telegram_id=telegram_id,
+        username=user.username if user else "",
+        name=user.name if user else "",
+        avatar=user.avatar if user else "",
+        is_vip=user.is_vip if user else False,
+        orders_count=orders_count,
+        favorites_count=0
+    )
 
 
 @app.route("/vip")
