@@ -3,10 +3,13 @@ import threading
 import os
 
 from bot import main as bot_main
-from backend.app import app
+from backend.app import app, db
 
 
 def run_flask():
+    with app.app_context():
+        db.create_all()
+
     port = int(os.environ.get("PORT", 8080))
 
     app.run(
