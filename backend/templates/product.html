@@ -1,42 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ product.name }}</title>
 <link rel="stylesheet" href="/static/css/style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
+
 <body>
 
-<div class="topbar">
-<h1>{{ product.name }}</h1>
-<a href="/">🏠</a>
-</div>
-
 <div class="product-page">
-<img src="{{ product.image }}">
 
-<h2>${{ product.price }}</h2>
+    <a class="back-btn" href="/">← Back</a>
 
-{% if product.vip %}
-<div class="vip-badge big">VIP ITEM</div>
-{% endif %}
+    <img class="product-page-img" src="{{ product.image }}">
 
-<p>{{ product.description }}</p>
+    <div class="product-page-info">
 
-<div class="product-details">
-<p><b>Brand:</b> {{ product.brand }}</p>
-<p><b>Size:</b> {{ product.size }}</p>
-<p><b>Color:</b> {{ product.color }}</p>
-<p><b>Condition:</b> {{ product.condition }}</p>
-<p><b>Stock:</b> {{ product.stock }}</p>
+        <h1>{{ product.name }}</h1>
+
+        <div class="product-page-price">
+            ${{ product.price }}
+        </div>
+
+        <div class="product-meta">
+            <span>Brand: {{ product.brand }}</span>
+            <span>Size: {{ product.size }}</span>
+            <span>Color: {{ product.color }}</span>
+            <span>Condition: {{ product.condition }}</span>
+            <span>Stock: {{ product.stock }}</span>
+        </div>
+
+        <p class="product-page-desc">
+            {{ product.description }}
+        </p>
+
+        <button class="buy-btn" onclick="addToCart()">
+            Add to Cart
+        </button>
+
+    </div>
+
 </div>
 
-<button onclick="addToCart('{{ product.name }}', '{{ product.price }}')">
-Add to Cart
-</button>
+<div class="bottom-nav">
+    <a href="/" class="nav-item">
+        <div>🏠</div>
+        <span>HOME</span>
+    </a>
 
-<a class="chat-btn" href="/chat">Ask Seller</a>
+    <a href="/my-shop" class="nav-item">
+        <div>🏪</div>
+        <span>MY SHOP</span>
+    </a>
+
+    <a href="/chat" class="nav-item">
+        <div>💬</div>
+        <span>CHAT</span>
+    </a>
+
+    <a href="/cart" class="nav-item">
+        <div>🛒</div>
+        <span>CART</span>
+    </a>
+
+    <a href="/profile" class="nav-item">
+        <div>👤</div>
+        <span>LOGIN</span>
+    </a>
 </div>
 
-<script src="/static/js/app.js"></script>
+<script>
+function addToCart(){
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+    cart.push({
+        id: "{{ product.id }}",
+        name: "{{ product.name }}",
+        price: "{{ product.price }}",
+        image: "{{ product.image }}"
+    });
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Added to cart 🛒");
+}
+</script>
+
 </body>
 </html>
