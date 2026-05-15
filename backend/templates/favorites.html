@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Favorites</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+<h1>FAVORITES</h1>
+<a href="/">🏠</a>
+</div>
+
+<div class="profile-box">
+<div id="favoritesBox"></div>
+</div>
+
+<script>
+let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+let box = document.getElementById("favoritesBox");
+
+if(favorites.length === 0){
+    box.innerHTML = "<p>No favorite shops yet</p>";
+}
+
+favorites.forEach(shop => {
+    box.innerHTML += `<div class="cart-item"><span>❤️ ${shop}</span></div>`;
+});
+</script>
+
+</body>
+</html>

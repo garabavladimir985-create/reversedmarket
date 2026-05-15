@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{ shop_name }}</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+<h1>{{ shop_name }}</h1>
+<a href="/">🏠</a>
+</div>
+
+<div class="shop-profile-box">
+<h2>⭐ {{ rating }} · ❤️ {{ likes }}</h2>
+<p>{{ description }}</p>
+<a class="chat-btn" href="/chat/{{ shop_name }}">Message Seller</a>
+</div>
+
+<div class="grid">
+{% for product in products %}
+<div class="card product-card">
+
+<button
+class="product-fav-btn"
+onclick="toggleProductFavorite('{{ product.name }}', '{{ product.price }}', '{{ product.image }}')">
+❤️
+</button>
+
+<a href="/product/{{ product.id }}">
+<img src="{{ product.image }}">
+</a>
+
+<div class="info">
+<h2>{{ product.name }}</h2>
+<p>${{ product.price }}</p>
+
+{% if product.vip %}
+<small class="vip-badge">VIP</small>
+{% endif %}
+
+<button onclick="addToCart('{{ product.name }}', '{{ product.price }}')">
+Add to Cart
+</button>
+</div>
+</div>
+{% endfor %}
+</div>
+
+<div class="navbar">
+<a href="/">🏠<small>HOME</small></a>
+<a href="/seller">🛍<small>SELLER</small></a>
+<a href="/chat/{{ shop_name }}">💬<small>CHAT</small></a>
+<a href="/cart">🛒<small>CART</small></a>
+<a href="/vip">⭐<small>VIP</small></a>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

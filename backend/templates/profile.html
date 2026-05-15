@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Profile</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+<body>
+
+<div class="topbar">
+    <h1>PROFILE</h1>
+    <a href="/">🏠</a>
+</div>
+
+<div class="profile-box" id="profileBox">
+
+<div class="big-avatar">👤</div>
+
+<div class="profile-info">
+
+<input id="name" placeholder="Name">
+<input id="username" placeholder="Telegram username">
+
+<button onclick="saveProfile()">
+Save Profile
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const savedName = localStorage.getItem("profile_name");
+const savedUser = localStorage.getItem("profile_user");
+
+if(savedName){
+
+    document.getElementById("profileBox").innerHTML = `
+        <div class="big-avatar">👤</div>
+
+        <div class="profile-info">
+
+            <h2>${savedName}</h2>
+
+            <p>@${savedUser}</p>
+
+            <a class="pay-btn" href="/vip">
+                Buy VIP
+            </a>
+
+        </div>
+    `;
+}
+
+function saveProfile(){
+
+    const name = document.getElementById("name").value;
+    const username = document.getElementById("username").value;
+
+    localStorage.setItem("profile_name", name);
+    localStorage.setItem("profile_user", username);
+
+    location.reload();
+}
+
+</script>
+
+</body>
+</html>

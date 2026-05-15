@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Favorite Products</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+<h1>FAVORITE PRODUCTS</h1>
+<a href="/">🏠</a>
+</div>
+
+<div class="grid" id="favoriteProducts"></div>
+
+<script>
+let favorites = JSON.parse(localStorage.getItem("favoriteProducts")) || [];
+let box = document.getElementById("favoriteProducts");
+
+if(favorites.length === 0){
+box.innerHTML = "<p style='padding:20px;'>No favorite products yet</p>";
+}
+
+favorites.forEach(item => {
+box.innerHTML += `
+<div class="card">
+<img src="${item.image}">
+<div class="info">
+<h2>${item.name}</h2>
+<p>$${item.price}</p>
+<button onclick="addToCart('${item.name}', '${item.price}')">Add to Cart</button>
+</div>
+</div>
+`;
+});
+</script>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

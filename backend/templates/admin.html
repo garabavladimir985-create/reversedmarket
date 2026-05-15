@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+<h1>ADMIN</h1>
+<a href="/">🏠</a>
+</div>
+
+<div class="admin-box">
+<h2>Add Product</h2>
+
+<form action="/add-product" method="POST" enctype="multipart/form-data">
+<input name="name" placeholder="Product name" required>
+<input name="price" placeholder="Price" required>
+<input name="category" placeholder="Category: Hoodies/Sneakers/Vintage/Luxury" required>
+<input name="brand" placeholder="Brand">
+<input name="size" placeholder="Size">
+<input name="color" placeholder="Color">
+<input name="condition" placeholder="Condition">
+<input name="stock" placeholder="Stock" value="1">
+<input name="image" placeholder="Image URL or upload file below">
+<input type="file" name="image_file">
+<textarea name="description" placeholder="Description"></textarea>
+
+<label class="vip-check">
+<input type="checkbox" name="vip"> VIP product
+</label>
+
+<button type="submit">Add Product</button>
+</form>
+</div>
+
+<div class="admin-box">
+<h2>Products</h2>
+
+{% for product in products %}
+<div class="admin-item">
+<span>{{ product.name }} — ${{ product.price }}</span>
+<a href="/delete-product/{{ product.id }}">Delete</a>
+</div>
+{% endfor %}
+</div>
+
+<div class="admin-box">
+<h2>Orders</h2>
+
+{% if orders|length == 0 %}
+<p>No orders yet</p>
+{% endif %}
+
+{% for order in orders %}
+<div class="order-card">
+<h3>Order #{{ order.id }}</h3>
+<p>User TG ID: {{ order.user_telegram_id }}</p>
+<p>Total: ${{ order.total }}</p>
+<p>Payment: {{ order.payment }}</p>
+<p>Status: <b class="status status-{{ order.status }}">{{ order.status }}</b></p>
+<a class="pay-btn" href="/order/{{ order.id }}">Open Order</a>
+</div>
+{% endfor %}
+</div>
+
+<div class="admin-box">
+<h2>Users</h2>
+
+{% if users|length == 0 %}
+<p>No users yet</p>
+{% endif %}
+
+{% for user in users %}
+<div class="order-card">
+<h3>{{ user.name }}</h3>
+<p>@{{ user.username }}</p>
+<p>TG ID: {{ user.telegram_id }}</p>
+
+{% if user.is_vip %}
+<p class="vip-badge">VIP ACTIVE</p>
+<a class="pay-btn" href="/remove-vip/{{ user.id }}">Remove VIP</a>
+{% else %}
+<a class="pay-btn" href="/make-vip/{{ user.id }}">Make VIP</a>
+{% endif %}
+</div>
+{% endfor %}
+</div>
+
+</body>
+</html>

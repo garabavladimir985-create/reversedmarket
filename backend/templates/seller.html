@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Seller Dashboard</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+<h1>SELLER DASHBOARD</h1>
+<a href="/">🏠</a>
+</div>
+
+<div class="admin-box">
+<h2>Create Shop</h2>
+
+<form action="/add-seller" method="POST" enctype="multipart/form-data">
+<input name="shop_name" placeholder="Shop name" required>
+<input name="category" placeholder="Category: Hoodies/Sneakers/Vintage/Luxury" required>
+<input name="telegram" placeholder="Telegram username">
+<input name="avatar" placeholder="Shop image URL or upload below">
+<input type="file" name="avatar_file">
+<textarea name="description" placeholder="Shop description"></textarea>
+<button type="submit">Create Shop</button>
+</form>
+</div>
+
+<div class="admin-box">
+<h2>Add Product</h2>
+
+<form action="/add-seller-product" method="POST" enctype="multipart/form-data">
+
+<select name="seller_id" required>
+{% for seller in sellers %}
+<option value="{{ seller.id }}">{{ seller.shop_name }}</option>
+{% endfor %}
+</select>
+
+<input name="name" placeholder="Product name" required>
+<input name="price" placeholder="Price" required>
+<input name="brand" placeholder="Brand">
+<input name="size" placeholder="Size">
+<input name="color" placeholder="Color">
+<input name="condition" placeholder="Condition">
+<input name="stock" placeholder="Stock" value="1">
+<input name="image" placeholder="Image URL or upload below">
+<input type="file" name="image_file">
+<textarea name="description" placeholder="Description"></textarea>
+
+<label class="vip-check">
+<input type="checkbox" name="vip"> VIP product
+</label>
+
+<button type="submit">Add Product</button>
+</form>
+</div>
+
+<div class="admin-box">
+<h2>My Shops</h2>
+
+{% for seller in sellers %}
+<div class="order-card">
+<h3>{{ seller.shop_name }}</h3>
+<p>{{ seller.description }}</p>
+<p>Category: {{ seller.category }}</p>
+<p>Telegram: @{{ seller.telegram }}</p>
+<a class="pay-btn" href="/shop/{{ seller.id }}">Open Shop</a>
+<a class="pay-btn" href="/chat/{{ seller.shop_name }}">Open Chat</a>
+<a class="pay-btn" href="/delete-seller/{{ seller.id }}">Delete Shop</a>
+</div>
+{% endfor %}
+</div>
+
+<div class="admin-box">
+<h2>Products</h2>
+
+{% for product in products %}
+<div class="admin-item">
+<span>{{ product.name }} — ${{ product.price }}</span>
+<a href="/delete-product/{{ product.id }}">Delete</a>
+</div>
+{% endfor %}
+</div>
+
+<div class="admin-box">
+<h2>Orders</h2>
+
+{% for order in orders %}
+<div class="order-card">
+<h3>Order #{{ order.id }}</h3>
+<p>Total: ${{ order.total }}</p>
+<p>Payment: {{ order.payment }}</p>
+<p>Status: {{ order.status }}</p>
+<a class="pay-btn" href="/order/{{ order.id }}">Open Order</a>
+</div>
+{% endfor %}
+</div>
+
+</body>
+</html>

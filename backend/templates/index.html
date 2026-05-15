@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reversed Market</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="market-header">
+    <div class="brand">REVERSED<span>MARKET</span></div>
+    <a class="menu-btn" href="/seller">☰</a>
+</div>
+
+<div class="shop-search-row">
+    <form action="/search" class="shop-search">
+        <input name="q" placeholder="Search shop...">
+    </form>
+    <button class="filter active" onclick="location.href='/favorites'">❤️</button>
+    <button class="filter">⭐</button>
+</div>
+
+<div class="shop-grid">
+
+{% for seller in sellers %}
+<div class="shop-card">
+    <button class="favorite-btn" onclick="toggleFavorite('{{ seller.shop_name }}')">❤️</button>
+
+    <a href="/shop/{{ seller.id }}">
+        <img src="{{ seller.avatar }}">
+        <h2>{{ seller.shop_name }}</h2>
+        <div class="stats">⭐ {{ seller.rating }} · ❤️ {{ seller.likes }}</div>
+        <div class="stock">{{ seller.category }}</div>
+    </a>
+</div>
+{% endfor %}
+
+</div>
+
+<div class="navbar">
+    <a href="/">🏠<small>HOME</small></a>
+    <a href="/seller">🛍<small>SELLER</small></a>
+    <a href="/chat">💬<small>CHAT</small></a>
+    <a href="/cart">🛒<small>CART</small></a>
+    <a href="/profile">👤<small>LOGIN</small></a>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

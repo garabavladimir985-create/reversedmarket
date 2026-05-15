@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Order #{{ order.id }}</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+<h1>ORDER #{{ order.id }}</h1>
+<a href="/admin">⬅</a>
+</div>
+
+<div class="profile-box">
+
+<h2>Order details</h2>
+
+<p><b>Total:</b> ${{ order.total }}</p>
+<p><b>Payment:</b> {{ order.payment }}</p>
+<p><b>Status:</b> <span class="status status-{{ order.status }}">{{ order.status }}</span></p>
+
+<h3>Items</h3>
+
+{% if items|length == 0 %}
+<p>No items</p>
+{% endif %}
+
+{% for item in items %}
+<div class="cart-item">
+<span>{{ item.name }} — ${{ item.price }}</span>
+</div>
+{% endfor %}
+
+<h3>Change status</h3>
+
+<a class="status-btn pending" href="/order/{{ order.id }}/status/pending">Pending</a>
+<a class="status-btn paid" href="/order/{{ order.id }}/status/paid">Paid</a>
+<a class="status-btn shipped" href="/order/{{ order.id }}/status/shipped">Shipped</a>
+<a class="status-btn delivered" href="/order/{{ order.id }}/status/delivered">Delivered</a>
+
+</div>
+
+</body>
+</html>

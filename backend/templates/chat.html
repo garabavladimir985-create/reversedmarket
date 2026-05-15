@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chat</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+<h1>CHAT: {{ shop }}</h1>
+<a href="/">🏠</a>
+</div>
+
+<div class="chat-box">
+{% for message in messages %}
+<div class="chat-message">
+<b>{{ message.sender }}</b>
+
+{% if message.text %}
+<p>{{ message.text }}</p>
+{% endif %}
+
+{% if message.image %}
+<img src="{{ message.image }}">
+{% endif %}
+</div>
+{% endfor %}
+</div>
+
+<form class="chat-form" action="/chat/{{ shop }}" method="POST" enctype="multipart/form-data">
+<input name="sender" placeholder="Buyer / Seller" value="Buyer">
+<input name="text" placeholder="Message...">
+<input type="file" name="image_file">
+<button type="submit">Send</button>
+</form>
+
+</body>
+</html>
