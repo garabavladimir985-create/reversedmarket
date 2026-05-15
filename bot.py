@@ -5,7 +5,7 @@ import asyncio
 import urllib.parse
 import os
 
-TOKEN = os.environ.get("8993845960:AAGkwKzlw_-1X-AgWg2kFVzO0WgoBEGUK4g")
+TOKEN = os.environ.get("8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU")
 WEBAPP_URL = os.environ.get("WEBAPP_URL", "https://reversedmarket-production.up.railway.app")
 
 
