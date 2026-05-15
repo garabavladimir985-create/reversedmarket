@@ -1375,3 +1375,53 @@ margin-bottom:22px;
 body{
 padding-bottom:120px;
 }
+@media (max-width: 600px){
+    .premium-bottom-nav{
+        width:96%!important;
+        max-width:96%!important;
+        height:92px!important;
+        border-top-left-radius:28px!important;
+        border-top-right-radius:28px!important;
+        padding:6px 6px!important;
+    }
+
+    .premium-nav-item{
+        min-width:45px!important;
+        font-size:11px!important;
+    }
+
+    .premium-icon{
+        font-size:23px!important;
+    }
+
+    .premium-shop-btn{
+        min-width:62px!important;
+        font-size:10px!important;
+        margin-top:-38px!important;
+    }
+
+    .premium-shop-circle{
+        width:74px!important;
+        height:74px!important;
+        font-size:34px!important;
+        border:7px solid #050816!important;
+    }
+
+    .shop-search-row{
+        gap:10px!important;
+    }
+
+    .shop-search input{
+        font-size:17px!important;
+    }
+
+    .filter{
+        width:58px!important;
+        height:58px!important;
+        min-width:58px!important;
+    }
+
+    .brand{
+        font-size:34px!important;
+    }
+}
