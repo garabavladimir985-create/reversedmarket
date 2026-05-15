@@ -1,27 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>My Shop</title>
+
 <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
 
 <div class="topbar">
-<h1>MY SHOP</h1>
-<a href="/">🏠</a>
+    <h1>MY SHOP</h1>
+    <a href="/">🏠</a>
 </div>
 
 <div class="admin-box">
 <h2>Create My Shop</h2>
 
 <form action="/add-seller" method="POST" enctype="multipart/form-data">
+
 <input name="shop_name" placeholder="Shop name" required>
-<input name="category" placeholder="Category" required>
+
+<input name="category" placeholder="Category: Hoodies / Sneakers / Vintage / Luxury" required>
+
 <input name="telegram" placeholder="Telegram username">
+
 <input name="avatar" placeholder="Shop image URL">
+
 <input type="file" name="avatar_file">
+
 <textarea name="description" placeholder="Shop description"></textarea>
-<button type="submit">Create Shop</button>
+
+<button type="submit">
+Create Shop
+</button>
+
 </form>
 </div>
 
@@ -37,34 +52,71 @@
 </select>
 
 <input name="name" placeholder="Item name" required>
+
 <input name="price" placeholder="Price" required>
+
 <input name="brand" placeholder="Brand">
+
 <input name="size" placeholder="Size">
+
 <input name="color" placeholder="Color">
+
 <input name="condition" placeholder="Condition">
+
 <input name="stock" placeholder="Stock" value="1">
+
 <input name="image" placeholder="Image URL">
+
 <input type="file" name="image_file">
-<textarea name="description" placeholder="Description"></textarea>
+
+<textarea name="description" placeholder="Item description"></textarea>
 
 <label class="vip-check">
-<input type="checkbox" name="vip"> VIP item
+<input type="checkbox" name="vip">
+VIP item
 </label>
 
-<button type="submit">Add Item</button>
+<button type="submit">
+Add Item
+</button>
+
 </form>
 </div>
 
 <div class="admin-box">
 <h2>My Shops</h2>
 
+{% if sellers|length == 0 %}
+<p>No shops yet</p>
+{% endif %}
+
 {% for seller in sellers %}
 <div class="order-card">
+
+{% if seller.avatar %}
+<img class="seller-preview-img" src="{{ seller.avatar }}">
+{% endif %}
+
 <h3>{{ seller.shop_name }}</h3>
+
 <p>{{ seller.description }}</p>
+
 <p>Category: {{ seller.category }}</p>
-<a class="pay-btn" href="/shop/{{ seller.id }}">Open Shop</a>
-<a class="pay-btn" href="/delete-seller/{{ seller.id }}">Delete Shop</a>
+
+<p>Telegram: @{{ seller.telegram }}</p>
+
+<a class="pay-btn" href="/shop/{{ seller.id }}">
+Open Shop
+</a>
+
+<a class="pay-btn" href="/chat/{{ seller.shop_name }}">
+Open Chat
+</a>
+
+<a class="pay-btn danger" href="/delete-seller/{{ seller.id }}">
+Delete
+</a>
+
 </div>
 {% endfor %}
 </div>
@@ -72,15 +124,53 @@
 <div class="admin-box">
 <h2>My Items</h2>
 
+{% if products|length == 0 %}
+<p>No items yet</p>
+{% endif %}
+
 {% for product in products %}
 <div class="admin-item">
-<span>{{ product.name }} — ${{ product.price }}</span>
-<a href="/delete-product/{{ product.id }}">Delete</a>
+
+<span>
+{{ product.name }} — ${{ product.price }}
+</span>
+
+<a href="/delete-product/{{ product.id }}">
+Delete
+</a>
+
 </div>
 {% endfor %}
 </div>
 
-<a class="my-shop-float" href="/my-shop">🏪</a>
+<div class="bottom-nav">
+
+<a href="/" class="nav-item">
+<div>🏠</div>
+<span>HOME</span>
+</a>
+
+<a href="/my-shop" class="nav-item active">
+<div>🏪</div>
+<span>MY SHOP</span>
+</a>
+
+<a href="/chat" class="nav-item">
+<div>💬</div>
+<span>CHAT</span>
+</a>
+
+<a href="/cart" class="nav-item">
+<div>🛒</div>
+<span>CART</span>
+</a>
+
+<a href="/profile" class="nav-item">
+<div>👤</div>
+<span>LOGIN</span>
+</a>
+
+</div>
 
 </body>
 </html>
