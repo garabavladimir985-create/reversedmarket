@@ -1532,3 +1532,99 @@ body{
     padding:28px!important;
     font-size:18px!important;
 }
+/* GLOBAL MOBILE UI */
+
+@media(max-width:600px){
+
+body{
+    font-size:16px!important;
+}
+
+h1{
+    font-size:54px!important;
+    line-height:1!important;
+}
+
+h2{
+    font-size:38px!important;
+}
+
+p,
+span,
+a,
+button,
+input,
+textarea{
+    font-size:16px!important;
+}
+
+input,
+textarea,
+select{
+    min-height:56px!important;
+    border-radius:18px!important;
+    padding:16px!important;
+}
+
+button{
+    min-height:56px!important;
+    border-radius:18px!important;
+    font-size:18px!important;
+    font-weight:800!important;
+}
+
+.card,
+.product-card,
+.shop-card,
+.chat-box,
+.profile-card,
+.order-card,
+.cart-card{
+    border-radius:28px!important;
+    padding:22px!important;
+}
+
+.page-title{
+    font-size:58px!important;
+    margin-bottom:24px!important;
+}
+
+.shop-title{
+    font-size:58px!important;
+}
+
+.shop-text{
+    font-size:20px!important;
+}
+
+.locked-btn{
+    font-size:18px!important;
+    height:56px!important;
+}
+
+.premium-bottom-nav{
+    height:102px!important;
+    border-radius:34px 34px 0 0!important;
+    padding-bottom:8px!important;
+}
+
+.premium-nav-item{
+    font-size:13px!important;
+    min-width:52px!important;
+}
+
+.premium-icon{
+    font-size:28px!important;
+}
+
+.premium-shop-btn{
+    margin-top:-52px!important;
+}
+
+.premium-shop-circle{
+    width:86px!important;
+    height:86px!important;
+    font-size:42px!important;
+}
+
+}
