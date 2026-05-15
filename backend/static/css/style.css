@@ -1134,3 +1134,27 @@ padding:22px;
 border-radius:20px;
 opacity:.7;
 }
+.success-page{
+min-height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+padding:24px;
+text-align:center;
+}
+
+.success-icon{
+font-size:72px;
+margin-bottom:20px;
+}
+
+.success-page h1{
+font-size:36px;
+margin-bottom:12px;
+}
+
+.success-page p{
+opacity:.7;
+margin-bottom:24px;
+}
