@@ -1,70 +1,356 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>My Orders</title>
+
 <link rel="stylesheet" href="/static/css/style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+body{
+background:#050816;
+color:white;
+font-family:Arial;
+margin:0;
+padding:0;
+padding-bottom:150px;
+}
+
+.old-bottom-nav,
+.bottom-nav,
+.navbar{
+display:none!important;
+}
+
+.orders-page{
+padding:18px;
+}
+
+.page-title{
+font-size:52px;
+font-weight:900;
+color:#3ea6ff;
+margin-bottom:24px;
+}
+
+.order-card{
+background:#111827;
+border-radius:28px;
+padding:22px;
+border:1px solid rgba(255,255,255,.05);
+margin-bottom:18px;
+}
+
+.order-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:16px;
+}
+
+.order-id{
+font-size:24px;
+font-weight:800;
+}
+
+.order-status{
+padding:8px 14px;
+border-radius:999px;
+font-size:13px;
+font-weight:800;
+background:#0d1220;
+color:#3ea6ff;
+}
+
+.order-info{
+opacity:.75;
+margin-bottom:16px;
+line-height:1.5;
+}
+
+.order-items{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.order-item{
+display:flex;
+align-items:center;
+gap:12px;
+background:#0d1220;
+padding:12px;
+border-radius:18px;
+}
+
+.order-item img{
+width:70px;
+height:70px;
+border-radius:16px;
+object-fit:cover;
+}
+
+.order-item-name{
+font-size:18px;
+font-weight:700;
+margin-bottom:6px;
+}
+
+.order-item-price{
+color:#3ea6ff;
+font-weight:800;
+}
+
+.empty-orders{
+background:#111827;
+padding:30px;
+border-radius:24px;
+opacity:.75;
+}
+
+.premium-bottom-nav{
+position:fixed!important;
+bottom:0!important;
+left:50%!important;
+transform:translateX(-50%)!important;
+width:100%!important;
+max-width:900px!important;
+height:105px!important;
+background:rgba(17,24,39,.96)!important;
+backdrop-filter:blur(20px)!important;
+border-top-left-radius:34px!important;
+border-top-right-radius:34px!important;
+display:flex!important;
+align-items:center!important;
+justify-content:space-around!important;
+padding:8px 12px!important;
+z-index:999999!important;
+box-shadow:0 -10px 40px rgba(0,0,0,.45)!important;
+border:1px solid rgba(255,255,255,.06)!important;
+}
+
+.premium-nav-item{
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+justify-content:center!important;
+gap:5px!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:13px!important;
+font-weight:700!important;
+min-width:58px!important;
+}
+
+.premium-nav-item.active{
+color:#3ea6ff!important;
+}
+
+.premium-icon{
+font-size:28px!important;
+line-height:1!important;
+}
+
+.premium-shop-btn{
+position:relative!important;
+margin-top:-45px!important;
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:12px!important;
+font-weight:800!important;
+min-width:82px!important;
+}
+
+.premium-shop-circle{
+width:88px!important;
+height:88px!important;
+border-radius:50%!important;
+background:#3ea6ff!important;
+display:flex!important;
+align-items:center!important;
+justify-content:center!important;
+font-size:42px!important;
+color:white!important;
+border:8px solid #050816!important;
+box-shadow:0 0 35px rgba(62,166,255,.85)!important;
+margin-bottom:5px!important;
+}
+
+@media(max-width:600px){
+
+.page-title{
+font-size:38px;
+}
+
+.order-id{
+font-size:20px;
+}
+
+.order-item-name{
+font-size:16px;
+}
+
+.order-item img{
+width:60px;
+height:60px;
+}
+
+.premium-bottom-nav{
+width:100%!important;
+max-width:100%!important;
+left:0!important;
+transform:none!important;
+height:86px!important;
+border-radius:24px 24px 0 0!important;
+padding:4px 2px!important;
+overflow:hidden!important;
+}
+
+.premium-nav-item{
+min-width:40px!important;
+font-size:9px!important;
+gap:3px!important;
+}
+
+.premium-icon{
+font-size:20px!important;
+}
+
+.premium-shop-btn{
+min-width:54px!important;
+font-size:9px!important;
+margin-top:-32px!important;
+}
+
+.premium-shop-circle{
+width:66px!important;
+height:66px!important;
+font-size:30px!important;
+border:6px solid #050816!important;
+}
+
+}
+</style>
 </head>
 
 <body>
 
-<div class="topbar">
-<h1>MY ORDERS</h1>
-<a href="/">🏠</a>
-</div>
+<div class="orders-page">
 
-<div class="orders-list">
+<div class="page-title">
+MY ORDERS
+</div>
 
 {% if parsed_orders|length == 0 %}
-<div class="empty-cart">No orders yet</div>
-{% endif %}
 
-{% for data in parsed_orders %}
-<div class="user-order-card">
+<div class="empty-orders">
+You have no orders yet
+</div>
 
-    <div class="order-head">
-        <h2>Order #{{ data.order.id }}</h2>
-        <span class="order-status status-{{ data.order.status }}">
-            {{ data.order.status }}
-        </span>
-    </div>
+{% else %}
 
-    <p class="order-meta">
-        Payment: {{ data.order.payment }}
-    </p>
+{% for entry in parsed_orders %}
 
-    <p class="order-total">
-        Total: ${{ data.order.total }}
-    </p>
+{% set order = entry.order %}
+{% set items = entry.items %}
 
-    <div class="order-items">
-        {% for item in data.items %}
-        <div class="order-item-row">
-            {% if item.image %}
-            <img src="{{ item.image }}">
-            {% endif %}
+<div class="order-card">
 
-            <div>
-                <h3>{{ item.name }}</h3>
-                <p>${{ item.price }}</p>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+<div class="order-top">
+
+<div class="order-id">
+Order #{{ order.id }}
+</div>
+
+<div class="order-status">
+{{ order.status }}
+</div>
 
 </div>
+
+<div class="order-info">
+Total: ${{ order.total }}<br>
+Payment: {{ order.payment }}<br>
+Date: {{ order.created_at }}
+</div>
+
+<div class="order-items">
+
+{% for item in items %}
+
+<div class="order-item">
+
+<img src="{{ item.image }}">
+
+<div>
+
+<div class="order-item-name">
+{{ item.name }}
+</div>
+
+<div class="order-item-price">
+${{ item.price }}
+</div>
+
+</div>
+
+</div>
+
 {% endfor %}
 
 </div>
 
-<div class="bottom-nav">
-<a href="/" class="nav-item"><div>🏠</div><span>HOME</span></a>
-<a href="/my-shop" class="nav-item"><div>🏪</div><span>MY SHOP</span></a>
-<a href="/my-orders" class="nav-item active"><div>📦</div><span>ORDERS</span></a>
-<a href="/cart" class="nav-item"><div>🛒</div><span>CART</span></a>
-<a href="/profile" class="nav-item"><div>👤</div><span>LOGIN</span></a>
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+</div>
+
+<div class="premium-bottom-nav">
+
+<a href="/" class="premium-nav-item">
+<div class="premium-icon">🏠</div>
+<span>Главная</span>
+</a>
+
+<a href="/cart" class="premium-nav-item">
+<div class="premium-icon">🛒</div>
+<span>Корзина</span>
+</a>
+
+<a href="/favorites-products" class="premium-nav-item">
+<div class="premium-icon">📁</div>
+<span>Каталог</span>
+</a>
+
+<a href="/my-shop" class="premium-shop-btn">
+<div class="premium-shop-circle">💎</div>
+<span>ReversedShop</span>
+</a>
+
+<a href="/chat/general" class="premium-nav-item">
+<div class="premium-icon">💬</div>
+<span>Чат</span>
+</a>
+
+<a href="/vip" class="premium-nav-item">
+<div class="premium-icon">👑</div>
+<span>Вип</span>
+</a>
+
+<a href="/profile" class="premium-nav-item active">
+<div class="premium-icon">👤</div>
+<span>Профиль</span>
+</a>
+
 </div>
 
 <script>
@@ -73,12 +359,6 @@ const tg = window.Telegram?.WebApp;
 if(tg){
     tg.ready();
     tg.expand();
-
-    const user = tg.initDataUnsafe?.user;
-
-    if(user && !window.location.search.includes("telegram_id")){
-        window.location.href = "/my-orders?telegram_id=" + user.id;
-    }
 }
 </script>
 
