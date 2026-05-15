@@ -1793,3 +1793,106 @@ select{
     padding:16px!important;
     box-sizing:border-box!important;
 }
+/* ===== FINAL GLOBAL BOTTOM MENU ===== */
+
+html,
+body{
+    overflow-x:hidden!important;
+    background:#050816!important;
+}
+
+body{
+    padding-bottom:115px!important;
+}
+
+.bottom-nav,
+.navbar,
+.old-bottom-nav{
+    display:none!important;
+}
+
+.premium-bottom-nav{
+    position:fixed!important;
+    left:50%!important;
+    bottom:0!important;
+    transform:translateX(-50%)!important;
+    width:100%!important;
+    max-width:430px!important;
+    height:86px!important;
+    background:rgba(17,24,39,.96)!important;
+    backdrop-filter:blur(22px)!important;
+    border-radius:26px 26px 0 0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-around!important;
+    padding:6px 8px!important;
+    z-index:2147483647!important;
+    box-shadow:0 -10px 38px rgba(0,0,0,.55)!important;
+    border:1px solid rgba(255,255,255,.06)!important;
+    box-sizing:border-box!important;
+    overflow:visible!important;
+}
+
+.premium-nav-item{
+    width:50px!important;
+    min-width:50px!important;
+    max-width:50px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:4px!important;
+    text-decoration:none!important;
+    color:#8f96a8!important;
+    font-size:11px!important;
+    font-weight:500!important;
+    line-height:1!important;
+}
+
+.premium-nav-item.active{
+    color:#3ea6ff!important;
+}
+
+.premium-icon{
+    font-size:22px!important;
+    line-height:1!important;
+}
+
+.premium-shop-btn{
+    width:72px!important;
+    min-width:72px!important;
+    max-width:72px!important;
+    margin-top:-42px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:3px!important;
+    text-decoration:none!important;
+    color:#8f96a8!important;
+    font-size:10px!important;
+    font-weight:500!important;
+    line-height:1!important;
+}
+
+.premium-shop-btn.active{
+    color:#3ea6ff!important;
+}
+
+.premium-shop-circle{
+    width:72px!important;
+    height:72px!important;
+    border-radius:50%!important;
+    background:#3ea6ff!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    font-size:34px!important;
+    border:7px solid #050816!important;
+    box-shadow:0 0 32px rgba(62,166,255,.8)!important;
+}
+
+.premium-bottom-nav span{
+    font-weight:500!important;
+    white-space:nowrap!important;
+}
