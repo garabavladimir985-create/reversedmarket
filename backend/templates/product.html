@@ -1,89 +1,277 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ product.name }}</title>
+
+<title>{{ item.name }}</title>
+
 <link rel="stylesheet" href="/static/css/style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+body{
+background:#050816;
+color:white;
+font-family:Arial;
+margin:0;
+padding:0;
+padding-bottom:140px;
+}
+
+.old-bottom-nav,
+.bottom-nav,
+.navbar{
+display:none!important;
+}
+
+.product-page{
+padding:20px;
+}
+
+.product-image{
+width:100%;
+border-radius:24px;
+object-fit:cover;
+margin-bottom:20px;
+box-shadow:0 0 30px rgba(0,0,0,.4);
+}
+
+.product-title{
+font-size:34px;
+font-weight:800;
+margin-bottom:10px;
+}
+
+.product-price{
+font-size:28px;
+font-weight:700;
+color:#3ea6ff;
+margin-bottom:20px;
+}
+
+.product-description{
+background:rgba(255,255,255,.04);
+border:1px solid rgba(255,255,255,.06);
+padding:18px;
+border-radius:20px;
+line-height:1.5;
+margin-bottom:25px;
+}
+
+.buy-btn{
+width:100%;
+height:62px;
+border:none;
+border-radius:18px;
+background:#3ea6ff;
+color:white;
+font-size:20px;
+font-weight:700;
+cursor:pointer;
+margin-bottom:15px;
+}
+
+.cart-btn{
+width:100%;
+height:62px;
+border-radius:18px;
+background:transparent;
+border:2px solid #3ea6ff;
+color:white;
+font-size:20px;
+font-weight:700;
+cursor:pointer;
+}
+
+.back-btn{
+position:fixed;
+top:20px;
+left:20px;
+width:52px;
+height:52px;
+border-radius:16px;
+background:rgba(255,255,255,.05);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:24px;
+text-decoration:none;
+color:white;
+backdrop-filter:blur(10px);
+z-index:999;
+}
+
+.premium-bottom-nav{
+position:fixed!important;
+bottom:0!important;
+left:50%!important;
+transform:translateX(-50%)!important;
+width:100%!important;
+max-width:900px!important;
+height:105px!important;
+background:rgba(17,24,39,.96)!important;
+backdrop-filter:blur(20px)!important;
+border-top-left-radius:34px!important;
+border-top-right-radius:34px!important;
+display:flex!important;
+align-items:center!important;
+justify-content:space-around!important;
+padding:8px 12px!important;
+z-index:999999!important;
+box-shadow:0 -10px 40px rgba(0,0,0,.45)!important;
+border:1px solid rgba(255,255,255,.06)!important;
+}
+
+.premium-nav-item{
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+justify-content:center!important;
+gap:5px!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:13px!important;
+font-weight:700!important;
+min-width:58px!important;
+}
+
+.premium-nav-item.active{
+color:#3ea6ff!important;
+}
+
+.premium-icon{
+font-size:28px!important;
+line-height:1!important;
+}
+
+.premium-shop-btn{
+position:relative!important;
+margin-top:-45px!important;
+display:flex!important;
+flex-direction:column!important;
+align-items:center!important;
+text-decoration:none!important;
+color:#8d94a8!important;
+font-size:12px!important;
+font-weight:800!important;
+min-width:82px!important;
+}
+
+.premium-shop-circle{
+width:88px!important;
+height:88px!important;
+border-radius:50%!important;
+background:#3ea6ff!important;
+display:flex!important;
+align-items:center!important;
+justify-content:center!important;
+font-size:42px!important;
+color:white!important;
+border:8px solid #050816!important;
+box-shadow:0 0 35px rgba(62,166,255,.85)!important;
+margin-bottom:5px!important;
+}
+</style>
 </head>
 
 <body>
 
+<a href="/" class="back-btn">←</a>
+
 <div class="product-page">
 
-    <a class="back-btn" href="/">← Back</a>
+<img src="{{ item.image }}" class="product-image">
 
-    <img class="product-page-img" src="{{ product.image }}">
+<div class="product-title">
+{{ item.name }}
+</div>
 
-    <div class="product-page-info">
+<div class="product-price">
+${{ item.price }}
+</div>
 
-        <h1>{{ product.name }}</h1>
+<div class="product-description">
+{{ item.description }}
+</div>
 
-        <div class="product-page-price">
-            ${{ product.price }}
-        </div>
+<button class="buy-btn" onclick="buyNow()">
+Buy Now
+</button>
 
-        <div class="product-meta">
-            <span>Brand: {{ product.brand }}</span>
-            <span>Size: {{ product.size }}</span>
-            <span>Color: {{ product.color }}</span>
-            <span>Condition: {{ product.condition }}</span>
-            <span>Stock: {{ product.stock }}</span>
-        </div>
-
-        <p class="product-page-desc">
-            {{ product.description }}
-        </p>
-
-        <button class="buy-btn" onclick="addToCart()">
-            Add to Cart
-        </button>
-
-    </div>
+<button class="cart-btn" onclick="addToCart()">
+Add To Cart
+</button>
 
 </div>
 
-<div class="bottom-nav">
-    <a href="/" class="nav-item">
-        <div>🏠</div>
-        <span>HOME</span>
+<div class="premium-bottom-nav">
+
+    <a href="/" class="premium-nav-item">
+        <div class="premium-icon">🏠</div>
+        <span>Главная</span>
     </a>
 
-    <a href="/my-shop" class="nav-item">
-        <div>🏪</div>
-        <span>MY SHOP</span>
+    <a href="/cart" class="premium-nav-item">
+        <div class="premium-icon">🛒</div>
+        <span>Корзина</span>
     </a>
 
-    <a href="/chat" class="nav-item">
-        <div>💬</div>
-        <span>CHAT</span>
+    <a href="/favorites-products" class="premium-nav-item">
+        <div class="premium-icon">📁</div>
+        <span>Каталог</span>
     </a>
 
-    <a href="/cart" class="nav-item">
-        <div>🛒</div>
-        <span>CART</span>
+    <a href="/my-shop" class="premium-shop-btn">
+        <div class="premium-shop-circle">💎</div>
+        <span>ReversedShop</span>
     </a>
 
-    <a href="/profile" class="nav-item">
-        <div>👤</div>
-        <span>LOGIN</span>
+    <a href="/chat" class="premium-nav-item">
+        <div class="premium-icon">💬</div>
+        <span>Чат</span>
     </a>
+
+    <a href="/vip" class="premium-nav-item">
+        <div class="premium-icon">👑</div>
+        <span>Вип</span>
+    </a>
+
+    <a href="/profile" class="premium-nav-item">
+        <div class="premium-icon">👤</div>
+        <span>Профиль</span>
+    </a>
+
 </div>
 
 <script>
+const tg = window.Telegram?.WebApp;
+
+if(tg){
+    tg.ready();
+    tg.expand();
+}
+
+const item = {
+    id: "{{ item.id }}",
+    name: "{{ item.name }}",
+    price: "{{ item.price }}",
+    image: "{{ item.image }}"
+};
+
 function addToCart(){
     let cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    cart.push({
-        id: "{{ product.id }}",
-        name: "{{ product.name }}",
-        price: "{{ product.price }}",
-        image: "{{ product.image }}"
-    });
+    cart.push(item);
 
     localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Added to cart 🛒");
+
+    alert("Added to cart");
+}
+
+function buyNow(){
+    addToCart();
+    window.location.href = "/cart";
 }
 </script>
 
