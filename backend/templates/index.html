@@ -24,7 +24,35 @@
     <a class="filter" href="/vip">⭐</a>
 </div>
 
-<div class="shop-grid">
+{% for product in products %}
+
+<div class="product-card">
+
+    <a href="/product/{{ product.id }}">
+
+        <img class="product-image" src="{{ product.image }}">
+
+        <div class="product-info">
+
+            <div class="product-name">
+                {{ product.name }}
+            </div>
+
+            <div class="product-price">
+                ${{ product.price }}
+            </div>
+
+            <div class="product-brand">
+                {{ product.brand }}
+            </div>
+
+        </div>
+
+    </a>
+
+</div>
+
+{% endfor %}
 
 {% for seller in sellers %}
 <div class="shop-card">

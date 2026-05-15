@@ -84,8 +84,13 @@ def save_file(file):
 @app.route("/")
 def home():
     sellers = Seller.query.all()
-    return render_template("index.html", sellers=sellers)
+    products = Product.query.order_by(Product.id.desc()).all()
 
+    return render_template(
+        "index.html",
+        sellers=sellers,
+        products=products
+    )
 
 @app.route("/seller")
 def seller_dashboard():
