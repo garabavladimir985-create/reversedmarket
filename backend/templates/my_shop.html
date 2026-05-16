@@ -4,26 +4,126 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shop</title>
-<link rel="stylesheet" href="/static/css/style.css?v=999">
+<link rel="stylesheet" href="/static/css/style.css?v=1000">
+
+<style>
+.shop-hero{
+    min-height:100vh;
+    padding:32px 22px 140px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.shop-card-premium{
+    width:100%;
+    max-width:430px;
+    background:linear-gradient(180deg,#14213b,#0d1426);
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:34px;
+    padding:34px 24px;
+    text-align:center;
+    box-shadow:0 30px 90px rgba(0,0,0,.55);
+    position:relative;
+    overflow:hidden;
+}
+
+.shop-card-premium:before{
+    content:"";
+    position:absolute;
+    width:220px;
+    height:220px;
+    background:#3ea6ff;
+    filter:blur(80px);
+    opacity:.28;
+    top:-80px;
+    left:50%;
+    transform:translateX(-50%);
+}
+
+.shop-logo-premium{
+    width:120px;
+    height:120px;
+    margin:0 auto 24px;
+    border-radius:50%;
+    background:#3ea6ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:58px;
+    border:7px solid #050816;
+    box-shadow:0 0 45px rgba(62,166,255,.9);
+    position:relative;
+    z-index:2;
+}
+
+.shop-title-premium{
+    font-size:44px;
+    font-weight:900;
+    color:white;
+    margin-bottom:14px;
+    position:relative;
+    z-index:2;
+}
+
+.shop-desc-premium{
+    font-size:17px;
+    line-height:1.55;
+    color:#c9d2e3;
+    margin-bottom:26px;
+    position:relative;
+    z-index:2;
+}
+
+.shop-actions-premium{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    position:relative;
+    z-index:2;
+}
+
+.shop-action{
+    min-height:54px;
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:15px;
+    font-weight:800;
+    color:white;
+    text-decoration:none;
+}
+
+.shop-action.primary{
+    background:#3ea6ff;
+    box-shadow:0 10px 24px rgba(62,166,255,.3);
+}
+
+.shop-action.secondary{
+    background:#0b1020;
+    border:1px solid rgba(62,166,255,.8);
+}
+</style>
 </head>
 
 <body>
 
-<div class="page">
+<div class="shop-hero">
 
-    <div class="shop-box">
+    <div class="shop-card-premium">
 
-        <div class="shop-logo">💎</div>
+        <div class="shop-logo-premium">💎</div>
 
-        <h1 class="shop-title">Shop</h1>
+        <div class="shop-title-premium">Shop</div>
 
-        <p class="shop-text">
+        <div class="shop-desc-premium">
             Для создания собственного магазина вам требуется получить верификацию или иметь VIP статус.
-        </p>
+        </div>
 
-        <div class="shop-buttons">
-            <a href="/vip" class="shop-btn">Получить VIP</a>
-            <a href="/" class="shop-btn dark">На главную</a>
+        <div class="shop-actions-premium">
+            <a href="/vip" class="shop-action primary">Получить VIP</a>
+            <a href="/" class="shop-action secondary">На главную</a>
         </div>
 
     </div>
