@@ -1,142 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ReversedShop</title>
+<title>Shop</title>
 <link rel="stylesheet" href="/static/css/style.css?v=999">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
 
-{% if not is_admin %}
+<div class="page">
 
-<div class="shop-locked-page">
+    <div class="shop-box">
 
-    <div class="locked-card">
-        <div class="locked-icon">💎</div>
+        <div class="shop-logo">💎</div>
 
-        <h1>ReversedShop</h1>
+        <h1 class="shop-title">Shop</h1>
 
-        <p>
-            Для создания собственного магазина вам требуется получить верификацию
-            или иметь VIP статус.
+        <p class="shop-text">
+            Для создания собственного магазина вам требуется получить верификацию или иметь VIP статус.
         </p>
 
-        <a href="/vip" class="buy-btn">
-            Получить VIP
-        </a>
+        <div class="shop-buttons">
+            <a href="/vip" class="shop-btn">Получить VIP</a>
+            <a href="/" class="shop-btn dark">На главную</a>
+        </div>
 
-        <a href="/" class="buy-btn crypto">
-            На главную
-        </a>
     </div>
 
 </div>
 
-{% else %}
-
-<div class="topbar">
-    <h1>REVERSEDSHOP</h1>
-    <a href="/">🏠</a>
-</div>
-
-<div class="admin-box">
-<h2>Create Shop</h2>
-
-<form action="/add-seller" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="key" value="{{ key }}">
-
-<input name="shop_name" placeholder="Shop name" required>
-<input name="category" placeholder="Category: Hoodies / Sneakers / Vintage / Luxury" required>
-<input name="telegram" placeholder="Telegram username">
-<input name="avatar" placeholder="Shop image URL">
-<input type="file" name="avatar_file">
-<textarea name="description" placeholder="Shop description"></textarea>
-
-<button type="submit">Create Shop</button>
-</form>
-</div>
-
-<div class="admin-box">
-<h2>Add Item</h2>
-
-<form action="/add-seller-product" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="key" value="{{ key }}">
-
-<select name="seller_id" required>
-{% for seller in sellers %}
-<option value="{{ seller.id }}">{{ seller.shop_name }}</option>
-{% endfor %}
-</select>
-
-<input name="name" placeholder="Item name" required>
-<input name="price" placeholder="Price" required>
-<input name="brand" placeholder="Brand">
-<input name="size" placeholder="Size">
-<input name="color" placeholder="Color">
-<input name="condition" placeholder="Condition">
-<input name="stock" placeholder="Stock" value="1">
-<input name="image" placeholder="Image URL">
-<input type="file" name="image_file">
-<textarea name="description" placeholder="Item description"></textarea>
-
-<label class="vip-check">
-<input type="checkbox" name="vip">
-VIP item
-</label>
-
-<button type="submit">Add Item</button>
-</form>
-</div>
-
-<div class="admin-box">
-<h2>Shops</h2>
-
-{% if sellers|length == 0 %}
-<p>No shops yet</p>
-{% endif %}
-
-{% for seller in sellers %}
-<div class="order-card">
-
-{% if seller.avatar %}
-<img class="seller-preview-img" src="{{ seller.avatar }}">
-{% endif %}
-
-<h3>{{ seller.shop_name }}</h3>
-<p>{{ seller.description }}</p>
-<p>Category: {{ seller.category }}</p>
-<p>Telegram: @{{ seller.telegram }}</p>
-
-<a class="pay-btn" href="/shop/{{ seller.id }}">Open Shop</a>
-<a class="pay-btn" href="/chat/{{ seller.shop_name }}">Open Chat</a>
-<a class="pay-btn danger" href="/delete-seller/{{ seller.id }}?key={{ key }}">Delete</a>
-
-</div>
-{% endfor %}
-</div>
-
-<div class="admin-box">
-<h2>Items</h2>
-
-{% if products|length == 0 %}
-<p>No items yet</p>
-{% endif %}
-
-{% for product in products %}
-<div class="admin-item">
-<span>{{ product.name }} — ${{ product.price }}</span>
-<a href="/delete-product/{{ product.id }}?key={{ key }}">Delete</a>
-</div>
-{% endfor %}
-</div>
-
-{% endif %}
-
-
-
 {% include "_nav.html" %}
+
 </body>
 </html>
