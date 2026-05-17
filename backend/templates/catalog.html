@@ -4,22 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Catalog</title>
-<link rel="stylesheet" href="/static/css/style.css?v=8000">
+<link rel="stylesheet" href="/static/css/style.css?v=8100">
 
 <style>
-.catalog-top{
+.catalog-head{
     display:flex;
-    justify-content:space-between;
     align-items:center;
-    margin-bottom:22px;
+    justify-content:space-between;
+    margin-bottom:18px;
+}
+
+.search-toggle{
+    width:58px;
+    height:58px;
+    border-radius:20px;
+    border:none;
+    background:#111827;
+    color:white;
+    font-size:26px;
 }
 
 .filter-card{
+    display:none;
     background:linear-gradient(180deg,#111827,#0d1426);
     border:1px solid rgba(255,255,255,.08);
     border-radius:28px;
     padding:18px;
-    margin-bottom:24px;
+    margin-bottom:22px;
+}
+
+.filter-card.open{
+    display:block;
 }
 
 .filter-grid{
@@ -39,10 +54,44 @@
     margin-top:12px;
 }
 
-.catalog-count{
+.category-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+.category-card{
+    min-height:145px;
+    background:linear-gradient(180deg,#111827,#0d1426);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:28px;
+    padding:24px 18px;
+    color:white;
+    text-decoration:none;
+    box-shadow:0 18px 50px rgba(0,0,0,.28);
+}
+
+.category-card span{
+    display:block;
+    font-size:42px;
+    margin-bottom:14px;
+}
+
+.category-title{
+    font-size:20px;
+    font-weight:900;
+}
+
+.category-sub{
+    margin-top:6px;
+    color:#9fa8bd;
+    font-size:13px;
+}
+
+.results-title{
+    margin:22px 0 14px;
     color:#9fa8bd;
     font-size:15px;
-    margin-bottom:16px;
 }
 
 .product-card{
@@ -74,15 +123,14 @@
 
 <div class="app-page">
 
-    <div class="catalog-top">
+    <div class="catalog-head">
         <h1 class="app-title" style="margin-bottom:0;">CATALOG</h1>
-        <a href="/" class="square-btn">🏠</a>
+        <button class="search-toggle" onclick="toggleFilters()">🔍</button>
     </div>
 
-    <form class="filter-card" action="/catalog" method="GET">
+    <form id="filter-card" class="filter-card" action="/catalog" method="GET">
 
         <div class="filter-grid">
-
             <input class="input" name="q" value="{{ q }}" placeholder="Search product or brand...">
 
             <select class="input" name="category">
@@ -100,9 +148,7 @@
             </select>
 
             <input class="input" name="size" value="{{ size }}" placeholder="Size">
-
             <input class="input" name="max_price" value="{{ max_price }}" placeholder="Max price €" type="number">
-
         </div>
 
         <div class="filter-actions">
@@ -112,45 +158,89 @@
 
     </form>
 
-    <div class="catalog-count">
-        Found: {{ products|length }} products
-    </div>
+    {% if q or category or brand or size or max_price %}
 
-    {% if products|length == 0 %}
-        <div class="empty-box">
-            No products found
+        <div class="results-title">
+            Found: {{ products|length }} products
         </div>
-    {% else %}
-        <div class="products-grid">
-            {% for product in products %}
-            <div class="product-card fav-wrapper">
 
-                {% if product.vip %}
+        {% if products|length == 0 %}
+            <div class="empty-box">No products found</div>
+        {% else %}
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card fav-wrapper">
+
+                    {% if product.vip %}
                     <div class="vip-badge">VIP</div>
-                {% endif %}
+                    {% endif %}
 
-                <button
-                    class="fav-btn"
-                    onclick="toggleFavorite(event, '{{ product.id }}', '{{ product.name }}', '{{ product.price }}', '{{ product.image }}')"
-                    id="fav-{{ product.id }}"
-                >
-                    ♡
-                </button>
+                    <button
+                        class="fav-btn"
+                        onclick="toggleFavorite(event, '{{ product.id }}', '{{ product.name }}', '{{ product.price }}', '{{ product.image }}')"
+                        id="fav-{{ product.id }}"
+                    >
+                        ♡
+                    </button>
 
-                <a href="/product/{{ product.id }}">
-                    <img src="{{ product.image }}">
-                    <div class="product-info">
-                        <div class="product-name">{{ product.name }}</div>
-                        <div class="product-price">€{{ product.price }}</div>
-                        <div style="color:#9fa8bd;font-size:13px;margin-top:6px;">
-                            {{ product.brand }} · {{ product.size }}
+                    <a href="/product/{{ product.id }}">
+                        <img src="{{ product.image }}">
+                        <div class="product-info">
+                            <div class="product-name">{{ product.name }}</div>
+                            <div class="product-price">€{{ product.price }}</div>
+                            <div style="color:#9fa8bd;font-size:13px;margin-top:6px;">
+                                {{ product.brand }} · {{ product.size }}
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
 
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        {% endif %}
+
+    {% else %}
+
+        <div class="category-grid">
+
+            <a href="/catalog?category=Shoes" class="category-card">
+                <span>👟</span>
+                <div class="category-title">Shoes</div>
+                <div class="category-sub">Sneakers, boots, runners</div>
+            </a>
+
+            <a href="/catalog?category=Hoodies" class="category-card">
+                <span>🧥</span>
+                <div class="category-title">Hoodies</div>
+                <div class="category-sub">Streetwear and oversized</div>
+            </a>
+
+            <a href="/catalog?category=Luxury" class="category-card">
+                <span>💎</span>
+                <div class="category-title">Luxury</div>
+                <div class="category-sub">Premium brands</div>
+            </a>
+
+            <a href="/catalog?category=Accessories" class="category-card">
+                <span>👜</span>
+                <div class="category-title">Accessories</div>
+                <div class="category-sub">Bags, glasses, belts</div>
+            </a>
+
+            <a href="/catalog?category=Vintage" class="category-card">
+                <span>📦</span>
+                <div class="category-title">Vintage</div>
+                <div class="category-sub">Archive and rare items</div>
+            </a>
+
+            <a href="/catalog?category=VIP" class="category-card">
+                <span>👑</span>
+                <div class="category-title">VIP</div>
+                <div class="category-sub">Private selection</div>
+            </a>
+
         </div>
+
     {% endif %}
 
 </div>
@@ -158,6 +248,20 @@
 {% include "_nav.html" %}
 
 <script>
+function toggleFilters(){
+    document.getElementById("filter-card").classList.toggle("open");
+}
+
+if(
+    "{{ q }}" ||
+    "{{ category }}" ||
+    "{{ brand }}" ||
+    "{{ size }}" ||
+    "{{ max_price }}"
+){
+    document.getElementById("filter-card").classList.add("open");
+}
+
 function getFavorites(){
     return JSON.parse(localStorage.getItem("favorites") || "[]");
 }
@@ -176,12 +280,7 @@ function toggleFavorite(event, id, name, price, image){
     if(exists){
         favs = favs.filter(item => String(item.id) !== String(id));
     }else{
-        favs.push({
-            id:id,
-            name:name,
-            price:price,
-            image:image
-        });
+        favs.push({id:id,name:name,price:price,image:image});
     }
 
     saveFavorites(favs);
