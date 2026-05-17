@@ -8,79 +8,72 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
 body{background:#050816;color:white;padding:24px}
-.admin-wrap{max-width:1200px;margin:0 auto}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-h1{font-size:42px;color:#3ea6ff}
+.wrap{max-width:1200px;margin:0 auto}
+h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
 .card{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:22px;margin-bottom:22px}
-.card h2{margin-bottom:18px;font-size:26px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-input,textarea,select{width:100%;padding:15px;border:none;border-radius:14px;background:#0d1220;color:white;font-size:15px}
-textarea{min-height:110px;resize:none}
-button,.btn{border:none;border-radius:16px;background:#3ea6ff;color:white;padding:15px;font-weight:800;cursor:pointer;text-decoration:none;text-align:center;display:inline-block}
-.btn.red{background:#ff4d6d}
+.card h2{font-size:26px;margin-bottom:18px}
 .list{display:grid;gap:12px}
-.item{background:#0d1220;border-radius:16px;padding:16px;display:flex;justify-content:space-between;gap:14px;align-items:center}
-.item img{width:70px;height:70px;border-radius:14px;object-fit:cover}
+.item{background:#0d1220;border-radius:18px;padding:16px;display:flex;justify-content:space-between;gap:14px;align-items:center}
 .small{opacity:.65;font-size:14px;margin-top:5px}
+.btn{display:inline-block;padding:10px 14px;border-radius:12px;background:#3ea6ff;color:white;text-decoration:none;font-weight:800;margin:4px}
+.btn.red{background:#ff4d6d}
+.btn.dark{background:#1f2937}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;margin-top:6px}
+.badge.on{background:#37d67a;color:#07111f}
+.badge.off{background:#374151;color:white}
 .price{color:#3ea6ff;font-weight:900}
-@media(max-width:700px){.grid{grid-template-columns:1fr}h1{font-size:34px}.item{flex-direction:column;align-items:flex-start}}
+@media(max-width:700px){.item{flex-direction:column;align-items:flex-start}h1{font-size:34px}}
 </style>
 </head>
 
 <body>
 
-<div class="admin-wrap">
+<div class="wrap">
 
-<div class="header">
 <h1>ADMIN PANEL</h1>
-<a class="btn" href="/">Home</a>
-</div>
 
 <div class="card">
-<h2>🏪 Create Shop</h2>
+<h2>👤 Users / VIP / Verified</h2>
 
-<form action="/add-seller" method="POST" enctype="multipart/form-data" class="grid">
-<input type="hidden" name="key" value="admin123">
-<input name="shop_name" placeholder="Shop name" required>
-<input name="category" placeholder="Category">
-<input name="telegram" placeholder="Telegram username">
-<input name="avatar" placeholder="Shop image URL">
-<input type="file" name="avatar_file">
-<textarea name="description" placeholder="Shop description"></textarea>
-<button type="submit">Create Shop</button>
-</form>
+<div class="list">
+
+{% if users|length == 0 %}
+<div class="small">No users yet</div>
+{% endif %}
+
+{% for user in users %}
+<div class="item">
+
+<div>
+<b>{{ user.name or "Telegram User" }}</b>
+<div class="small">
+@{{ user.username }} · ID: {{ user.telegram_id }}
 </div>
 
-<div class="card">
-<h2>👕 Add Product</h2>
+{% if user.is_vip %}
+<span class="badge on">VIP ON</span>
+{% else %}
+<span class="badge off">VIP OFF</span>
+{% endif %}
 
-<form action="/add-seller-product" method="POST" enctype="multipart/form-data" class="grid">
-<input type="hidden" name="key" value="admin123">
+{% if user.is_verified %}
+<span class="badge on">VERIFIED ON</span>
+{% else %}
+<span class="badge off">VERIFIED OFF</span>
+{% endif %}
+</div>
 
-<select name="seller_id" required>
-{% for seller in sellers %}
-<option value="{{ seller.id }}">{{ seller.shop_name }}</option>
+<div>
+<a class="btn" href="/user/{{ user.id }}/vip/on?key={{ key }}">VIP ON</a>
+<a class="btn dark" href="/user/{{ user.id }}/vip/off?key={{ key }}">VIP OFF</a>
+<a class="btn" href="/user/{{ user.id }}/verified/on?key={{ key }}">VERIFY ON</a>
+<a class="btn dark" href="/user/{{ user.id }}/verified/off?key={{ key }}">VERIFY OFF</a>
+</div>
+
+</div>
 {% endfor %}
-</select>
 
-<input name="name" placeholder="Product name" required>
-<input name="price" placeholder="Price €" required>
-<input name="brand" placeholder="Brand">
-<input name="size" placeholder="Size">
-<input name="color" placeholder="Color">
-<input name="condition" placeholder="Condition">
-<input name="stock" value="1" placeholder="Stock">
-<input name="image" placeholder="Image URL">
-<input type="file" name="image_file">
-<textarea name="description" placeholder="Product description"></textarea>
-
-<label>
-<input type="checkbox" name="vip" style="width:auto;margin-right:8px">
-VIP product
-</label>
-
-<button type="submit">Add Product</button>
-</form>
+</div>
 </div>
 
 <div class="card">
@@ -95,9 +88,12 @@ VIP product
 <div class="item">
 <div>
 <b>{{ seller.shop_name }}</b>
-<div class="small">{{ seller.category }} · @{{ seller.telegram }}</div>
+<div class="small">
+Owner TG: {{ seller.owner_telegram_id }} · {{ seller.category }} · @{{ seller.telegram }}
 </div>
-<a class="btn red" href="/delete-seller/{{ seller.id }}?key=admin123">Delete</a>
+</div>
+
+<a class="btn red" href="/delete-seller/{{ seller.id }}?key={{ key }}">Delete</a>
 </div>
 {% endfor %}
 </div>
@@ -113,18 +109,13 @@ VIP product
 
 {% for product in products %}
 <div class="item">
-<div style="display:flex;gap:14px;align-items:center">
-{% if product.image %}
-<img src="{{ product.image }}">
-{% endif %}
 <div>
 <b>{{ product.name }}</b>
 <div class="price">€{{ product.price }}</div>
 <div class="small">{{ product.brand }} · {{ product.size }} · {{ product.condition }}</div>
 </div>
-</div>
 
-<a class="btn red" href="/delete-product/{{ product.id }}?key=admin123">Delete</a>
+<a class="btn red" href="/delete-product/{{ product.id }}?key={{ key }}">Delete</a>
 </div>
 {% endfor %}
 </div>
@@ -142,33 +133,17 @@ VIP product
 <div class="item">
 <div>
 <b>Order #{{ order.id }}</b>
-<div class="small">User: {{ order.user_telegram_id }}</div>
+<div class="small">User TG: {{ order.user_telegram_id }}</div>
 <div class="price">€{{ order.total }} · {{ order.status }}</div>
 </div>
+
 <a class="btn" href="/order/{{ order.id }}">Open</a>
 </div>
 {% endfor %}
 </div>
 </div>
 
-<div class="card">
-<h2>👤 Users</h2>
-
-<div class="list">
-{% if users|length == 0 %}
-<div class="small">No users yet</div>
-{% endif %}
-
-{% for user in users %}
-<div class="item">
-<div>
-<b>{{ user.name or "Telegram User" }}</b>
-<div class="small">@{{ user.username }} · ID: {{ user.telegram_id }}</div>
-</div>
-</div>
-{% endfor %}
-</div>
-</div>
+<a class="btn" href="/">Back Home</a>
 
 </div>
 

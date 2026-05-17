@@ -514,13 +514,60 @@ def pay_crypto():
 
 @app.route("/admin")
 def admin():
+    key = request.args.get("key", "")
+
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
+
     products = Product.query.order_by(Product.id.desc()).all()
     orders = Order.query.order_by(Order.id.desc()).all()
     users = User.query.order_by(User.id.desc()).all()
     sellers = Seller.query.order_by(Seller.id.desc()).all()
 
-    return render_template("admin.html", products=products, orders=orders, users=users, sellers=sellers)
+    return render_template(
+        "admin.html",
+        products=products,
+        orders=orders,
+        users=users,
+        sellers=sellers,
+        key=key
+    )
+@app.route("/user/<int:id>/vip/<status>")
+def update_user_vip(id, status):
+    key = request.args.get("key", "")
 
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
+
+    user = User.query.get_or_404(id)
+
+    if status == "on":
+        user.is_vip = True
+    elif status == "off":
+        user.is_vip = False
+
+    db.session.commit()
+
+    return redirect("/admin?key=admin123")
+
+
+@app.route("/user/<int:id>/verified/<status>")
+def update_user_verified(id, status):
+    key = request.args.get("key", "")
+
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
+
+    user = User.query.get_or_404(id)
+
+    if status == "on":
+        user.is_verified = True
+    elif status == "off":
+        user.is_verified = False
+
+    db.session.commit()
+
+    return redirect("/admin?key=admin123")
 
 def ensure_columns():
     with db.engine.connect() as conn:
