@@ -1,38 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<title>Favorite Products</title>
-<link rel="stylesheet" href="/static/css/style.css?v=999">
-</head>
-<body>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorites</title>
+<link rel="stylesheet" href="/static/css/style.css?v=7000">
 
-
-
-<div class="grid" id="favoriteProducts"></div>
-
-<script>
-let favorites = JSON.parse(localStorage.getItem("favoriteProducts")) || [];
-let box = document.getElementById("favoriteProducts");
-
-if(favorites.length === 0){
-box.innerHTML = "<p style='padding:20px;'>No favorite products yet</p>";
+<style>
+.favorites-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:22px;
 }
 
-favorites.forEach(item => {
-box.innerHTML += `
-<div class="card">
-<img src="${item.image}">
-<div class="info">
-<h2>${item.name}</h2>
-<p>$${item.price}</p>
-<button onclick="addToCart('${item.name}', '${item.price}')">Add to Cart</button>
+.clear-favs{
+    width:auto;
+    min-height:42px;
+    padding:10px 14px;
+    border-radius:14px;
+    background:#ff4d6d;
+    color:white;
+    border:none;
+    font-weight:800;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app-page">
+
+    <div class="favorites-header">
+        <h1 class="app-title" style="margin-bottom:0;">FAVORITES</h1>
+        <button class="clear-favs" onclick="clearFavorites()">Clear</button>
+    </div>
+
+    <div id="favorites-list" class="products-grid"></div>
+
+    <div id="empty-favorites" class="empty-box">
+        No favorite items yet
+    </div>
+
 </div>
-</div>
-`;
-});
+
+{% include "_nav.html" %}
+
+<script>
+function getFavorites(){
+    return JSON.parse(localStorage.getItem("favorites") || "[]");
+}
+
+function saveFavorites(favs){
+    localStorage.setItem("favorites", JSON.stringify(favs));
+}
+
+function renderFavorites(){
+    const favs = getFavorites();
+    const list = document.getElementById("favorites-list");
+    const empty = document.getElementById("empty-favorites");
+
+    list.innerHTML = "";
+
+    if(favs.length === 0){
+        empty.style.display = "block";
+        return;
+    }
+
+    empty.style.display = "none";
+
+    favs.forEach(item => {
+        list.innerHTML += `
+            <div class="product-card fav-wrapper">
+
+                <button class="fav-btn active" onclick="removeFavorite('${item.id}')">
+                    ❤️
+                </button>
+
+                <a href="/product/${item.id}">
+                    <img src="${item.image || ""}">
+                    <div class="product-info">
+                        <div class="product-name">${item.name}</div>
+                        <div class="product-price">€${item.price}</div>
+                    </div>
+                </a>
+
+            </div>
+        `;
+    });
+}
+
+function removeFavorite(id){
+    let favs = getFavorites();
+    favs = favs.filter(item => String(item.id) !== String(id));
+    saveFavorites(favs);
+    renderFavorites();
+}
+
+function clearFavorites(){
+    localStorage.removeItem("favorites");
+    renderFavorites();
+}
+
+renderFavorites();
 </script>
 
-<script src="/static/js/app.js"></script>
-{% include "_nav.html" %}
 </body>
 </html>

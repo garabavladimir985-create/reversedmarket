@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ product.name }}</title>
-<link rel="stylesheet" href="/static/css/style.css?v=4000">
+<link rel="stylesheet" href="/static/css/style.css?v=7000">
 
 <style>
 .product-page{
@@ -28,6 +28,13 @@
     padding:22px;
 }
 
+.product-top{
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    align-items:flex-start;
+}
+
 .product-title{
     font-size:32px;
     font-weight:900;
@@ -39,6 +46,20 @@
     font-size:34px;
     font-weight:900;
     margin-bottom:18px;
+}
+
+.product-fav{
+    width:54px;
+    height:54px;
+    border:none;
+    border-radius:18px;
+    background:#0d1220;
+    color:white;
+    font-size:26px;
+}
+
+.product-fav.active{
+    background:#3ea6ff;
 }
 
 .meta-grid{
@@ -74,9 +95,16 @@
 
     <div class="product-card-box">
 
-        <div class="product-title">{{ product.name }}</div>
+        <div class="product-top">
+            <div>
+                <div class="product-title">{{ product.name }}</div>
+                <div class="product-price-big">€{{ product.price }}</div>
+            </div>
 
-        <div class="product-price-big">€{{ product.price }}</div>
+            <button class="product-fav" id="fav-btn" onclick="toggleFavorite()">
+                ♡
+            </button>
+        </div>
 
         <div class="meta-grid">
             <div class="meta">Brand: {{ product.brand }}</div>
@@ -104,18 +132,17 @@
 {% include "_nav.html" %}
 
 <script>
+const item = {
+    id: "{{ product.id }}",
+    name: "{{ product.name }}",
+    price: Number("{{ product.price }}"),
+    image: "{{ product.image }}",
+    brand: "{{ product.brand }}",
+    size: "{{ product.size }}"
+};
+
 function addToCart(){
-    const item = {
-        id: "{{ product.id }}",
-        name: "{{ product.name }}",
-        price: Number("{{ product.price }}"),
-        image: "{{ product.image }}",
-        brand: "{{ product.brand }}",
-        size: "{{ product.size }}"
-    };
-
     let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
     const exists = cart.find(x => String(x.id) === String(item.id));
 
     if(exists){
@@ -126,9 +153,46 @@ function addToCart(){
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
-
     alert("Added to cart");
 }
+
+function getFavorites(){
+    return JSON.parse(localStorage.getItem("favorites") || "[]");
+}
+
+function saveFavorites(favs){
+    localStorage.setItem("favorites", JSON.stringify(favs));
+}
+
+function toggleFavorite(){
+    let favs = getFavorites();
+    const exists = favs.find(x => String(x.id) === String(item.id));
+
+    if(exists){
+        favs = favs.filter(x => String(x.id) !== String(item.id));
+    }else{
+        favs.push(item);
+    }
+
+    saveFavorites(favs);
+    updateFavoriteButton();
+}
+
+function updateFavoriteButton(){
+    const favs = getFavorites();
+    const exists = favs.find(x => String(x.id) === String(item.id));
+    const btn = document.getElementById("fav-btn");
+
+    if(exists){
+        btn.innerText = "❤️";
+        btn.classList.add("active");
+    }else{
+        btn.innerText = "♡";
+        btn.classList.remove("active");
+    }
+}
+
+updateFavoriteButton();
 </script>
 
 </body>

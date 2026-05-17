@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReversedMarket</title>
-<link rel="stylesheet" href="/static/css/style.css?v=4000">
+<link rel="stylesheet" href="/static/css/style.css?v=7000">
 </head>
 <body>
 
@@ -28,13 +28,25 @@
     {% else %}
         <div class="products-grid">
             {% for product in products %}
-            <a href="/product/{{ product.id }}" class="product-card">
-                <img src="{{ product.image }}">
-                <div class="product-info">
-                    <div class="product-name">{{ product.name }}</div>
-                    <div class="product-price">€{{ product.price }}</div>
-                </div>
-            </a>
+            <div class="product-card fav-wrapper">
+
+                <button
+                    class="fav-btn"
+                    onclick="toggleFavorite(event, '{{ product.id }}', '{{ product.name }}', '{{ product.price }}', '{{ product.image }}')"
+                    id="fav-{{ product.id }}"
+                >
+                    ♡
+                </button>
+
+                <a href="/product/{{ product.id }}">
+                    <img src="{{ product.image }}">
+                    <div class="product-info">
+                        <div class="product-name">{{ product.name }}</div>
+                        <div class="product-price">€{{ product.price }}</div>
+                    </div>
+                </a>
+
+            </div>
             {% endfor %}
         </div>
     {% endif %}
@@ -42,6 +54,62 @@
 </div>
 
 {% include "_nav.html" %}
+
+<script>
+function getFavorites(){
+    return JSON.parse(localStorage.getItem("favorites") || "[]");
+}
+
+function saveFavorites(favs){
+    localStorage.setItem("favorites", JSON.stringify(favs));
+}
+
+function toggleFavorite(event, id, name, price, image){
+    event.preventDefault();
+    event.stopPropagation();
+
+    let favs = getFavorites();
+    const exists = favs.find(item => String(item.id) === String(id));
+
+    if(exists){
+        favs = favs.filter(item => String(item.id) !== String(id));
+    }else{
+        favs.push({
+            id:id,
+            name:name,
+            price:price,
+            image:image
+        });
+    }
+
+    saveFavorites(favs);
+    updateFavButtons();
+}
+
+function updateFavButtons(){
+    const favs = getFavorites();
+
+    favs.forEach(item => {
+        const btn = document.getElementById("fav-" + item.id);
+        if(btn){
+            btn.innerText = "❤️";
+            btn.classList.add("active");
+        }
+    });
+
+    document.querySelectorAll(".fav-btn").forEach(btn => {
+        const id = btn.id.replace("fav-", "");
+        const exists = favs.find(item => String(item.id) === String(id));
+
+        if(!exists){
+            btn.innerText = "♡";
+            btn.classList.remove("active");
+        }
+    });
+}
+
+updateFavButtons();
+</script>
 
 </body>
 </html>
