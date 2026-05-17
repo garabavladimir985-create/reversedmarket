@@ -245,14 +245,24 @@ root.innerHTML = `
 <div class="vip-status">${vip}</div>
 </div>
 </div>
+<div class="lang-switch">
+    <button class="lang-btn" id="ru-btn" onclick="setLang('ru')">
+        Русский
+    </button>
 
-<div class="profile-actions">
-<a href="/my-orders?telegram_id=${data.telegram_id || ""}" class="profile-btn blue">My Orders</a>
-<a href="/favorites-products" class="profile-btn dark">Favorites</a>
-<a href="/vip" class="profile-btn dark">Get VIP</a>
-<a href="/" class="profile-btn red">Back Home</a>
+    <button class="lang-btn" id="en-btn" onclick="setLang('en')">
+        English
+    </button>
 </div>
+<div class="lang-switch">
+    <button class="lang-btn" id="ru-btn" onclick="setLang('ru')">
+        Русский
+    </button>
 
+    <button class="lang-btn" id="en-btn" onclick="setLang('en')">
+        English
+    </button>
+</div>
 </div>
 `;
 }
@@ -300,6 +310,36 @@ is_vip:false
 }
 
 start();
+function setLang(lang){
+    localStorage.setItem("lang", lang);
+    applyLang();
+}
+
+function applyLang(){
+    const lang = localStorage.getItem("lang") || "ru";
+
+    const ordersBtn = document.querySelector('a[href*="my-orders"]');
+    const favBtn = document.querySelector('a[href="/favorites-products"]');
+    const vipBtn = document.querySelector('a[href="/vip"]');
+    const homeBtn = document.querySelector('a[href="/"]');
+
+    if(lang === "en"){
+        if(ordersBtn) ordersBtn.innerText = "My Orders";
+        if(favBtn) favBtn.innerText = "Favorites";
+        if(vipBtn) vipBtn.innerText = "Get VIP";
+        if(homeBtn) homeBtn.innerText = "Back Home";
+    }else{
+        if(ordersBtn) ordersBtn.innerText = "Мои заказы";
+        if(favBtn) favBtn.innerText = "Избранное";
+        if(vipBtn) vipBtn.innerText = "Получить VIP";
+        if(homeBtn) homeBtn.innerText = "На главную";
+    }
+
+    document.getElementById("ru-btn")?.classList.toggle("active", lang === "ru");
+    document.getElementById("en-btn")?.classList.toggle("active", lang === "en");
+}
+
+applyLang();
 </script>
 
 {% include "_nav.html" %}

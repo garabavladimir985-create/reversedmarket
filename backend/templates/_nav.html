@@ -1,17 +1,17 @@
 <nav class="app-nav">
     <a href="/" class="nav-link">
         <span class="nav-emoji">🏠</span>
-        <span>Главная</span>
+        <span data-ru="Главная" data-en="Home">Главная</span>
     </a>
 
     <a href="/cart" class="nav-link">
         <span class="nav-emoji">🛒</span>
-        <span>Корзина</span>
+        <span data-ru="Корзина" data-en="Cart">Корзина</span>
     </a>
 
     <a href="/catalog" class="nav-link">
         <span class="nav-emoji">📁</span>
-        <span>Каталог</span>
+        <span data-ru="Каталог" data-en="Catalog">Каталог</span>
     </a>
 
     <a href="/my-shop" class="nav-link nav-shop" id="shop-link">
@@ -21,21 +21,28 @@
 
     <a href="/chat" class="nav-link">
         <span class="nav-emoji">💬</span>
-        <span>Чат</span>
+        <span data-ru="Чат" data-en="Chat">Чат</span>
     </a>
 
     <a href="/vip" class="nav-link">
         <span class="nav-emoji">👑</span>
-        <span>Вип</span>
+        <span data-ru="Вип" data-en="VIP">Вип</span>
     </a>
 
     <a href="/profile" class="nav-link">
         <span class="nav-emoji">👤</span>
-        <span>Профиль</span>
+        <span data-ru="Профиль" data-en="Profile">Профиль</span>
     </a>
 </nav>
 
 <script>
+function applyLang(){
+    const lang = localStorage.getItem("lang") || "ru";
+    document.querySelectorAll("[data-ru][data-en]").forEach(el => {
+        el.innerText = el.dataset[lang];
+    });
+}
+
 const navTg = window.Telegram?.WebApp;
 const navUser = navTg?.initDataUnsafe?.user;
 
@@ -45,4 +52,6 @@ if(navUser){
         shopLink.href = "/my-shop?tg_id=" + navUser.id;
     }
 }
+
+applyLang();
 </script>
