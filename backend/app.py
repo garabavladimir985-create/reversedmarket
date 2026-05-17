@@ -184,7 +184,53 @@ def home():
 
 @app.route("/catalog")
 def catalog():
-    return render_template("catalog.html")
+    q = request.args.get("q", "")
+    category = request.args.get("category", "")
+    brand = request.args.get("brand", "")
+    size = request.args.get("size", "")
+    max_price = request.args.get("max_price", "")
+
+    products_query = Product.query
+
+    if q:
+        products_query = products_query.filter(
+            Product.name.contains(q) | Product.brand.contains(q)
+        )
+
+    if category:
+        products_query = products_query.filter(Product.category == category)
+
+    if brand:
+        products_query = products_query.filter(Product.brand.contains(brand))
+
+    if size:
+        products_query = products_query.filter(Product.size.contains(size))
+
+    if max_price:
+        try:
+            products_query = products_query.filter(Product.price <= int(max_price))
+        except:
+            pass
+
+    products = products_query.order_by(Product.id.desc()).all()
+
+    categories = db.session.query(Product.category).distinct().all()
+    categories = [c[0] for c in categories if c[0]]
+
+    brands = db.session.query(Product.brand).distinct().all()
+    brands = [b[0] for b in brands if b[0]]
+
+    return render_template(
+        "catalog.html",
+        products=products,
+        categories=categories,
+        brands=brands,
+        q=q,
+        category=category,
+        brand=brand,
+        size=size,
+        max_price=max_price
+    )
 
 
 @app.route("/my-shop")

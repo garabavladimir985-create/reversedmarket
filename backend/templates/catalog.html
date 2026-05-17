@@ -4,110 +4,209 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Catalog</title>
-<link rel="stylesheet" href="/static/css/style.css?v=999">
+<link rel="stylesheet" href="/static/css/style.css?v=8000">
 
 <style>
-body{
-background:#050816;
-color:white;
-font-family:Arial;
-margin:0;
+.catalog-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:22px;
 }
 
-.catalog-page{
-padding:26px;
-padding-bottom:140px;
+.filter-card{
+    background:linear-gradient(180deg,#111827,#0d1426);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:28px;
+    padding:18px;
+    margin-bottom:24px;
 }
 
-.page-title{
-font-size:48px;
-font-weight:900;
-color:#3ea6ff;
-margin-bottom:26px;
+.filter-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
 }
 
-.category-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px;
+.filter-grid .input{
+    margin:0;
 }
 
-.category-card{
-background:#111827;
-border-radius:26px;
-padding:28px 18px;
-text-decoration:none;
-color:white;
-font-size:20px;
-font-weight:700;
-border:1px solid rgba(255,255,255,.06);
+.filter-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:12px;
 }
 
-.category-card span{
-font-size:38px;
-display:block;
-margin-bottom:12px;
+.catalog-count{
+    color:#9fa8bd;
+    font-size:15px;
+    margin-bottom:16px;
 }
 
-.empty{
-margin-top:22px;
-background:#111827;
-border-radius:26px;
-padding:26px;
-font-size:18px;
-opacity:.75;
+.product-card{
+    position:relative;
+}
+
+.vip-badge{
+    position:absolute;
+    top:10px;
+    left:10px;
+    background:#ffd43b;
+    color:#111827;
+    font-size:12px;
+    font-weight:900;
+    padding:7px 10px;
+    border-radius:999px;
+    z-index:5;
+}
+
+@media(max-width:480px){
+    .filter-grid{
+        grid-template-columns:1fr;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="catalog-page">
+<div class="app-page">
 
-<div class="page-title">CATALOG</div>
+    <div class="catalog-top">
+        <h1 class="app-title" style="margin-bottom:0;">CATALOG</h1>
+        <a href="/" class="square-btn">🏠</a>
+    </div>
 
-<div class="category-grid">
+    <form class="filter-card" action="/catalog" method="GET">
 
-<a href="/search?q=Shoes" class="category-card">
-<span>👟</span>
-Shoes
-</a>
+        <div class="filter-grid">
 
-<a href="/search?q=Hoodies" class="category-card">
-<span>🧥</span>
-Hoodies
-</a>
+            <input class="input" name="q" value="{{ q }}" placeholder="Search product or brand...">
 
-<a href="/search?q=Luxury" class="category-card">
-<span>💎</span>
-Luxury
-</a>
+            <select class="input" name="category">
+                <option value="">All categories</option>
+                {% for c in categories %}
+                    <option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
 
-<a href="/search?q=Accessories" class="category-card">
-<span>👜</span>
-Accessories
-</a>
+            <select class="input" name="brand">
+                <option value="">All brands</option>
+                {% for b in brands %}
+                    <option value="{{ b }}" {% if brand == b %}selected{% endif %}>{{ b }}</option>
+                {% endfor %}
+            </select>
 
-<a href="/search?q=Vintage" class="category-card">
-<span>📦</span>
-Vintage
-</a>
+            <input class="input" name="size" value="{{ size }}" placeholder="Size">
 
-<a href="/search?q=VIP" class="category-card">
-<span>👑</span>
-VIP
-</a>
+            <input class="input" name="max_price" value="{{ max_price }}" placeholder="Max price €" type="number">
+
+        </div>
+
+        <div class="filter-actions">
+            <button class="btn" type="submit">Search</button>
+            <a href="/catalog" class="btn dark">Reset</a>
+        </div>
+
+    </form>
+
+    <div class="catalog-count">
+        Found: {{ products|length }} products
+    </div>
+
+    {% if products|length == 0 %}
+        <div class="empty-box">
+            No products found
+        </div>
+    {% else %}
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card fav-wrapper">
+
+                {% if product.vip %}
+                    <div class="vip-badge">VIP</div>
+                {% endif %}
+
+                <button
+                    class="fav-btn"
+                    onclick="toggleFavorite(event, '{{ product.id }}', '{{ product.name }}', '{{ product.price }}', '{{ product.image }}')"
+                    id="fav-{{ product.id }}"
+                >
+                    ♡
+                </button>
+
+                <a href="/product/{{ product.id }}">
+                    <img src="{{ product.image }}">
+                    <div class="product-info">
+                        <div class="product-name">{{ product.name }}</div>
+                        <div class="product-price">€{{ product.price }}</div>
+                        <div style="color:#9fa8bd;font-size:13px;margin-top:6px;">
+                            {{ product.brand }} · {{ product.size }}
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
 </div>
-
-<div class="empty">
-Выбери категорию, чтобы посмотреть товары.
-</div>
-
-</div>
-
-
 
 {% include "_nav.html" %}
+
+<script>
+function getFavorites(){
+    return JSON.parse(localStorage.getItem("favorites") || "[]");
+}
+
+function saveFavorites(favs){
+    localStorage.setItem("favorites", JSON.stringify(favs));
+}
+
+function toggleFavorite(event, id, name, price, image){
+    event.preventDefault();
+    event.stopPropagation();
+
+    let favs = getFavorites();
+    const exists = favs.find(item => String(item.id) === String(id));
+
+    if(exists){
+        favs = favs.filter(item => String(item.id) !== String(id));
+    }else{
+        favs.push({
+            id:id,
+            name:name,
+            price:price,
+            image:image
+        });
+    }
+
+    saveFavorites(favs);
+    updateFavButtons();
+}
+
+function updateFavButtons(){
+    const favs = getFavorites();
+
+    document.querySelectorAll(".fav-btn").forEach(btn => {
+        const id = btn.id.replace("fav-", "");
+        const exists = favs.find(item => String(item.id) === String(id));
+
+        if(exists){
+            btn.innerText = "❤️";
+            btn.classList.add("active");
+        }else{
+            btn.innerText = "♡";
+            btn.classList.remove("active");
+        }
+    });
+}
+
+updateFavButtons();
+</script>
+
 </body>
 </html>
