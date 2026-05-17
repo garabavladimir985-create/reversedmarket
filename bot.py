@@ -68,19 +68,13 @@ async def main():
         )
 
         kb = ReplyKeyboardMarkup(
-            keyboard=[
-                [
-                    KeyboardButton(
-                        text="🛍 Open Fashion App",
-                        web_app=WebAppInfo(url=app_url)
-                    )
-                ],
-                [
-                    KeyboardButton(text="⭐ Buy VIP")
-                ]
-            ],
-            resize_keyboard=True
-        )
+    keyboard=[
+        [
+            KeyboardButton(text="⭐ Buy VIP")
+        ]
+    ],
+    resize_keyboard=True
+)
 
         await message.answer(
             "Fashion Marketplace 👕",

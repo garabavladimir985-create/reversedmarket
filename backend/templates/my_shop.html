@@ -162,6 +162,16 @@ async function init(){
 
 init();
 </script>
+<script>
+function applyGlobalLang(){
+    const lang = localStorage.getItem("lang") || "ru";
 
+    document.querySelectorAll("[data-ru][data-en]").forEach(el => {
+        el.innerText = el.dataset[lang];
+    });
+}
+
+applyGlobalLang();
+</script>
 </body>
 </html>

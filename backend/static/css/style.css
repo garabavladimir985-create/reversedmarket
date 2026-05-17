@@ -360,3 +360,6 @@ button{
         font-size:30px;
     }
 }
+.lang-hidden{
+    display:none!important;
+}
