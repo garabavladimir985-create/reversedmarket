@@ -383,10 +383,18 @@ def create_order():
     payment = request.form.get("payment", "card")
     user_telegram_id = request.form.get("telegram_id", "")
 
+    full_name = request.form.get("full_name", "")
+    phone = request.form.get("phone", "")
+    country = request.form.get("country", "")
+    city = request.form.get("city", "")
+    address = request.form.get("address", "")
+    postal_code = request.form.get("postal_code", "")
+    comment = request.form.get("comment", "")
+
     cart = json.loads(items)
 
     total = sum(
-        int(item.get("price", 0))
+        int(float(item.get("price", 0))) * int(item.get("qty", 1))
         for item in cart
     )
 
@@ -404,18 +412,29 @@ def create_order():
     items_text = ""
 
     for item in cart:
-        items_text += f"- {item.get('name')} — ${item.get('price')}\n"
+        items_text += (
+            f"- {item.get('name')} × {item.get('qty', 1)} — "
+            f"€{item.get('price')}\n"
+        )
 
     send_admin_notification(
         f"🛒 NEW ORDER #{order.id}\n\n"
-        f"Total: ${total}\n"
+        f"Total: €{total}\n"
         f"Payment: {payment}\n"
         f"User TG ID: {user_telegram_id}\n\n"
+        f"👤 Customer:\n"
+        f"Name: {full_name}\n"
+        f"Phone: {phone}\n\n"
+        f"📍 Delivery:\n"
+        f"Country: {country}\n"
+        f"City: {city}\n"
+        f"Address: {address}\n"
+        f"Postal code: {postal_code}\n\n"
+        f"Comment: {comment}\n\n"
         f"Items:\n{items_text}"
     )
 
     return redirect("/order-success")
-
 
 @app.route("/order-success")
 def order_success():

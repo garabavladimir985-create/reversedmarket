@@ -4,187 +4,60 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cart</title>
-<link rel="stylesheet" href="/static/css/style.css?v=4000">
-
-<style>
-.cart-page{
-    min-height:100vh;
-    padding:28px 22px 135px;
-}
-
-.cart-title{
-    font-size:48px;
-    font-weight:900;
-    color:#3ea6ff;
-    margin-bottom:24px;
-}
-
-.cart-list{
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-    margin-bottom:24px;
-}
-
-.cart-item{
-    background:linear-gradient(180deg,#121c33,#0d1426);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:26px;
-    padding:14px;
-    display:flex;
-    gap:14px;
-    align-items:center;
-}
-
-.cart-item img{
-    width:92px;
-    height:92px;
-    object-fit:cover;
-    border-radius:20px;
-    background:#0d1220;
-}
-
-.cart-info{
-    flex:1;
-}
-
-.cart-name{
-    font-size:18px;
-    font-weight:900;
-    margin-bottom:6px;
-}
-
-.cart-meta{
-    color:#9fa8bd;
-    font-size:13px;
-    margin-bottom:8px;
-}
-
-.cart-price{
-    color:#3ea6ff;
-    font-size:20px;
-    font-weight:900;
-}
-
-.qty-row{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    margin-top:8px;
-}
-
-.qty-btn{
-    width:34px;
-    height:34px;
-    border:none;
-    border-radius:10px;
-    background:#0d1220;
-    color:white;
-    font-size:18px;
-    font-weight:900;
-}
-
-.remove-btn{
-    width:38px;
-    height:38px;
-    border:none;
-    border-radius:12px;
-    background:#ff4d6d;
-    color:white;
-    font-size:18px;
-}
-
-.checkout-card{
-    background:linear-gradient(180deg,#121c33,#0d1426);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:30px;
-    padding:24px;
-}
-
-.total-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    margin-bottom:20px;
-}
-
-.total-label{
-    color:#9fa8bd;
-    font-size:14px;
-    font-weight:800;
-}
-
-.total-price{
-    font-size:40px;
-    font-weight:900;
-}
-
-.total-price span{
-    color:#3ea6ff;
-}
-
-.empty-cart-box{
-    background:#111827;
-    border-radius:26px;
-    padding:28px;
-    color:#c9d2e3;
-    font-size:18px;
-    margin-bottom:24px;
-}
-
-.hidden{
-    display:none;
-}
-</style>
+<link rel="stylesheet" href="/static/css/style.css?v=5000">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
 
-<div class="cart-page">
+<div class="app-page">
+<h1 class="app-title">CART</h1>
 
-    <h1 class="cart-title">CART</h1>
+<div id="cart-list"></div>
 
-    <div id="cart-list" class="cart-list"></div>
+<div id="empty-cart" class="empty-box">
+Cart is empty
+</div>
 
-    <div id="empty-cart" class="empty-cart-box">
-        Cart is empty
-    </div>
+<div class="card">
+<h2>Delivery</h2>
 
-    <div class="checkout-card">
+<form id="order-form" action="/create-order" method="POST">
 
-        <div class="total-row">
-            <div>
-                <div class="total-label">ORDER TOTAL</div>
-                <div id="cart-total" class="total-price"><span>€</span>0</div>
-            </div>
-            <div style="font-size:34px;">💎</div>
-        </div>
+<input type="hidden" name="items" id="order-items">
+<input type="hidden" name="payment" id="payment-method">
+<input type="hidden" name="telegram_id" id="telegram-id">
 
-        <form id="order-form" action="/create-order" method="POST">
-            <input type="hidden" name="items" id="order-items">
-            <input type="hidden" name="payment" id="payment-method" value="card">
-            <input type="hidden" name="telegram_id" id="telegram-id">
+<input class="input" name="full_name" placeholder="Full name" required>
+<input class="input" name="phone" placeholder="Phone / Telegram" required>
+<input class="input" name="country" placeholder="Country" required>
+<input class="input" name="city" placeholder="City" required>
+<input class="input" name="address" placeholder="Address" required>
+<input class="input" name="postal_code" placeholder="Postal code">
 
-            <button type="button" class="btn" onclick="checkout('card')">
-                Pay by Card
-            </button>
+<textarea name="comment" placeholder="Comment for seller"></textarea>
 
-            <button type="button" class="btn dark" onclick="checkout('crypto')">
-                Pay by Crypto
-            </button>
+<div class="total">
+Total: €<span id="cart-total">0</span>
+</div>
 
-            <button type="button" class="btn red" onclick="clearCart()">
-                Clear Cart
-            </button>
-        </form>
+<button type="button" class="btn" onclick="checkout('card')">
+Pay by Card
+</button>
 
-    </div>
+<button type="button" class="btn dark" onclick="checkout('crypto')">
+Pay by Crypto
+</button>
 
+<button type="button" class="btn red" onclick="clearCart()">
+Clear Cart
+</button>
+
+</form>
+</div>
 </div>
 
 {% include "_nav.html" %}
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
 const tg = window.Telegram?.WebApp;
@@ -211,17 +84,17 @@ function renderCart(){
     const cart = getCart();
     const list = document.getElementById("cart-list");
     const empty = document.getElementById("empty-cart");
-    const totalBox = document.getElementById("cart-total");
+    const totalEl = document.getElementById("cart-total");
 
     list.innerHTML = "";
 
     if(cart.length === 0){
-        empty.classList.remove("hidden");
-        totalBox.innerHTML = "<span>€</span>0";
+        empty.style.display = "block";
+        totalEl.innerText = "0";
         return;
     }
 
-    empty.classList.add("hidden");
+    empty.style.display = "none";
 
     let total = 0;
 
@@ -230,30 +103,27 @@ function renderCart(){
         const price = Number(item.price || 0);
         total += price * qty;
 
-        const div = document.createElement("div");
-        div.className = "cart-item";
+        list.innerHTML += `
+            <div class="card" style="display:flex;gap:14px;align-items:center;margin-bottom:14px;">
+                <img src="${item.image || ""}" style="width:90px;height:90px;object-fit:cover;border-radius:18px;">
+                <div style="flex:1;">
+                    <div style="font-weight:900;font-size:18px;">${item.name}</div>
+                    <div style="color:#9fa8bd;font-size:14px;">${item.brand || ""} ${item.size ? "· " + item.size : ""}</div>
+                    <div style="color:#3ea6ff;font-weight:900;font-size:20px;">€${price}</div>
 
-        div.innerHTML = `
-            <img src="${item.image || ""}">
-            <div class="cart-info">
-                <div class="cart-name">${item.name}</div>
-                <div class="cart-meta">${item.brand || ""} ${item.size ? "· " + item.size : ""}</div>
-                <div class="cart-price">€${price}</div>
-
-                <div class="qty-row">
-                    <button class="qty-btn" onclick="changeQty(${index}, -1)">−</button>
-                    <span>${qty}</span>
-                    <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
+                    <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+                        <button type="button" onclick="changeQty(${index}, -1)" style="width:34px;height:34px;border-radius:10px;background:#0d1220;color:white;border:none;">−</button>
+                        <span>${qty}</span>
+                        <button type="button" onclick="changeQty(${index}, 1)" style="width:34px;height:34px;border-radius:10px;background:#0d1220;color:white;border:none;">+</button>
+                    </div>
                 </div>
+
+                <button type="button" onclick="removeItem(${index})" style="width:38px;height:38px;border-radius:12px;background:#ff4d6d;color:white;border:none;">×</button>
             </div>
-
-            <button class="remove-btn" onclick="removeItem(${index})">×</button>
         `;
-
-        list.appendChild(div);
     });
 
-    totalBox.innerHTML = `<span>€</span>${total}`;
+    totalEl.innerText = total;
 }
 
 function changeQty(index, delta){
@@ -291,6 +161,7 @@ function checkout(method){
     document.getElementById("payment-method").value = method;
     document.getElementById("order-items").value = JSON.stringify(cart);
 
+    localStorage.removeItem("cart");
     document.getElementById("order-form").submit();
 }
 
