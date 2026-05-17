@@ -14,7 +14,7 @@
         <span>Каталог</span>
     </a>
 
-    <a href="/my-shop" class="nav-link nav-shop">
+    <a href="/my-shop" class="nav-link nav-shop" id="shop-link">
         <span class="nav-diamond">💎</span>
         <span>Shop</span>
     </a>
@@ -34,3 +34,15 @@
         <span>Профиль</span>
     </a>
 </nav>
+
+<script>
+const navTg = window.Telegram?.WebApp;
+const navUser = navTg?.initDataUnsafe?.user;
+
+if(navUser){
+    const shopLink = document.getElementById("shop-link");
+    if(shopLink){
+        shopLink.href = "/my-shop?tg_id=" + navUser.id;
+    }
+}
+</script>
