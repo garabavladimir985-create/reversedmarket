@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cart</title>
-<link rel="stylesheet" href="/static/css/style.css?v=3000">
+<link rel="stylesheet" href="/static/css/style.css?v=4000">
 
 <style>
 .cart-page{
@@ -17,41 +17,81 @@
     font-weight:900;
     color:#3ea6ff;
     margin-bottom:24px;
-    letter-spacing:-1px;
 }
 
-.cart-empty-card{
+.cart-list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-bottom:24px;
+}
+
+.cart-item{
     background:linear-gradient(180deg,#121c33,#0d1426);
     border:1px solid rgba(255,255,255,.08);
-    border-radius:30px;
-    padding:30px 22px;
-    margin-bottom:24px;
-    box-shadow:0 20px 60px rgba(0,0,0,.35);
-}
-
-.cart-empty-icon{
-    width:84px;
-    height:84px;
-    border-radius:50%;
-    background:#3ea6ff;
+    border-radius:26px;
+    padding:14px;
     display:flex;
+    gap:14px;
     align-items:center;
-    justify-content:center;
-    font-size:42px;
-    margin-bottom:18px;
-    box-shadow:0 0 34px rgba(62,166,255,.75);
 }
 
-.cart-empty-text{
-    font-size:22px;
-    font-weight:800;
+.cart-item img{
+    width:92px;
+    height:92px;
+    object-fit:cover;
+    border-radius:20px;
+    background:#0d1220;
+}
+
+.cart-info{
+    flex:1;
+}
+
+.cart-name{
+    font-size:18px;
+    font-weight:900;
+    margin-bottom:6px;
+}
+
+.cart-meta{
+    color:#9fa8bd;
+    font-size:13px;
     margin-bottom:8px;
 }
 
-.cart-empty-sub{
-    color:#9fa8bd;
-    font-size:15px;
-    line-height:1.45;
+.cart-price{
+    color:#3ea6ff;
+    font-size:20px;
+    font-weight:900;
+}
+
+.qty-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:8px;
+}
+
+.qty-btn{
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:10px;
+    background:#0d1220;
+    color:white;
+    font-size:18px;
+    font-weight:900;
+}
+
+.remove-btn{
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:12px;
+    background:#ff4d6d;
+    color:white;
+    font-size:18px;
 }
 
 .checkout-card{
@@ -59,73 +99,41 @@
     border:1px solid rgba(255,255,255,.08);
     border-radius:30px;
     padding:24px;
-    box-shadow:0 20px 60px rgba(0,0,0,.35);
 }
 
 .total-row{
     display:flex;
-    align-items:flex-end;
     justify-content:space-between;
-    margin-bottom:22px;
+    align-items:flex-end;
+    margin-bottom:20px;
 }
 
 .total-label{
     color:#9fa8bd;
-    font-size:15px;
-    font-weight:700;
+    font-size:14px;
+    font-weight:800;
 }
 
 .total-price{
     font-size:40px;
     font-weight:900;
-    color:white;
 }
 
 .total-price span{
     color:#3ea6ff;
 }
 
-.pay-grid{
-    display:grid;
-    gap:12px;
+.empty-cart-box{
+    background:#111827;
+    border-radius:26px;
+    padding:28px;
+    color:#c9d2e3;
+    font-size:18px;
+    margin-bottom:24px;
 }
 
-.cart-btn{
-    min-height:58px;
-    border-radius:20px;
-    border:none;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:white;
-    font-size:17px;
-    font-weight:900;
-    text-decoration:none;
-}
-
-.cart-btn.blue{
-    background:#3ea6ff;
-    box-shadow:0 14px 30px rgba(62,166,255,.28);
-}
-
-.cart-btn.dark{
-    background:#0b1020;
-    border:1px solid rgba(62,166,255,.85);
-}
-
-.cart-btn.red{
-    background:#ff4d6d;
-    box-shadow:0 14px 30px rgba(255,77,109,.22);
-}
-
-.safe-note{
-    margin-top:18px;
-    background:#0b1020;
-    border-radius:18px;
-    padding:14px;
-    color:#9fa8bd;
-    font-size:14px;
-    line-height:1.4;
+.hidden{
+    display:none;
 }
 </style>
 </head>
@@ -136,16 +144,10 @@
 
     <h1 class="cart-title">CART</h1>
 
-    <div class="cart-empty-card">
-        <div class="cart-empty-icon">🛒</div>
+    <div id="cart-list" class="cart-list"></div>
 
-        <div class="cart-empty-text">
-            Cart is empty
-        </div>
-
-        <div class="cart-empty-sub">
-            Добавь товары из каталога, и они появятся здесь перед оплатой.
-        </div>
+    <div id="empty-cart" class="empty-cart-box">
+        Cart is empty
     </div>
 
     <div class="checkout-card">
@@ -153,27 +155,147 @@
         <div class="total-row">
             <div>
                 <div class="total-label">ORDER TOTAL</div>
-                <div class="total-price"><span>$</span>0</div>
+                <div id="cart-total" class="total-price"><span>€</span>0</div>
             </div>
-
             <div style="font-size:34px;">💎</div>
         </div>
 
-        <div class="pay-grid">
-            <a href="/pay-card" class="cart-btn blue">Pay by Card</a>
-            <a href="/pay-crypto" class="cart-btn dark">Pay by Crypto</a>
-            <button class="cart-btn red">Clear Cart</button>
-        </div>
+        <form id="order-form" action="/create-order" method="POST">
+            <input type="hidden" name="items" id="order-items">
+            <input type="hidden" name="payment" id="payment-method" value="card">
+            <input type="hidden" name="telegram_id" id="telegram-id">
 
-        <div class="safe-note">
-            🔒 Secure checkout. После оформления заказа админ получит уведомление.
-        </div>
+            <button type="button" class="btn" onclick="checkout('card')">
+                Pay by Card
+            </button>
+
+            <button type="button" class="btn dark" onclick="checkout('crypto')">
+                Pay by Crypto
+            </button>
+
+            <button type="button" class="btn red" onclick="clearCart()">
+                Clear Cart
+            </button>
+        </form>
 
     </div>
 
 </div>
 
 {% include "_nav.html" %}
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<script>
+const tg = window.Telegram?.WebApp;
+
+if(tg){
+    tg.ready();
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+    if(user){
+        document.getElementById("telegram-id").value = user.id;
+    }
+}
+
+function getCart(){
+    return JSON.parse(localStorage.getItem("cart") || "[]");
+}
+
+function saveCart(cart){
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function renderCart(){
+    const cart = getCart();
+    const list = document.getElementById("cart-list");
+    const empty = document.getElementById("empty-cart");
+    const totalBox = document.getElementById("cart-total");
+
+    list.innerHTML = "";
+
+    if(cart.length === 0){
+        empty.classList.remove("hidden");
+        totalBox.innerHTML = "<span>€</span>0";
+        return;
+    }
+
+    empty.classList.add("hidden");
+
+    let total = 0;
+
+    cart.forEach((item, index) => {
+        const qty = item.qty || 1;
+        const price = Number(item.price || 0);
+        total += price * qty;
+
+        const div = document.createElement("div");
+        div.className = "cart-item";
+
+        div.innerHTML = `
+            <img src="${item.image || ""}">
+            <div class="cart-info">
+                <div class="cart-name">${item.name}</div>
+                <div class="cart-meta">${item.brand || ""} ${item.size ? "· " + item.size : ""}</div>
+                <div class="cart-price">€${price}</div>
+
+                <div class="qty-row">
+                    <button class="qty-btn" onclick="changeQty(${index}, -1)">−</button>
+                    <span>${qty}</span>
+                    <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
+                </div>
+            </div>
+
+            <button class="remove-btn" onclick="removeItem(${index})">×</button>
+        `;
+
+        list.appendChild(div);
+    });
+
+    totalBox.innerHTML = `<span>€</span>${total}`;
+}
+
+function changeQty(index, delta){
+    const cart = getCart();
+    cart[index].qty = (cart[index].qty || 1) + delta;
+
+    if(cart[index].qty <= 0){
+        cart.splice(index, 1);
+    }
+
+    saveCart(cart);
+    renderCart();
+}
+
+function removeItem(index){
+    const cart = getCart();
+    cart.splice(index, 1);
+    saveCart(cart);
+    renderCart();
+}
+
+function clearCart(){
+    localStorage.removeItem("cart");
+    renderCart();
+}
+
+function checkout(method){
+    const cart = getCart();
+
+    if(cart.length === 0){
+        alert("Cart is empty");
+        return;
+    }
+
+    document.getElementById("payment-method").value = method;
+    document.getElementById("order-items").value = JSON.stringify(cart);
+
+    document.getElementById("order-form").submit();
+}
+
+renderCart();
+</script>
 
 </body>
 </html>

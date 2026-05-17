@@ -3,239 +3,133 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>{{ item.name }}</title>
-
-<link rel="stylesheet" href="/static/css/style.css?v=999">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>{{ product.name }}</title>
+<link rel="stylesheet" href="/static/css/style.css?v=4000">
 
 <style>
-body{
-background:#050816;
-color:white;
-font-family:Arial;
-margin:0;
-padding:0;
-padding-bottom:140px;
-}
-
-.old-bottom-nav,
-.bottom-nav,
-.navbar{
-display:none!important;
-}
-
 .product-page{
-padding:20px;
+    min-height:100vh;
+    padding:24px 20px 135px;
 }
 
-.product-image{
-width:100%;
-border-radius:24px;
-object-fit:cover;
-margin-bottom:20px;
-box-shadow:0 0 30px rgba(0,0,0,.4);
+.product-img{
+    width:100%;
+    height:420px;
+    object-fit:cover;
+    border-radius:30px;
+    background:#111827;
+    margin-bottom:20px;
+}
+
+.product-card-box{
+    background:linear-gradient(180deg,#121c33,#0d1426);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:30px;
+    padding:22px;
 }
 
 .product-title{
-font-size:34px;
-font-weight:800;
-margin-bottom:10px;
+    font-size:32px;
+    font-weight:900;
+    margin-bottom:8px;
 }
 
-.product-price{
-font-size:28px;
-font-weight:700;
-color:#3ea6ff;
-margin-bottom:20px;
+.product-price-big{
+    color:#3ea6ff;
+    font-size:34px;
+    font-weight:900;
+    margin-bottom:18px;
 }
 
-.product-description{
-background:rgba(255,255,255,.04);
-border:1px solid rgba(255,255,255,.06);
-padding:18px;
-border-radius:20px;
-line-height:1.5;
-margin-bottom:25px;
+.meta-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:18px;
 }
 
-.buy-btn{
-width:100%;
-height:62px;
-border:none;
-border-radius:18px;
-background:#3ea6ff;
-color:white;
-font-size:20px;
-font-weight:700;
-cursor:pointer;
-margin-bottom:15px;
+.meta{
+    background:#0d1220;
+    padding:13px;
+    border-radius:16px;
+    color:#c9d2e3;
+    font-size:14px;
 }
 
-.cart-btn{
-width:100%;
-height:62px;
-border-radius:18px;
-background:transparent;
-border:2px solid #3ea6ff;
-color:white;
-font-size:20px;
-font-weight:700;
-cursor:pointer;
-}
-
-.back-btn{
-position:fixed;
-top:20px;
-left:20px;
-width:52px;
-height:52px;
-border-radius:16px;
-background:rgba(255,255,255,.05);
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:24px;
-text-decoration:none;
-color:white;
-backdrop-filter:blur(10px);
-z-index:999;
-}
-
-.premium-bottom-nav{
-position:fixed!important;
-bottom:0!important;
-left:50%!important;
-transform:translateX(-50%)!important;
-width:100%!important;
-max-width:900px!important;
-height:105px!important;
-background:rgba(17,24,39,.96)!important;
-backdrop-filter:blur(20px)!important;
-border-top-left-radius:34px!important;
-border-top-right-radius:34px!important;
-display:flex!important;
-align-items:center!important;
-justify-content:space-around!important;
-padding:8px 12px!important;
-z-index:999999!important;
-box-shadow:0 -10px 40px rgba(0,0,0,.45)!important;
-border:1px solid rgba(255,255,255,.06)!important;
-}
-
-.premium-nav-item{
-display:flex!important;
-flex-direction:column!important;
-align-items:center!important;
-justify-content:center!important;
-gap:5px!important;
-text-decoration:none!important;
-color:#8d94a8!important;
-font-size:13px!important;
-font-weight:700!important;
-min-width:58px!important;
-}
-
-.premium-nav-item.active{
-color:#3ea6ff!important;
-}
-
-.premium-icon{
-font-size:28px!important;
-line-height:1!important;
-}
-
-.premium-shop-btn{
-position:relative!important;
-margin-top:-45px!important;
-display:flex!important;
-flex-direction:column!important;
-align-items:center!important;
-text-decoration:none!important;
-color:#8d94a8!important;
-font-size:12px!important;
-font-weight:800!important;
-min-width:82px!important;
-}
-
-.premium-shop-circle{
-width:88px!important;
-height:88px!important;
-border-radius:50%!important;
-background:#3ea6ff!important;
-display:flex!important;
-align-items:center!important;
-justify-content:center!important;
-font-size:42px!important;
-color:white!important;
-border:8px solid #050816!important;
-box-shadow:0 0 35px rgba(62,166,255,.85)!important;
-margin-bottom:5px!important;
+.desc{
+    color:#c9d2e3;
+    line-height:1.5;
+    margin-bottom:18px;
 }
 </style>
 </head>
 
 <body>
 
-<a href="/" class="back-btn">←</a>
-
 <div class="product-page">
 
-<img src="{{ item.image }}" class="product-image">
+    {% if product.image %}
+    <img class="product-img" src="{{ product.image }}">
+    {% endif %}
 
-<div class="product-title">
-{{ item.name }}
+    <div class="product-card-box">
+
+        <div class="product-title">{{ product.name }}</div>
+
+        <div class="product-price-big">€{{ product.price }}</div>
+
+        <div class="meta-grid">
+            <div class="meta">Brand: {{ product.brand }}</div>
+            <div class="meta">Size: {{ product.size }}</div>
+            <div class="meta">Color: {{ product.color }}</div>
+            <div class="meta">Condition: {{ product.condition }}</div>
+        </div>
+
+        <div class="desc">
+            {{ product.description }}
+        </div>
+
+        <button class="btn" onclick="addToCart()">
+            Add to Cart
+        </button>
+
+        <a href="/cart" class="btn dark">
+            Go to Cart
+        </a>
+
+    </div>
+
 </div>
 
-<div class="product-price">
-${{ item.price }}
-</div>
-
-<div class="product-description">
-{{ item.description }}
-</div>
-
-<button class="buy-btn" onclick="buyNow()">
-Buy Now
-</button>
-
-<button class="cart-btn" onclick="addToCart()">
-Add To Cart
-</button>
-
-
+{% include "_nav.html" %}
 
 <script>
-const tg = window.Telegram?.WebApp;
-
-if(tg){
-    tg.ready();
-    tg.expand();
-}
-
-const item = {
-    id: "{{ item.id }}",
-    name: "{{ item.name }}",
-    price: "{{ item.price }}",
-    image: "{{ item.image }}"
-};
-
 function addToCart(){
+    const item = {
+        id: "{{ product.id }}",
+        name: "{{ product.name }}",
+        price: Number("{{ product.price }}"),
+        image: "{{ product.image }}",
+        brand: "{{ product.brand }}",
+        size: "{{ product.size }}"
+    };
+
     let cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    cart.push(item);
+    const exists = cart.find(x => String(x.id) === String(item.id));
+
+    if(exists){
+        exists.qty = (exists.qty || 1) + 1;
+    }else{
+        item.qty = 1;
+        cart.push(item);
+    }
 
     localStorage.setItem("cart", JSON.stringify(cart));
 
     alert("Added to cart");
 }
-
-function buyNow(){
-    addToCart();
-    window.location.href = "/cart";
-}
 </script>
 
-{% include "_nav.html" %}
 </body>
 </html>
