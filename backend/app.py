@@ -189,33 +189,26 @@ def catalog():
 
 @app.route("/my-shop")
 def my_shop():
+
     tg_id = request.args.get("tg_id", "")
-    key = request.args.get("key", "")
 
-    admin = is_admin(tg_id) or is_admin_key(key)
-    user = User.query.filter_by(telegram_id=tg_id).first() if tg_id else None
+    ADMIN_IDS = ["1940136851", "910641302"]
 
-    can_create = admin or (user and (user.is_vip or user.is_verified))
+    if str(tg_id) not in ADMIN_IDS:
+        return redirect("/")
 
-    seller = None
+    seller = Seller.query.filter_by(owner_telegram_id=tg_id).first()
+
     products = []
 
-    if tg_id:
-        seller = Seller.query.filter_by(owner_telegram_id=tg_id).first()
-
     if seller:
-        products = Product.query.filter_by(seller_id=seller.id).order_by(Product.id.desc()).all()
-
-    if admin and not seller:
-        products = Product.query.order_by(Product.id.desc()).all()
+        products = Product.query.filter_by(
+            seller_id=seller.id
+        ).order_by(Product.id.desc()).all()
 
     return render_template(
         "my_shop.html",
         tg_id=tg_id,
-        key=key,
-        admin=admin,
-        user=user,
-        can_create=can_create,
         seller=seller,
         products=products
     )
