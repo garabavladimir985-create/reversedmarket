@@ -11,18 +11,48 @@ from aiogram.types import (
 import asyncio
 import urllib.parse
 import os
+import requests
+
 
 TOKEN = os.environ.get("BOT_TOKEN")
 
 WEBAPP_URL = os.environ.get(
-    "8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU",
-    "https://reversedmarket-production.up.railway.app"
+    "WEBAPP_URL",
+    "https://reversedmarket.onrender.com"
 )
+
+ADMIN_IDS = [
+    "1940136851",
+    "910641302"
+]
+
+
+async def update_bot_description(bot: Bot):
+    while True:
+        try:
+            res = requests.get(
+                f"{WEBAPP_URL}/api/stats",
+                timeout=10
+            )
+
+            data = res.json()
+            total_users = data.get("total_users", 0)
+
+            await bot.set_my_description(
+                description=f"👥 {total_users} users in Mini App"
+            )
+
+        except Exception as e:
+            print("Description update error:", e)
+
+        await asyncio.sleep(300)
 
 
 async def main():
     bot = Bot(token=TOKEN)
     dp = Dispatcher()
+
+    asyncio.create_task(update_bot_description(bot))
 
     @dp.message(CommandStart())
     async def start(message: types.Message):
@@ -62,6 +92,27 @@ async def main():
         await message.answer(
             f"Your Telegram ID:\n\n{message.from_user.id}"
         )
+
+    @dp.message(lambda message: message.text == "/stats")
+    async def stats(message: types.Message):
+        if str(message.from_user.id) not in ADMIN_IDS:
+            await message.answer("⛔ Access denied")
+            return
+
+        try:
+            res = requests.get(
+                f"{WEBAPP_URL}/api/stats",
+                timeout=10
+            )
+            data = res.json()
+
+            await message.answer(
+                f"📊 ReversedMarket Stats\n\n"
+                f"👥 Users: {data.get('total_users', 0)}"
+            )
+
+        except Exception as e:
+            await message.answer(f"Stats error: {e}")
 
     @dp.message(lambda message: message.text == "⭐ Buy VIP")
     async def vip_payment(message: types.Message):
