@@ -75,6 +75,7 @@ class Product(db.Model):
 
 
 class User(db.Model):
+    last_seen = db.Column(db.DateTime)
     id = db.Column(db.Integer, primary_key=True)
     telegram_id = db.Column(db.String(120), unique=True)
     name = db.Column(db.String(120))
@@ -148,7 +149,7 @@ def telegram_auth():
         user.username = username
         user.telegram = username
         user.avatar = avatar
-
+        user.last_seen = datetime.utcnow()
     db.session.commit()
 
     return jsonify({
@@ -235,30 +236,31 @@ def catalog():
 
 @app.route("/my-shop")
 def my_shop():
-
     tg_id = request.args.get("tg_id", "")
+    key = request.args.get("key", "")
 
-    ADMIN_IDS = ["1940136851", "910641302"]
+    admin = is_admin(tg_id) or is_admin_key(key)
 
-    if str(tg_id) not in ADMIN_IDS:
-        return redirect("/")
+    user = User.query.filter_by(telegram_id=tg_id).first() if tg_id else None
 
-    seller = Seller.query.filter_by(owner_telegram_id=tg_id).first()
+    can_create = admin or (user and (user.is_vip or user.is_verified))
+
+    seller = Seller.query.filter_by(owner_telegram_id=tg_id).first() if tg_id else None
 
     products = []
-
     if seller:
-        products = Product.query.filter_by(
-            seller_id=seller.id
-        ).order_by(Product.id.desc()).all()
+        products = Product.query.filter_by(seller_id=seller.id).order_by(Product.id.desc()).all()
 
     return render_template(
         "my_shop.html",
         tg_id=tg_id,
+        key=key,
+        admin=admin,
+        user=user,
+        can_create=can_create,
         seller=seller,
         products=products
     )
-
 
 @app.route("/create-shop", methods=["POST"])
 def create_shop():
@@ -558,10 +560,18 @@ def admin():
     if not is_admin_key(key):
         return "ACCESS DENIED", 403
 
+    from datetime import timedelta
+
     products = Product.query.order_by(Product.id.desc()).all()
     orders = Order.query.order_by(Order.id.desc()).all()
     users = User.query.order_by(User.id.desc()).all()
     sellers = Seller.query.order_by(Seller.id.desc()).all()
+
+    online_users = User.query.filter(
+        User.last_seen >= datetime.utcnow() - timedelta(minutes=5)
+    ).count()
+
+    total_users = User.query.count()
 
     return render_template(
         "admin.html",
@@ -569,6 +579,8 @@ def admin():
         orders=orders,
         users=users,
         sellers=sellers,
+        online_users=online_users,
+        total_users=total_users,
         key=key
     )
 @app.route("/user/<int:id>/vip/<status>")
@@ -609,7 +621,7 @@ def update_user_verified(id, status):
     return redirect("/admin?key=admin123")
 
 def ensure_columns():
-    with db.engine.connect() as conn:
+    with db.engine.connect() as conn:                               
         try:
             conn.exec_driver_sql("ALTER TABLE seller ADD COLUMN owner_telegram_id VARCHAR(120)")
         except:
@@ -632,6 +644,10 @@ def ensure_columns():
 
         try:
             conn.exec_driver_sql("ALTER TABLE \"order\" ADD COLUMN delivery TEXT")
+        except:
+            pass
+        try:
+            conn.exec_driver_sql("ALTER TABLE user ADD COLUMN last_seen DATETIME")
         except:
             pass
 

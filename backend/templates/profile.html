@@ -3,313 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Profile</title>
-
-<link rel="stylesheet" href="/static/css/style.css?v=999">
+<link rel="stylesheet" href="/static/css/style.css?v=10000">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-body{
-background:#050816;
-color:white;
-font-family:Arial;
-margin:0;
-padding:0;
-padding-bottom:125px;
+.verified-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    background:#3ea6ff;
+    color:white;
+    font-size:14px;
+    margin-left:8px;
+    box-shadow:0 0 18px rgba(62,166,255,.75);
+    cursor:pointer;
 }
 
-.old-bottom-nav,
-.bottom-nav,
-.navbar{
-display:none!important;
+.verify-popup{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    z-index:9999999;
+    align-items:center;
+    justify-content:center;
 }
 
-.profile-page{
-padding:18px;
+.verify-box{
+    background:#111827;
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:26px;
+    padding:26px;
+    text-align:center;
+    width:86%;
+    max-width:340px;
 }
 
-.page-title{
-font-size:44px;
-font-weight:900;
-color:#3ea6ff;
-margin-bottom:24px;
-}
-
-.profile-card{
-background:#111827;
-border-radius:28px;
-padding:24px;
-border:1px solid rgba(255,255,255,.06);
-}
-
-.profile-top{
-display:flex;
-align-items:center;
-gap:18px;
-margin-bottom:22px;
-}
-
-.profile-avatar{
-width:82px;
-height:82px;
-border-radius:50%;
-background:#3ea6ff;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:38px;
-box-shadow:0 0 30px rgba(62,166,255,.55);
-overflow:hidden;
-}
-
-.profile-avatar img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-
-.profile-name{
-font-size:28px;
-font-weight:900;
-}
-
-.profile-id{
-opacity:.65;
-margin-top:6px;
-line-height:1.4;
-}
-
-.vip-status{
-margin-top:10px;
-display:inline-block;
-padding:7px 12px;
-border-radius:999px;
-background:#0d1220;
-color:#3ea6ff;
-font-weight:800;
-font-size:13px;
-}
-
-.profile-actions{
-display:flex;
-flex-direction:column;
-gap:14px;
-margin-top:24px;
-}
-
-.profile-btn{
-height:58px;
-border:none;
-border-radius:20px;
-font-size:17px;
-font-weight:800;
-cursor:pointer;
-text-decoration:none;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
-.profile-btn.blue{
-background:#3ea6ff;
-color:white;
-}
-
-.profile-btn.dark{
-background:#0d1220;
-color:white;
-border:1px solid rgba(255,255,255,.06);
-}
-
-.profile-btn.red{
-background:#ff4b6e;
-color:white;
-}
-
-.premium-bottom-nav{
-position:fixed!important;
-bottom:0!important;
-left:0!important;
-transform:none!important;
-width:100%!important;
-max-width:100%!important;
-height:86px!important;
-background:rgba(17,24,39,.97)!important;
-backdrop-filter:blur(20px)!important;
-border-radius:24px 24px 0 0!important;
-display:flex!important;
-align-items:center!important;
-justify-content:space-evenly!important;
-padding:4px 2px!important;
-z-index:999999!important;
-box-shadow:0 -10px 40px rgba(0,0,0,.45)!important;
-border:1px solid rgba(255,255,255,.06)!important;
-overflow:hidden!important;
-box-sizing:border-box!important;
-}
-
-.premium-nav-item{
-display:flex!important;
-flex-direction:column!important;
-align-items:center!important;
-justify-content:center!important;
-gap:3px!important;
-text-decoration:none!important;
-color:#8d94a8!important;
-font-size:9px!important;
-font-weight:700!important;
-min-width:40px!important;
-}
-
-.premium-nav-item.active{
-color:#3ea6ff!important;
-}
-
-.premium-icon{
-font-size:20px!important;
-line-height:1!important;
-}
-
-.premium-shop-btn{
-position:relative!important;
-margin-top:-32px!important;
-display:flex!important;
-flex-direction:column!important;
-align-items:center!important;
-text-decoration:none!important;
-color:#8d94a8!important;
-font-size:9px!important;
-font-weight:800!important;
-min-width:54px!important;
-}
-
-.premium-shop-circle{
-width:66px!important;
-height:66px!important;
-border-radius:50%!important;
-background:#3ea6ff!important;
-display:flex!important;
-align-items:center!important;
-justify-content:center!important;
-font-size:30px!important;
-color:white!important;
-border:6px solid #050816!important;
-box-shadow:0 0 35px rgba(62,166,255,.85)!important;
-margin-bottom:4px!important;
+.verify-box h2{
+    color:#3ea6ff;
+    margin-bottom:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="profile-page">
+<div class="app-page">
 
-<div class="page-title">PROFILE</div>
+<h1 class="app-title">PROFILE</h1>
 
-<div id="profile-root">
-<div class="profile-card">
-<div class="profile-top">
-<div class="profile-avatar">👤</div>
-<div>
-<div class="profile-name">Loading...</div>
-<div class="profile-id">Checking Telegram profile</div>
-</div>
-</div>
-</div>
+<div class="card profile-hero">
+
+    <div class="profile-avatar-big" id="profile-avatar">👤</div>
+
+    <h2 id="profile-name">Telegram User</h2>
+    <p id="profile-id" style="color:#9fa8bd;margin-top:8px;">Loading...</p>
+
+    <div id="vip-status" style="margin-top:12px;color:#3ea6ff;font-weight:900;">
+        NO VIP
+    </div>
+
+    <div class="lang-switch">
+        <button class="lang-btn" id="ru-btn" onclick="setLang('ru')">Русский</button>
+        <button class="lang-btn" id="en-btn" onclick="setLang('en')">English</button>
+    </div>
+
 </div>
 
+<div class="card">
+    <a href="/my-orders" class="btn" id="orders-btn">Мои заказы</a>
+    <a href="/favorites-products" class="btn dark" id="fav-btn-profile">Избранное</a>
+    <a href="/vip" class="btn dark" id="vip-btn-profile">Получить VIP</a>
+</div>
+
+</div>
+
+<div class="verify-popup" id="verify-popup" onclick="closeVerify()">
+    <div class="verify-box" onclick="event.stopPropagation()">
+        <h2>Verified</h2>
+        <p>Верификация подключена.</p>
+        <button class="btn" onclick="closeVerify()">OK</button>
+    </div>
+</div>
+
+{% include "_nav.html" %}
 
 <script>
 const tg = window.Telegram?.WebApp;
-const root = document.getElementById("profile-root");
 
 if(tg){
-tg.ready();
-tg.expand();
+    tg.ready();
+    tg.expand();
 }
 
-function renderProfile(data){
-const avatar = data.avatar ? `<img src="${data.avatar}">` : "👤";
-const username = data.username ? "@" + data.username : "@unknown";
-const vip = data.is_vip ? "VIP ACTIVE" : "NO VIP";
+async function loadProfile(){
+    const user = tg?.initDataUnsafe?.user;
 
-root.innerHTML = `
-<div class="profile-card">
+    if(!user){
+        document.getElementById("profile-name").innerText = "Telegram User";
+        document.getElementById("profile-id").innerText = "@open_from_bot";
+        return;
+    }
 
-<div class="profile-top">
-<div class="profile-avatar">${avatar}</div>
-<div>
-<div class="profile-name">${data.name || "Telegram User"}</div>
-<div class="profile-id">${username}<br>ID: ${data.telegram_id || "Unknown"}</div>
-<div class="vip-status">${vip}</div>
-</div>
-</div>
-<div class="lang-switch">
-    <button class="lang-btn" id="ru-btn" onclick="setLang('ru')">
-        Русский
-    </button>
+    const res = await fetch("/api/telegram-auth", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(user)
+    });
 
-    <button class="lang-btn" id="en-btn" onclick="setLang('en')">
-        English
-    </button>
-</div>
-<div class="lang-switch">
-    <button class="lang-btn" id="ru-btn" onclick="setLang('ru')">
-        Русский
-    </button>
+    const data = await res.json();
 
-    <button class="lang-btn" id="en-btn" onclick="setLang('en')">
-        English
-    </button>
-</div>
-</div>
-`;
+    const name = data.name || user.first_name || "Telegram User";
+    const username = data.username ? "@" + data.username : "@unknown";
+
+    let verified = "";
+
+    if(data.is_verified){
+        verified = `<span class="verified-badge" onclick="openVerify()">✓</span>`;
+    }
+
+    document.getElementById("profile-name").innerHTML = name + verified;
+    document.getElementById("profile-id").innerText = username + " · ID: " + data.telegram_id;
+
+    document.getElementById("vip-status").innerText = data.is_vip ? "VIP ACTIVE" : "NO VIP";
+
+    const orders = document.getElementById("orders-btn");
+    if(orders){
+        orders.href = "/my-orders?telegram_id=" + data.telegram_id;
+    }
 }
 
-async function start(){
-let tgUser = tg?.initDataUnsafe?.user;
-
-if(!tgUser){
-const saved = localStorage.getItem("telegram_user");
-if(saved){
-renderProfile(JSON.parse(saved));
-return;
+function openVerify(){
+    document.getElementById("verify-popup").style.display = "flex";
 }
 
-renderProfile({
-telegram_id:"",
-name:"Telegram User",
-username:"open_from_bot",
-avatar:"",
-is_vip:false
-});
-return;
+function closeVerify(){
+    document.getElementById("verify-popup").style.display = "none";
 }
 
-const res = await fetch("/api/telegram-auth", {
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(tgUser)
-});
-
-const data = await res.json();
-
-if(data.ok){
-localStorage.setItem("telegram_user", JSON.stringify(data));
-renderProfile(data);
-}else{
-renderProfile({
-telegram_id:"",
-name:"Auth error",
-username:data.error || "unknown",
-avatar:"",
-is_vip:false
-});
-}
-}
-
-start();
 function setLang(lang){
     localStorage.setItem("lang", lang);
     applyLang();
@@ -318,30 +153,17 @@ function setLang(lang){
 function applyLang(){
     const lang = localStorage.getItem("lang") || "ru";
 
-    const ordersBtn = document.querySelector('a[href*="my-orders"]');
-    const favBtn = document.querySelector('a[href="/favorites-products"]');
-    const vipBtn = document.querySelector('a[href="/vip"]');
-    const homeBtn = document.querySelector('a[href="/"]');
+    document.getElementById("ru-btn").classList.toggle("active", lang === "ru");
+    document.getElementById("en-btn").classList.toggle("active", lang === "en");
 
-    if(lang === "en"){
-        if(ordersBtn) ordersBtn.innerText = "My Orders";
-        if(favBtn) favBtn.innerText = "Favorites";
-        if(vipBtn) vipBtn.innerText = "Get VIP";
-        if(homeBtn) homeBtn.innerText = "Back Home";
-    }else{
-        if(ordersBtn) ordersBtn.innerText = "Мои заказы";
-        if(favBtn) favBtn.innerText = "Избранное";
-        if(vipBtn) vipBtn.innerText = "Получить VIP";
-        if(homeBtn) homeBtn.innerText = "На главную";
-    }
-
-    document.getElementById("ru-btn")?.classList.toggle("active", lang === "ru");
-    document.getElementById("en-btn")?.classList.toggle("active", lang === "en");
+    document.getElementById("orders-btn").innerText = lang === "ru" ? "Мои заказы" : "My Orders";
+    document.getElementById("fav-btn-profile").innerText = lang === "ru" ? "Избранное" : "Favorites";
+    document.getElementById("vip-btn-profile").innerText = lang === "ru" ? "Получить VIP" : "Get VIP";
 }
 
+loadProfile();
 applyLang();
 </script>
 
-{% include "_nav.html" %}
 </body>
 </html>
