@@ -248,8 +248,11 @@ def my_shop():
     seller = Seller.query.filter_by(owner_telegram_id=tg_id).first() if tg_id else None
 
     products = []
+
     if seller:
-        products = Product.query.filter_by(seller_id=seller.id).order_by(Product.id.desc()).all()
+        products = Product.query.filter_by(
+            seller_id=seller.id
+        ).order_by(Product.id.desc()).all()
 
     return render_template(
         "my_shop.html",
@@ -261,7 +264,6 @@ def my_shop():
         seller=seller,
         products=products
     )
-
 @app.route("/create-shop", methods=["POST"])
 def create_shop():
     tg_id = request.form.get("tg_id", "")
@@ -574,6 +576,7 @@ def admin():
     total_users = User.query.count()
 
     return render_template(
+        
         "admin.html",
         products=products,
         orders=orders,
@@ -657,7 +660,12 @@ with app.app_context():
     ensure_columns()
 
 print("SERVER STARTED")
-
+@app.route("/api/stats")
+def api_stats():
+    total_users = User.query.count()
+    return jsonify({
+        "total_users": total_users
+    })
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port, debug=False)

@@ -4,26 +4,112 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VIP</title>
-<link rel="stylesheet" href="/static/css/style.css?v=2000">
+<link rel="stylesheet" href="/static/css/style.css?v=11000">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
+
 <body>
 
 <div class="app-page">
+
+    <div style="color:#9fa8bd;margin-bottom:12px;font-weight:800;">
+        👥 Users: <span id="users-count">0</span>
+    </div>
+
     <h1 class="app-title">VIP</h1>
 
-    <div class="card">
+    <div id="vip-loading" class="card">
+        Checking VIP status...
+    </div>
+
+    <div id="vip-active" class="card" style="display:none;">
+        <h2>👑 VIP ACTIVE</h2>
+
+        <p style="color:#c9d2e3;margin-top:12px;line-height:1.5;">
+            У тебя активирован VIP статус. Теперь ты можешь создавать свой магазин, добавлять товары и получать доступ к приватным функциям.
+        </p>
+
+        <a href="/my-shop" id="vip-shop-link" class="btn">
+            Open My Shop
+        </a>
+
+        <a href="/catalog" class="btn dark">
+            VIP Catalog
+        </a>
+    </div>
+
+    <div id="vip-pay" class="card" style="display:none;">
         <h2>⭐ VIP подписка</h2>
-        <p style="color:#c9d2e3;margin-top:10px;line-height:1.5;">
+
+        <p style="color:#c9d2e3;margin-top:12px;line-height:1.5;">
             VIP даёт доступ к лучшим магазинам, скидкам и приватным товарам.
         </p>
 
-        <a class="btn" href="https://t.me/Reversedz_Market_bot">Оплатить Telegram Stars</a>
-        <a class="btn" href="/pay-card">Оплатить картой</a>
-        <a class="btn" href="/pay-crypto">Оплатить криптой</a>
+        <a class="btn" href="https://t.me/Reversedz_Market_bot">
+            Оплатить Telegram Stars
+        </a>
+
+        <a class="btn" href="/pay-card">
+            Оплатить картой
+        </a>
+
+        <a class="btn" href="/pay-crypto">
+            Оплатить криптой
+        </a>
     </div>
+
 </div>
 
 {% include "_nav.html" %}
+
+<script>
+const tg = window.Telegram?.WebApp;
+
+if(tg){
+    tg.ready();
+    tg.expand();
+}
+
+async function loadStats(){
+    try{
+        const res = await fetch("/api/stats");
+        const data = await res.json();
+        document.getElementById("users-count").innerText = data.total_users || 0;
+    }catch(e){}
+}
+
+async function checkVip(){
+    const user = tg?.initDataUnsafe?.user;
+
+    if(!user){
+        document.getElementById("vip-loading").style.display = "none";
+        document.getElementById("vip-pay").style.display = "block";
+        return;
+    }
+
+    const res = await fetch("/api/telegram-auth", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(user)
+    });
+
+    const data = await res.json();
+
+    document.getElementById("vip-loading").style.display = "none";
+
+    const shopLink = document.getElementById("vip-shop-link");
+    shopLink.href = "/my-shop?tg_id=" + data.telegram_id;
+
+    if(data.is_vip || data.is_verified || data.is_admin){
+        document.getElementById("vip-active").style.display = "block";
+    }else{
+        document.getElementById("vip-pay").style.display = "block";
+    }
+}
+
+loadStats();
+checkVip();
+</script>
 
 </body>
 </html>
