@@ -2,12 +2,14 @@ from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from werkzeug.utils import secure_filename
+from flask_socketio import SocketIO, emit
 import os
 import json
 import requests
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///fashion.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -816,10 +818,103 @@ with app.app_context():
 
 print("SERVER STARTED")
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    socketio.run(
-        app,
-        host="0.0.0.0",
-        port=port
+@socketio.on("send_message")
+def handle_send_message(data):
+
+    text = data.get("text", "")
+    sender = data.get("sender", "User")
+    sender_tg_id = data.get("sender_tg_id", "")
+    shop = data.get("shop", "general")
+
+    if not text.strip():
+        return
+
+    user = User.query.filter_by(
+        telegram_id=str(sender_tg_id)
+    ).first()
+
+    if user and user.is_muted:
+        emit("system_error", {
+            "text":"You are muted"
+        })
+        return
+
+    message = Message(
+        shop=shop,
+        sender=sender,
+        sender_tg_id=str(sender_tg_id),
+        text=text
     )
+
+    db.session.add(message)
+    db.session.commit()
+
+    emit("new_message", {
+        "id":message.id,
+        "sender":sender,
+        "sender_tg_id":sender_tg_id,
+        "text":text,
+        "image":"",
+        "time":message.created_at.strftime("%H:%M"),
+        "shop":shop
+    }, broadcast=True)
+
+
+@app.route("/chat-upload", methods=["POST"])
+def chat_upload():
+
+    sender = request.form.get("sender", "User")
+    sender_tg_id = request.form.get("sender_tg_id", "")
+    text = request.form.get("text", "")
+    shop = request.form.get("shop", "general")
+
+    file = request.files.get("image_file")
+
+    image_url = ""
+
+    if file:
+
+        filename = secure_filename(file.filename)
+
+        upload_folder = os.path.join(
+            "static",
+            "uploads"
+        )
+
+        os.makedirs(upload_folder, exist_ok=True)
+
+        filepath = os.path.join(
+            upload_folder,
+            filename
+        )
+
+        file.save(filepath)
+
+        image_url = "/" + filepath.replace("\\", "/")
+
+    message = Message(
+        shop=shop,
+        sender=sender,
+        sender_tg_id=str(sender_tg_id),
+        text=text,
+        image=image_url
+    )
+
+    db.session.add(message)
+    db.session.commit()
+
+    socketio.emit("new_message", {
+        "id":message.id,
+        "sender":sender,
+        "sender_tg_id":sender_tg_id,
+        "text":text,
+        "image":image_url,
+        "time":message.created_at.strftime("%H:%M"),
+        "shop":shop
+    })
+
+    return {"ok":True}
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, host="0.0.0.0", port=port)
