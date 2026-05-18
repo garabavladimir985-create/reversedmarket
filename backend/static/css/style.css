@@ -363,3 +363,4 @@ button{
 .lang-hidden{
     display:none!important;
 }
+.badge.red{background:#ff4d6d;color:white}

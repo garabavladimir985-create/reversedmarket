@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moderator Panel</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{
+    background:radial-gradient(circle at top,#10284b 0%,#050816 35%);
+    color:white;
+    padding:28px;
+}
+.wrap{max-width:1100px;margin:0 auto}
+h1{
+    font-size:42px;
+    color:#3ea6ff;
+    margin-bottom:24px;
+    text-shadow:0 0 30px rgba(62,166,255,.4);
+}
+.card{
+    background:linear-gradient(180deg,#111827,#0d1426);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:26px;
+    padding:22px;
+    margin-bottom:18px;
+}
+.user{
+    background:#0b1220;
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:12px;
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    align-items:center;
+}
+.name{font-size:18px;font-weight:900}
+.small{color:#9fa8bd;font-size:14px;margin-top:5px}
+.badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.badge{
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:900;
+}
+.ban{background:#ff4d6d;color:white}
+.mute{background:#374151;color:white}
+.ok{background:#37d67a;color:#07111f}
+.btn{
+    display:inline-block;
+    padding:10px 14px;
+    border-radius:12px;
+    background:#3ea6ff;
+    color:white;
+    text-decoration:none;
+    font-weight:900;
+    margin:4px;
+}
+.btn.red{background:#ff4d6d}
+.btn.dark{background:#1f2937}
+@media(max-width:800px){
+    .user{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<h1>MODERATOR PANEL</h1>
+
+<div class="card">
+<h2>Users Control</h2>
+
+{% for user in users %}
+<div class="user">
+
+<div>
+    <div class="name">{{ user.name or "Telegram User" }}</div>
+    <div class="small">@{{ user.username or "unknown" }} · ID: {{ user.telegram_id }}</div>
+
+    <div class="badges">
+        {% if user.is_banned %}
+        <span class="badge ban">BANNED</span>
+        {% endif %}
+
+        {% if user.is_muted %}
+        <span class="badge mute">MUTED</span>
+        {% endif %}
+
+        {% if not user.is_banned and not user.is_muted %}
+        <span class="badge ok">CLEAR</span>
+        {% endif %}
+    </div>
+</div>
+
+<div>
+    <a class="btn red" href="/user/{{ user.id }}/ban/on?key={{ key }}">Ban</a>
+    <a class="btn dark" href="/user/{{ user.id }}/ban/off?key={{ key }}">Unban</a>
+    <a class="btn red" href="/user/{{ user.id }}/mute/on?key={{ key }}">Mute</a>
+    <a class="btn dark" href="/user/{{ user.id }}/mute/off?key={{ key }}">Unmute</a>
+</div>
+
+</div>
+{% endfor %}
+
+</div>
+
+<a class="btn" href="/">Back Home</a>
+
+</div>
+
+</body>
+</html>

@@ -4,7 +4,8 @@ from werkzeug.utils import secure_filename
 import os
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
+
 
 app = Flask(__name__)
 
@@ -14,10 +15,11 @@ app.config["UPLOAD_FOLDER"] = "static/uploads"
 
 db = SQLAlchemy(app)
 
-BOT_TOKEN = os.environ.get("8993845960:AAGkror8LMuQ9rb_kYmGbXtALo3p4xm5pFU")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 ADMIN_IDS = ["1940136851", "910641302"]
 ADMIN_KEY = "admin123"
+MOD_KEY = "mod123"
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
@@ -30,6 +32,14 @@ def is_admin_key(key=""):
     return str(key) == ADMIN_KEY
 
 
+def admin_access(key=""):
+    return is_admin_key(key)
+
+
+def mod_access(key=""):
+    return is_admin_key(key) or str(key) == MOD_KEY
+
+
 def notify_admins(text):
     if not BOT_TOKEN:
         return
@@ -38,11 +48,25 @@ def notify_admins(text):
         try:
             requests.post(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                data={"chat_id": admin_id, "text": text},
+                data={
+                    "chat_id": admin_id,
+                    "text": text
+                },
                 timeout=5
             )
         except Exception as e:
             print("Notify error:", e)
+
+
+def save_file(file):
+    if not file or file.filename == "":
+        return None
+
+    filename = secure_filename(file.filename)
+    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(path)
+
+    return "/static/uploads/" + filename
 
 
 class Seller(db.Model):
@@ -75,7 +99,6 @@ class Product(db.Model):
 
 
 class User(db.Model):
-    last_seen = db.Column(db.DateTime)
     id = db.Column(db.Integer, primary_key=True)
     telegram_id = db.Column(db.String(120), unique=True)
     name = db.Column(db.String(120))
@@ -83,8 +106,17 @@ class User(db.Model):
     telegram = db.Column(db.String(120))
     city = db.Column(db.String(120))
     avatar = db.Column(db.String(500))
+
     is_vip = db.Column(db.Boolean, default=False)
     is_verified = db.Column(db.Boolean, default=False)
+    is_admin = db.Column(db.Boolean, default=False)
+    is_moderator = db.Column(db.Boolean, default=False)
+    is_banned = db.Column(db.Boolean, default=False)
+    is_muted = db.Column(db.Boolean, default=False)
+
+    ban_reason = db.Column(db.Text, default="")
+    mute_reason = db.Column(db.Text, default="")
+    last_seen = db.Column(db.DateTime)
 
 
 class Message(db.Model):
@@ -108,17 +140,6 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-def save_file(file):
-    if not file or file.filename == "":
-        return None
-
-    filename = secure_filename(file.filename)
-    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(path)
-
-    return "/static/uploads/" + filename
-
-
 @app.route("/api/telegram-auth", methods=["POST"])
 def telegram_auth():
     data = request.get_json() or {}
@@ -129,7 +150,7 @@ def telegram_auth():
     avatar = data.get("photo_url", "")
 
     if not telegram_id:
-        return jsonify({"ok": False})
+        return jsonify({"ok": False, "error": "No Telegram ID"}), 400
 
     user = User.query.filter_by(telegram_id=telegram_id).first()
 
@@ -141,7 +162,12 @@ def telegram_auth():
             telegram=username,
             avatar=avatar,
             is_vip=False,
-            is_verified=False
+            is_verified=False,
+            is_admin=is_admin(telegram_id),
+            is_moderator=False,
+            is_banned=False,
+            is_muted=False,
+            last_seen=datetime.utcnow()
         )
         db.session.add(user)
     else:
@@ -149,7 +175,9 @@ def telegram_auth():
         user.username = username
         user.telegram = username
         user.avatar = avatar
+        user.is_admin = is_admin(telegram_id)
         user.last_seen = datetime.utcnow()
+
     db.session.commit()
 
     return jsonify({
@@ -158,9 +186,26 @@ def telegram_auth():
         "name": user.name,
         "username": user.username,
         "avatar": user.avatar,
-        "is_vip": user.is_vip,
-        "is_verified": user.is_verified,
-        "is_admin": is_admin(user.telegram_id)
+        "is_vip": bool(user.is_vip),
+        "is_verified": bool(user.is_verified),
+        "is_admin": bool(is_admin(user.telegram_id)),
+        "is_moderator": bool(user.is_moderator),
+        "is_banned": bool(user.is_banned),
+        "is_muted": bool(user.is_muted)
+    })
+
+
+@app.route("/api/stats")
+def api_stats():
+    total_users = User.query.count()
+
+    online_users = User.query.filter(
+        User.last_seen >= datetime.utcnow() - timedelta(minutes=5)
+    ).count()
+
+    return jsonify({
+        "total_users": total_users,
+        "online_users": online_users
     })
 
 
@@ -180,7 +225,11 @@ def home():
     products = products_query.order_by(Product.id.desc()).all()
     sellers = Seller.query.order_by(Seller.id.desc()).all()
 
-    return render_template("index.html", products=products, sellers=sellers)
+    return render_template(
+        "index.html",
+        products=products,
+        sellers=sellers
+    )
 
 
 @app.route("/catalog")
@@ -210,7 +259,7 @@ def catalog():
     if max_price:
         try:
             products_query = products_query.filter(Product.price <= int(max_price))
-        except:
+        except Exception:
             pass
 
     products = products_query.order_by(Product.id.desc()).all()
@@ -240,7 +289,6 @@ def my_shop():
     key = request.args.get("key", "")
 
     admin = is_admin(tg_id) or is_admin_key(key)
-
     user = User.query.filter_by(telegram_id=tg_id).first() if tg_id else None
 
     can_create = admin or (user and (user.is_vip or user.is_verified))
@@ -264,6 +312,8 @@ def my_shop():
         seller=seller,
         products=products
     )
+
+
 @app.route("/create-shop", methods=["POST"])
 def create_shop():
     tg_id = request.form.get("tg_id", "")
@@ -276,6 +326,7 @@ def create_shop():
         return "ACCESS DENIED", 403
 
     old = Seller.query.filter_by(owner_telegram_id=tg_id).first()
+
     if old:
         return redirect(f"/my-shop?tg_id={tg_id}")
 
@@ -372,15 +423,42 @@ def delete_product(id):
     db.session.delete(product)
     db.session.commit()
 
+    if is_admin_key(key):
+        return redirect(f"/admin?key={ADMIN_KEY}")
+
     return redirect(f"/my-shop?tg_id={tg_id}")
+
+
+@app.route("/delete-seller/<int:id>")
+def delete_seller(id):
+    key = request.args.get("key", "")
+
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
+
+    seller = Seller.query.get_or_404(id)
+
+    Product.query.filter_by(seller_id=seller.id).delete()
+
+    db.session.delete(seller)
+    db.session.commit()
+
+    return redirect(f"/admin?key={ADMIN_KEY}")
 
 
 @app.route("/shop/<int:seller_id>")
 def shop(seller_id):
     seller = Seller.query.get_or_404(seller_id)
-    products = Product.query.filter_by(seller_id=seller.id).order_by(Product.id.desc()).all()
 
-    return render_template("shop.html", seller=seller, products=products)
+    products = Product.query.filter_by(
+        seller_id=seller.id
+    ).order_by(Product.id.desc()).all()
+
+    return render_template(
+        "shop.html",
+        seller=seller,
+        products=products
+    )
 
 
 @app.route("/product/<int:id>")
@@ -388,7 +466,11 @@ def product_page(id):
     product = Product.query.get_or_404(id)
     seller = Seller.query.get(product.seller_id)
 
-    return render_template("product.html", product=product, seller=seller)
+    return render_template(
+        "product.html",
+        product=product,
+        seller=seller
+    )
 
 
 @app.route("/cart")
@@ -432,6 +514,7 @@ def create_order():
     db.session.commit()
 
     items_text = ""
+
     for item in cart:
         items_text += f"- {item.get('name')} × {item.get('qty', 1)} — €{item.get('price')}\n"
 
@@ -458,19 +541,28 @@ def order_success():
 @app.route("/my-orders")
 def my_orders():
     tg_id = request.args.get("telegram_id", "")
-    orders = Order.query.filter_by(user_telegram_id=tg_id).order_by(Order.id.desc()).all() if tg_id else []
+
+    orders = Order.query.filter_by(
+        user_telegram_id=tg_id
+    ).order_by(Order.id.desc()).all() if tg_id else []
 
     parsed_orders = []
 
     for order in orders:
         try:
             items = json.loads(order.items)
-        except:
+        except Exception:
             items = []
 
-        parsed_orders.append({"order": order, "items": items})
+        parsed_orders.append({
+            "order": order,
+            "items": items
+        })
 
-    return render_template("my_orders.html", parsed_orders=parsed_orders)
+    return render_template(
+        "my_orders.html",
+        parsed_orders=parsed_orders
+    )
 
 
 @app.route("/order/<int:id>")
@@ -479,15 +571,20 @@ def order_detail(id):
 
     try:
         items = json.loads(order.items)
-    except:
+    except Exception:
         items = []
 
     try:
         delivery = json.loads(order.delivery or "{}")
-    except:
+    except Exception:
         delivery = {}
 
-    return render_template("order_detail.html", order=order, items=items, delivery=delivery)
+    return render_template(
+        "order_detail.html",
+        order=order,
+        items=items,
+        delivery=delivery
+    )
 
 
 @app.route("/order/<int:id>/status/<status>")
@@ -504,13 +601,25 @@ def update_order_status(id, status):
 @app.route("/chat/<shop>", methods=["GET", "POST"])
 def chat(shop):
     if request.method == "POST":
+        sender_tg_id = request.form.get("sender_tg_id", "")
+
+        user = User.query.filter_by(
+            telegram_id=sender_tg_id
+        ).first()
+
+        if user and user.is_banned:
+            return "You are banned", 403
+
+        if user and user.is_muted:
+            return "You are muted", 403
+
         file = request.files.get("image_file")
         image_url = save_file(file)
 
         message = Message(
             shop=shop,
             sender=request.form.get("sender", "Telegram User"),
-            sender_tg_id=request.form.get("sender_tg_id", ""),
+            sender_tg_id=sender_tg_id,
             text=request.form.get("text", ""),
             image=image_url
         )
@@ -522,7 +631,11 @@ def chat(shop):
 
     messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
 
-    return render_template("chat.html", messages=messages, shop=shop)
+    return render_template(
+        "chat.html",
+        messages=messages,
+        shop=shop
+    )
 
 
 @app.route("/chat")
@@ -555,6 +668,120 @@ def pay_crypto():
     return render_template("pay_crypto.html")
 
 
+@app.route("/user/<int:id>/ban/<status>")
+def user_ban(id, status):
+    key = request.args.get("key", "")
+    reason = request.args.get("reason", "")
+
+    if not mod_access(key):
+        return "ACCESS DENIED", 403
+
+    user = User.query.get_or_404(id)
+
+    user.is_banned = status == "on"
+    user.ban_reason = reason if status == "on" else ""
+
+    db.session.commit()
+
+    if key == MOD_KEY:
+        return redirect(f"/moderator?key={MOD_KEY}")
+
+    return redirect(f"/admin?key={ADMIN_KEY}")
+
+
+@app.route("/user/<int:id>/mute/<status>")
+def user_mute(id, status):
+    key = request.args.get("key", "")
+    reason = request.args.get("reason", "")
+
+    if not mod_access(key):
+        return "ACCESS DENIED", 403
+
+    user = User.query.get_or_404(id)
+
+    user.is_muted = status == "on"
+    user.mute_reason = reason if status == "on" else ""
+
+    db.session.commit()
+
+    if key == MOD_KEY:
+        return redirect(f"/moderator?key={MOD_KEY}")
+
+    return redirect(f"/admin?key={ADMIN_KEY}")
+
+
+@app.route("/user/<int:id>/moderator/<status>")
+def user_moderator(id, status):
+    key = request.args.get("key", "")
+
+    if not admin_access(key):
+        return "ACCESS DENIED", 403
+
+    user = User.query.get_or_404(id)
+
+    user.is_moderator = status == "on"
+
+    db.session.commit()
+
+    return redirect(f"/admin?key={ADMIN_KEY}")
+
+
+@app.route("/user/<int:id>/vip/<status>")
+def update_user_vip(id, status):
+    key = request.args.get("key", "")
+
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
+
+    user = User.query.get_or_404(id)
+
+    if status == "on":
+        user.is_vip = True
+
+    if status == "off":
+        user.is_vip = False
+
+    db.session.commit()
+
+    return redirect(f"/admin?key={ADMIN_KEY}")
+
+
+@app.route("/user/<int:id>/verified/<status>")
+def update_user_verified(id, status):
+    key = request.args.get("key", "")
+
+    if not is_admin_key(key):
+        return "ACCESS DENIED", 403
+
+    user = User.query.get_or_404(id)
+
+    if status == "on":
+        user.is_verified = True
+
+    if status == "off":
+        user.is_verified = False
+
+    db.session.commit()
+
+    return redirect(f"/admin?key={ADMIN_KEY}")
+
+
+@app.route("/moderator")
+def moderator():
+    key = request.args.get("key", "")
+
+    if not mod_access(key):
+        return "ACCESS DENIED", 403
+
+    users = User.query.order_by(User.id.desc()).all()
+
+    return render_template(
+        "moderator.html",
+        users=users,
+        key=key
+    )
+
+
 @app.route("/admin")
 def admin():
     key = request.args.get("key", "")
@@ -562,12 +789,9 @@ def admin():
     if not is_admin_key(key):
         return "ACCESS DENIED", 403
 
-    from datetime import timedelta
-
     products = Product.query.order_by(Product.id.desc()).all()
     orders = Order.query.order_by(Order.id.desc()).all()
     sellers = Seller.query.order_by(Seller.id.desc()).all()
-
     users = User.query.order_by(User.id.desc()).all()
 
     online_users = User.query.filter(
@@ -578,17 +802,23 @@ def admin():
 
     admin_users = [
         user for user in users
-        if str(user.telegram_id) in ADMIN_IDS or user.is_verified
+        if str(user.telegram_id) in ADMIN_IDS or user.is_verified or user.is_admin
     ]
 
     vip_users = [
         user for user in users
-        if user.is_vip and str(user.telegram_id) not in ADMIN_IDS and not user.is_verified
+        if user.is_vip
+        and str(user.telegram_id) not in ADMIN_IDS
+        and not user.is_verified
+        and not user.is_admin
     ]
 
     regular_users = [
         user for user in users
-        if not user.is_vip and not user.is_verified and str(user.telegram_id) not in ADMIN_IDS
+        if not user.is_vip
+        and not user.is_verified
+        and not user.is_admin
+        and str(user.telegram_id) not in ADMIN_IDS
     ]
 
     return render_template(
@@ -604,73 +834,33 @@ def admin():
         total_users=total_users,
         key=key
     )
-@app.route("/user/<int:id>/vip/<status>")
-def update_user_vip(id, status):
-    key = request.args.get("key", "")
 
-    if not is_admin_key(key):
-        return "ACCESS DENIED", 403
-
-    user = User.query.get_or_404(id)
-
-    if status == "on":
-        user.is_vip = True
-    elif status == "off":
-        user.is_vip = False
-
-    db.session.commit()
-
-    return redirect("/admin?key=admin123")
-
-
-@app.route("/user/<int:id>/verified/<status>")
-def update_user_verified(id, status):
-    key = request.args.get("key", "")
-
-    if not is_admin_key(key):
-        return "ACCESS DENIED", 403
-
-    user = User.query.get_or_404(id)
-
-    if status == "on":
-        user.is_verified = True
-    elif status == "off":
-        user.is_verified = False
-
-    db.session.commit()
-
-    return redirect("/admin?key=admin123")
 
 def ensure_columns():
-    with db.engine.connect() as conn:                               
-        try:
-            conn.exec_driver_sql("ALTER TABLE seller ADD COLUMN owner_telegram_id VARCHAR(120)")
-        except:
-            pass
+    with db.engine.connect() as conn:
+        sql_statements = [
+            "ALTER TABLE seller ADD COLUMN owner_telegram_id VARCHAR(120)",
+            "ALTER TABLE seller ADD COLUMN verified BOOLEAN DEFAULT 0",
 
-        try:
-            conn.exec_driver_sql("ALTER TABLE seller ADD COLUMN verified BOOLEAN DEFAULT 0")
-        except:
-            pass
+            "ALTER TABLE user ADD COLUMN is_verified BOOLEAN DEFAULT 0",
+            "ALTER TABLE user ADD COLUMN is_admin BOOLEAN DEFAULT 0",
+            "ALTER TABLE user ADD COLUMN is_moderator BOOLEAN DEFAULT 0",
+            "ALTER TABLE user ADD COLUMN is_banned BOOLEAN DEFAULT 0",
+            "ALTER TABLE user ADD COLUMN is_muted BOOLEAN DEFAULT 0",
+            "ALTER TABLE user ADD COLUMN ban_reason TEXT DEFAULT ''",
+            "ALTER TABLE user ADD COLUMN mute_reason TEXT DEFAULT ''",
+            "ALTER TABLE user ADD COLUMN last_seen DATETIME",
 
-        try:
-            conn.exec_driver_sql("ALTER TABLE user ADD COLUMN is_verified BOOLEAN DEFAULT 0")
-        except:
-            pass
+            "ALTER TABLE message ADD COLUMN sender_tg_id VARCHAR(120)",
 
-        try:
-            conn.exec_driver_sql("ALTER TABLE message ADD COLUMN sender_tg_id VARCHAR(120)")
-        except:
-            pass
+            "ALTER TABLE \"order\" ADD COLUMN delivery TEXT"
+        ]
 
-        try:
-            conn.exec_driver_sql("ALTER TABLE \"order\" ADD COLUMN delivery TEXT")
-        except:
-            pass
-        try:
-            conn.exec_driver_sql("ALTER TABLE user ADD COLUMN last_seen DATETIME")
-        except:
-            pass
+        for sql in sql_statements:
+            try:
+                conn.exec_driver_sql(sql)
+            except Exception:
+                pass
 
 
 with app.app_context():
@@ -678,12 +868,12 @@ with app.app_context():
     ensure_columns()
 
 print("SERVER STARTED")
-@app.route("/api/stats")
-def api_stats():
-    total_users = User.query.count()
-    return jsonify({
-        "total_users": total_users
-    })
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port, debug=False)
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=False
+    )

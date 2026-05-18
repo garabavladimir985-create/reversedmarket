@@ -3,35 +3,208 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin</title>
+<title>Admin Panel</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#050816;color:white;padding:28px}
-.wrap{max-width:1100px;margin:0 auto}
-h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
-.card{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:22px;margin-bottom:22px}
-.card h2{font-size:25px;margin-bottom:16px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.stat{background:#0d1220;border-radius:18px;padding:18px}
-.stat b{font-size:28px;color:#3ea6ff}
-.list{display:grid;gap:12px}
-.user{background:#0d1220;border-radius:18px;padding:16px;display:flex;justify-content:space-between;gap:14px;align-items:center}
-.name{font-size:18px;font-weight:900}
-.small{opacity:.7;font-size:14px;margin-top:5px}
-.badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900}
-.vip{background:#ffd43b;color:#111827}
-.verified{background:#3ea6ff;color:white}
-.admin{background:#37d67a;color:#07111f}
-.normal{background:#374151;color:white}
-.btn{display:inline-block;padding:10px 14px;border-radius:12px;background:#3ea6ff;color:white;text-decoration:none;font-weight:800;margin:4px}
-.btn.dark{background:#1f2937}
-.btn.red{background:#ff4d6d}
-.price{color:#3ea6ff;font-weight:900}
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:radial-gradient(circle at top,#10284b 0%,#050816 35%);
+    color:white;
+    padding:28px;
+}
+
+.wrap{
+    max-width:1200px;
+    margin:0 auto;
+}
+
+h1{
+    font-size:42px;
+    color:#3ea6ff;
+    margin-bottom:24px;
+    text-shadow:0 0 30px rgba(62,166,255,.45);
+}
+
+.card{
+    background:linear-gradient(180deg,#111827,#0d1426);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:26px;
+    padding:22px;
+    margin-bottom:22px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+.card h2{
+    font-size:25px;
+    margin-bottom:16px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+}
+
+.stat{
+    background:#0b1220;
+    border-radius:18px;
+    padding:18px;
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.stat b{
+    display:block;
+    font-size:30px;
+    color:#3ea6ff;
+    margin-top:8px;
+}
+
+.list{
+    display:grid;
+    gap:12px;
+}
+
+.user{
+    background:#0b1220;
+    border-radius:18px;
+    padding:16px;
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    align-items:center;
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.name{
+    font-size:18px;
+    font-weight:900;
+}
+
+.small{
+    opacity:.7;
+    font-size:14px;
+    margin-top:5px;
+}
+
+.badges{
+    display:flex;
+    gap:8px;
+    margin-top:8px;
+    flex-wrap:wrap;
+}
+
+.badge{
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:900;
+}
+
+.badge.vip{
+    background:#ffd43b;
+    color:#111827;
+}
+
+.badge.verified{
+    background:#3ea6ff;
+    color:white;
+}
+
+.badge.admin{
+    background:#37d67a;
+    color:#07111f;
+}
+
+.badge.normal{
+    background:#374151;
+    color:white;
+}
+
+.badge.red{
+    background:#ff4d6d;
+    color:white;
+}
+
+.badge.muted{
+    background:#7c3aed;
+    color:white;
+}
+
+.badge.mod{
+    background:#f97316;
+    color:white;
+}
+
+.actions{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    gap:6px;
+}
+
+.btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 13px;
+    border-radius:12px;
+    background:#3ea6ff;
+    color:white;
+    text-decoration:none;
+    font-weight:800;
+    font-size:13px;
+    border:none;
+}
+
+.btn.dark{
+    background:#1f2937;
+}
+
+.btn.red{
+    background:#ff4d6d;
+}
+
+.btn.green{
+    background:#37d67a;
+    color:#07111f;
+}
+
+.btn.orange{
+    background:#f97316;
+}
+
+.price{
+    color:#3ea6ff;
+    font-weight:900;
+}
+
 @media(max-width:800px){
-    .stats{grid-template-columns:1fr 1fr}
-    .user{flex-direction:column;align-items:flex-start}
+    body{
+        padding:18px;
+    }
+
+    h1{
+        font-size:34px;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .user{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .actions{
+        justify-content:flex-start;
+    }
 }
 </style>
 </head>
@@ -72,27 +245,56 @@ h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
 <h2>👤 Обычные пользователи</h2>
 
 <div class="list">
+
 {% if regular_users|length == 0 %}
 <div class="small">No regular users yet</div>
 {% endif %}
 
 {% for user in regular_users %}
 <div class="user">
+
     <div>
         <div class="name">{{ user.name or "Telegram User" }}</div>
         <div class="small">@{{ user.username or "unknown" }} · ID: {{ user.telegram_id }}</div>
 
         <div class="badges">
             <span class="badge normal">REGULAR</span>
+
+            {% if user.is_banned %}
+            <span class="badge red">BANNED</span>
+            {% endif %}
+
+            {% if user.is_muted %}
+            <span class="badge muted">MUTED</span>
+            {% endif %}
+
+            {% if user.is_moderator %}
+            <span class="badge mod">MODERATOR</span>
+            {% endif %}
         </div>
     </div>
 
-    <div>
-        <a class="btn" href="/user/{{ user.id }}/vip/on?key={{ key }}">Make VIP</a>
+    <div class="actions">
+        <a class="btn" href="/user/{{ user.id }}/vip/on?key={{ key }}">VIP ON</a>
         <a class="btn" href="/user/{{ user.id }}/verified/on?key={{ key }}">Verify</a>
+        <a class="btn orange" href="/user/{{ user.id }}/moderator/on?key={{ key }}">Make Mod</a>
+
+        {% if user.is_banned %}
+        <a class="btn dark" href="/user/{{ user.id }}/ban/off?key={{ key }}">Unban</a>
+        {% else %}
+        <a class="btn red" href="/user/{{ user.id }}/ban/on?key={{ key }}">Ban</a>
+        {% endif %}
+
+        {% if user.is_muted %}
+        <a class="btn dark" href="/user/{{ user.id }}/mute/off?key={{ key }}">Unmute</a>
+        {% else %}
+        <a class="btn red" href="/user/{{ user.id }}/mute/on?key={{ key }}">Mute</a>
+        {% endif %}
     </div>
+
 </div>
 {% endfor %}
+
 </div>
 </div>
 
@@ -100,40 +302,71 @@ h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
 <h2>👑 VIP пользователи</h2>
 
 <div class="list">
+
 {% if vip_users|length == 0 %}
 <div class="small">No VIP users yet</div>
 {% endif %}
 
 {% for user in vip_users %}
 <div class="user">
+
     <div>
         <div class="name">{{ user.name or "Telegram User" }}</div>
         <div class="small">@{{ user.username or "unknown" }} · ID: {{ user.telegram_id }}</div>
 
         <div class="badges">
             <span class="badge vip">VIP</span>
+
+            {% if user.is_banned %}
+            <span class="badge red">BANNED</span>
+            {% endif %}
+
+            {% if user.is_muted %}
+            <span class="badge muted">MUTED</span>
+            {% endif %}
+
+            {% if user.is_moderator %}
+            <span class="badge mod">MODERATOR</span>
+            {% endif %}
         </div>
     </div>
 
-    <div>
+    <div class="actions">
         <a class="btn dark" href="/user/{{ user.id }}/vip/off?key={{ key }}">Remove VIP</a>
         <a class="btn" href="/user/{{ user.id }}/verified/on?key={{ key }}">Verify</a>
+        <a class="btn orange" href="/user/{{ user.id }}/moderator/on?key={{ key }}">Make Mod</a>
+
+        {% if user.is_banned %}
+        <a class="btn dark" href="/user/{{ user.id }}/ban/off?key={{ key }}">Unban</a>
+        {% else %}
+        <a class="btn red" href="/user/{{ user.id }}/ban/on?key={{ key }}">Ban</a>
+        {% endif %}
+
+        {% if user.is_muted %}
+        <a class="btn dark" href="/user/{{ user.id }}/mute/off?key={{ key }}">Unmute</a>
+        {% else %}
+        <a class="btn red" href="/user/{{ user.id }}/mute/on?key={{ key }}">Mute</a>
+        {% endif %}
     </div>
+
 </div>
 {% endfor %}
+
 </div>
 </div>
 
 <div class="card">
-<h2>✅ Admin / Verified</h2>
+<h2>✅ Admin / Verified / Moderators</h2>
 
 <div class="list">
+
 {% if admin_users|length == 0 %}
 <div class="small">No verified/admin users yet</div>
 {% endif %}
 
 {% for user in admin_users %}
 <div class="user">
+
     <div>
         <div class="name">{{ user.name or "Telegram User" }}</div>
         <div class="small">@{{ user.username or "unknown" }} · ID: {{ user.telegram_id }}</div>
@@ -150,21 +383,54 @@ h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
             {% if user.is_vip %}
             <span class="badge vip">VIP</span>
             {% endif %}
+
+            {% if user.is_moderator %}
+            <span class="badge mod">MODERATOR</span>
+            {% endif %}
+
+            {% if user.is_banned %}
+            <span class="badge red">BANNED</span>
+            {% endif %}
+
+            {% if user.is_muted %}
+            <span class="badge muted">MUTED</span>
+            {% endif %}
         </div>
     </div>
 
-    <div>
+    <div class="actions">
         <a class="btn dark" href="/user/{{ user.id }}/verified/off?key={{ key }}">Remove Verify</a>
         <a class="btn dark" href="/user/{{ user.id }}/vip/off?key={{ key }}">Remove VIP</a>
         <a class="btn" href="/user/{{ user.id }}/vip/on?key={{ key }}">VIP ON</a>
+
+        {% if user.is_moderator %}
+        <a class="btn dark" href="/user/{{ user.id }}/moderator/off?key={{ key }}">Remove Mod</a>
+        {% else %}
+        <a class="btn orange" href="/user/{{ user.id }}/moderator/on?key={{ key }}">Make Mod</a>
+        {% endif %}
+
+        {% if user.is_banned %}
+        <a class="btn dark" href="/user/{{ user.id }}/ban/off?key={{ key }}">Unban</a>
+        {% else %}
+        <a class="btn red" href="/user/{{ user.id }}/ban/on?key={{ key }}">Ban</a>
+        {% endif %}
+
+        {% if user.is_muted %}
+        <a class="btn dark" href="/user/{{ user.id }}/mute/off?key={{ key }}">Unmute</a>
+        {% else %}
+        <a class="btn red" href="/user/{{ user.id }}/mute/on?key={{ key }}">Mute</a>
+        {% endif %}
     </div>
+
 </div>
 {% endfor %}
+
 </div>
 </div>
 
 <div class="card">
 <h2>🏪 Shops</h2>
+
 <div class="list">
 {% if sellers|length == 0 %}
 <div class="small">No shops yet</div>
@@ -176,6 +442,10 @@ h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
         <div class="name">{{ seller.shop_name }}</div>
         <div class="small">Owner: {{ seller.owner_telegram_id }} · {{ seller.category }}</div>
     </div>
+
+    <div class="actions">
+        <a class="btn red" href="/delete-seller/{{ seller.id }}?key={{ key }}">Delete</a>
+    </div>
 </div>
 {% endfor %}
 </div>
@@ -183,6 +453,7 @@ h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
 
 <div class="card">
 <h2>👕 Products</h2>
+
 <div class="list">
 {% if products|length == 0 %}
 <div class="small">No products yet</div>
@@ -196,7 +467,9 @@ h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
         <div class="small">{{ product.brand }} · {{ product.size }}</div>
     </div>
 
-    <a class="btn red" href="/delete-product/{{ product.id }}?key={{ key }}">Delete</a>
+    <div class="actions">
+        <a class="btn red" href="/delete-product/{{ product.id }}?key={{ key }}">Delete</a>
+    </div>
 </div>
 {% endfor %}
 </div>
@@ -204,6 +477,7 @@ h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
 
 <div class="card">
 <h2>📦 Orders</h2>
+
 <div class="list">
 {% if orders|length == 0 %}
 <div class="small">No orders yet</div>
@@ -217,13 +491,16 @@ h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
         <div class="price">€{{ order.total }} · {{ order.status }}</div>
     </div>
 
-    <a class="btn" href="/order/{{ order.id }}">Open</a>
+    <div class="actions">
+        <a class="btn" href="/order/{{ order.id }}">Open</a>
+    </div>
 </div>
 {% endfor %}
 </div>
 </div>
 
 <a class="btn" href="/">Back Home</a>
+<a class="btn orange" href="/moderator?key=mod123">Moderator Panel</a>
 
 </div>
 
