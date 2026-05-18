@@ -566,8 +566,9 @@ def admin():
 
     products = Product.query.order_by(Product.id.desc()).all()
     orders = Order.query.order_by(Order.id.desc()).all()
-    users = User.query.order_by(User.id.desc()).all()
     sellers = Seller.query.order_by(Seller.id.desc()).all()
+
+    users = User.query.order_by(User.id.desc()).all()
 
     online_users = User.query.filter(
         User.last_seen >= datetime.utcnow() - timedelta(minutes=5)
@@ -575,13 +576,30 @@ def admin():
 
     total_users = User.query.count()
 
+    admin_users = [
+        user for user in users
+        if str(user.telegram_id) in ADMIN_IDS or user.is_verified
+    ]
+
+    vip_users = [
+        user for user in users
+        if user.is_vip and str(user.telegram_id) not in ADMIN_IDS and not user.is_verified
+    ]
+
+    regular_users = [
+        user for user in users
+        if not user.is_vip and not user.is_verified and str(user.telegram_id) not in ADMIN_IDS
+    ]
+
     return render_template(
-        
         "admin.html",
         products=products,
         orders=orders,
-        users=users,
         sellers=sellers,
+        users=users,
+        admin_users=admin_users,
+        vip_users=vip_users,
+        regular_users=regular_users,
         online_users=online_users,
         total_users=total_users,
         key=key

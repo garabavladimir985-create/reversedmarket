@@ -7,22 +7,32 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#050816;color:white;padding:24px}
-.wrap{max-width:1200px;margin:0 auto}
+body{background:#050816;color:white;padding:28px}
+.wrap{max-width:1100px;margin:0 auto}
 h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
 .card{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:22px;margin-bottom:22px}
-.card h2{font-size:26px;margin-bottom:18px}
+.card h2{font-size:25px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{background:#0d1220;border-radius:18px;padding:18px}
+.stat b{font-size:28px;color:#3ea6ff}
 .list{display:grid;gap:12px}
-.item{background:#0d1220;border-radius:18px;padding:16px;display:flex;justify-content:space-between;gap:14px;align-items:center}
-.small{opacity:.65;font-size:14px;margin-top:5px}
+.user{background:#0d1220;border-radius:18px;padding:16px;display:flex;justify-content:space-between;gap:14px;align-items:center}
+.name{font-size:18px;font-weight:900}
+.small{opacity:.7;font-size:14px;margin-top:5px}
+.badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900}
+.vip{background:#ffd43b;color:#111827}
+.verified{background:#3ea6ff;color:white}
+.admin{background:#37d67a;color:#07111f}
+.normal{background:#374151;color:white}
 .btn{display:inline-block;padding:10px 14px;border-radius:12px;background:#3ea6ff;color:white;text-decoration:none;font-weight:800;margin:4px}
-.btn.red{background:#ff4d6d}
 .btn.dark{background:#1f2937}
-.badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;margin-top:6px}
-.badge.on{background:#37d67a;color:#07111f}
-.badge.off{background:#374151;color:white}
+.btn.red{background:#ff4d6d}
 .price{color:#3ea6ff;font-weight:900}
-@media(max-width:700px){.item{flex-direction:column;align-items:flex-start}h1{font-size:34px}}
+@media(max-width:800px){
+    .stats{grid-template-columns:1fr 1fr}
+    .user{flex-direction:column;align-items:flex-start}
+}
 </style>
 </head>
 
@@ -34,72 +44,138 @@ h1{font-size:42px;color:#3ea6ff;margin-bottom:24px}
 
 <div class="card">
 <h2>📊 Live Stats</h2>
-<p>Online now: <b>{{ online_users }}</b></p>
-<p>Total users: <b>{{ total_users }}</b></p>
+
+<div class="stats">
+    <div class="stat">
+        <div>Online now</div>
+        <b>{{ online_users }}</b>
+    </div>
+
+    <div class="stat">
+        <div>Total users</div>
+        <b>{{ total_users }}</b>
+    </div>
+
+    <div class="stat">
+        <div>VIP users</div>
+        <b>{{ vip_users|length }}</b>
+    </div>
+
+    <div class="stat">
+        <div>Verified/Admin</div>
+        <b>{{ admin_users|length }}</b>
+    </div>
+</div>
 </div>
 
 <div class="card">
-<h2>👤 Users / VIP / Verified</h2>
+<h2>👤 Обычные пользователи</h2>
 
 <div class="list">
-
-{% if users|length == 0 %}
-<div class="small">No users yet</div>
+{% if regular_users|length == 0 %}
+<div class="small">No regular users yet</div>
 {% endif %}
 
-{% for user in users %}
-<div class="item">
+{% for user in regular_users %}
+<div class="user">
+    <div>
+        <div class="name">{{ user.name or "Telegram User" }}</div>
+        <div class="small">@{{ user.username or "unknown" }} · ID: {{ user.telegram_id }}</div>
 
-<div>
-<b>{{ user.name or "Telegram User" }}</b>
-<div class="small">
-@{{ user.username }} · ID: {{ user.telegram_id }}
-</div>
+        <div class="badges">
+            <span class="badge normal">REGULAR</span>
+        </div>
+    </div>
 
-{% if user.is_vip %}
-<span class="badge on">VIP ON</span>
-{% else %}
-<span class="badge off">VIP OFF</span>
-{% endif %}
-
-{% if user.is_verified %}
-<span class="badge on">VERIFIED ON</span>
-{% else %}
-<span class="badge off">VERIFIED OFF</span>
-{% endif %}
-</div>
-
-<div>
-<a class="btn" href="/user/{{ user.id }}/vip/on?key={{ key }}">VIP ON</a>
-<a class="btn dark" href="/user/{{ user.id }}/vip/off?key={{ key }}">VIP OFF</a>
-<a class="btn" href="/user/{{ user.id }}/verified/on?key={{ key }}">VERIFY ON</a>
-<a class="btn dark" href="/user/{{ user.id }}/verified/off?key={{ key }}">VERIFY OFF</a>
-</div>
-
+    <div>
+        <a class="btn" href="/user/{{ user.id }}/vip/on?key={{ key }}">Make VIP</a>
+        <a class="btn" href="/user/{{ user.id }}/verified/on?key={{ key }}">Verify</a>
+    </div>
 </div>
 {% endfor %}
+</div>
+</div>
 
+<div class="card">
+<h2>👑 VIP пользователи</h2>
+
+<div class="list">
+{% if vip_users|length == 0 %}
+<div class="small">No VIP users yet</div>
+{% endif %}
+
+{% for user in vip_users %}
+<div class="user">
+    <div>
+        <div class="name">{{ user.name or "Telegram User" }}</div>
+        <div class="small">@{{ user.username or "unknown" }} · ID: {{ user.telegram_id }}</div>
+
+        <div class="badges">
+            <span class="badge vip">VIP</span>
+        </div>
+    </div>
+
+    <div>
+        <a class="btn dark" href="/user/{{ user.id }}/vip/off?key={{ key }}">Remove VIP</a>
+        <a class="btn" href="/user/{{ user.id }}/verified/on?key={{ key }}">Verify</a>
+    </div>
+</div>
+{% endfor %}
+</div>
+</div>
+
+<div class="card">
+<h2>✅ Admin / Verified</h2>
+
+<div class="list">
+{% if admin_users|length == 0 %}
+<div class="small">No verified/admin users yet</div>
+{% endif %}
+
+{% for user in admin_users %}
+<div class="user">
+    <div>
+        <div class="name">{{ user.name or "Telegram User" }}</div>
+        <div class="small">@{{ user.username or "unknown" }} · ID: {{ user.telegram_id }}</div>
+
+        <div class="badges">
+            {% if user.telegram_id|string in ["1940136851", "910641302"] %}
+            <span class="badge admin">ADMIN</span>
+            {% endif %}
+
+            {% if user.is_verified %}
+            <span class="badge verified">VERIFIED</span>
+            {% endif %}
+
+            {% if user.is_vip %}
+            <span class="badge vip">VIP</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div>
+        <a class="btn dark" href="/user/{{ user.id }}/verified/off?key={{ key }}">Remove Verify</a>
+        <a class="btn dark" href="/user/{{ user.id }}/vip/off?key={{ key }}">Remove VIP</a>
+        <a class="btn" href="/user/{{ user.id }}/vip/on?key={{ key }}">VIP ON</a>
+    </div>
+</div>
+{% endfor %}
 </div>
 </div>
 
 <div class="card">
 <h2>🏪 Shops</h2>
-
 <div class="list">
 {% if sellers|length == 0 %}
 <div class="small">No shops yet</div>
 {% endif %}
 
 {% for seller in sellers %}
-<div class="item">
-<div>
-<b>{{ seller.shop_name }}</b>
-<div class="small">
-Owner TG: {{ seller.owner_telegram_id }} · {{ seller.category }} · @{{ seller.telegram }}
-</div>
-</div>
-
-<a class="btn red" href="/delete-seller/{{ seller.id }}?key={{ key }}">Delete</a>
+<div class="user">
+    <div>
+        <div class="name">{{ seller.shop_name }}</div>
+        <div class="small">Owner: {{ seller.owner_telegram_id }} · {{ seller.category }}</div>
+    </div>
 </div>
 {% endfor %}
 </div>
@@ -107,21 +183,20 @@ Owner TG: {{ seller.owner_telegram_id }} · {{ seller.category }} · @{{ seller.
 
 <div class="card">
 <h2>👕 Products</h2>
-
 <div class="list">
 {% if products|length == 0 %}
 <div class="small">No products yet</div>
 {% endif %}
 
 {% for product in products %}
-<div class="item">
-<div>
-<b>{{ product.name }}</b>
-<div class="price">€{{ product.price }}</div>
-<div class="small">{{ product.brand }} · {{ product.size }} · {{ product.condition }}</div>
-</div>
+<div class="user">
+    <div>
+        <div class="name">{{ product.name }}</div>
+        <div class="price">€{{ product.price }}</div>
+        <div class="small">{{ product.brand }} · {{ product.size }}</div>
+    </div>
 
-<a class="btn red" href="/delete-product/{{ product.id }}?key={{ key }}">Delete</a>
+    <a class="btn red" href="/delete-product/{{ product.id }}?key={{ key }}">Delete</a>
 </div>
 {% endfor %}
 </div>
@@ -129,21 +204,20 @@ Owner TG: {{ seller.owner_telegram_id }} · {{ seller.category }} · @{{ seller.
 
 <div class="card">
 <h2>📦 Orders</h2>
-
 <div class="list">
 {% if orders|length == 0 %}
 <div class="small">No orders yet</div>
 {% endif %}
 
 {% for order in orders %}
-<div class="item">
-<div>
-<b>Order #{{ order.id }}</b>
-<div class="small">User TG: {{ order.user_telegram_id }}</div>
-<div class="price">€{{ order.total }} · {{ order.status }}</div>
-</div>
+<div class="user">
+    <div>
+        <div class="name">Order #{{ order.id }}</div>
+        <div class="small">User: {{ order.user_telegram_id }}</div>
+        <div class="price">€{{ order.total }} · {{ order.status }}</div>
+    </div>
 
-<a class="btn" href="/order/{{ order.id }}">Open</a>
+    <a class="btn" href="/order/{{ order.id }}">Open</a>
 </div>
 {% endfor %}
 </div>
@@ -152,16 +226,6 @@ Owner TG: {{ seller.owner_telegram_id }} · {{ seller.category }} · @{{ seller.
 <a class="btn" href="/">Back Home</a>
 
 </div>
-<script>
-function applyGlobalLang(){
-    const lang = localStorage.getItem("lang") || "ru";
 
-    document.querySelectorAll("[data-ru][data-en]").forEach(el => {
-        el.innerText = el.dataset[lang];
-    });
-}
-
-applyGlobalLang();
-</script>
 </body>
 </html>

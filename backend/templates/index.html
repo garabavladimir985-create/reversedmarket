@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReversedMarket</title>
-<link rel="stylesheet" href="/static/css/style.css?v=7000">
+<link rel="stylesheet" href="/static/css/style.css?v=14000">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
+
 <body>
 
 <div class="app-page">
@@ -56,6 +58,25 @@
 {% include "_nav.html" %}
 
 <script>
+const tg = window.Telegram?.WebApp;
+
+if(tg){
+    tg.ready();
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+
+    if(user){
+        fetch("/api/telegram-auth", {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(user)
+        });
+    }
+}
+
 function getFavorites(){
     return JSON.parse(localStorage.getItem("favorites") || "[]");
 }
@@ -89,19 +110,14 @@ function toggleFavorite(event, id, name, price, image){
 function updateFavButtons(){
     const favs = getFavorites();
 
-    favs.forEach(item => {
-        const btn = document.getElementById("fav-" + item.id);
-        if(btn){
-            btn.innerText = "❤️";
-            btn.classList.add("active");
-        }
-    });
-
     document.querySelectorAll(".fav-btn").forEach(btn => {
         const id = btn.id.replace("fav-", "");
         const exists = favs.find(item => String(item.id) === String(id));
 
-        if(!exists){
+        if(exists){
+            btn.innerText = "❤️";
+            btn.classList.add("active");
+        }else{
             btn.innerText = "♡";
             btn.classList.remove("active");
         }
@@ -109,37 +125,8 @@ function updateFavButtons(){
 }
 
 updateFavButtons();
-</script>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<script>
-const tg = window.Telegram?.WebApp;
-
-if(tg){
-    tg.ready();
-    tg.expand();
-
-    const user = tg.initDataUnsafe?.user;
-
-    if(user){
-        fetch("/api/telegram-auth", {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(user)
-        });
-    }
-}
-</script>
-<script>
-function applyGlobalLang(){
-    const lang = localStorage.getItem("lang") || "ru";
-
-    document.querySelectorAll("[data-ru][data-en]").forEach(el => {
-        el.innerText = el.dataset[lang];
-    });
-}
-
 applyGlobalLang();
 </script>
+
 </body>
 </html>
