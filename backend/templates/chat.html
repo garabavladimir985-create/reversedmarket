@@ -9,35 +9,256 @@
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-body{background:#07101f;color:white;min-height:100vh;overflow:hidden}
-.chat-screen{height:100vh;display:flex;flex-direction:column;background:linear-gradient(180deg,#070b18,#091326)}
-.chat-top{height:78px;padding:12px 16px;display:flex;align-items:center;gap:12px;background:rgba(10,16,31,.96);border-bottom:1px solid rgba(255,255,255,.07)}
-.back{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#111b31;font-size:22px;text-decoration:none;color:white}
-.chat-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#3ea6ff,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:27px;box-shadow:0 0 28px rgba(62,166,255,.45)}
-.chat-name{font-size:22px;font-weight:900}
-.chat-status{font-size:13px;color:#8ea0bd;margin-top:3px}
-.messages{flex:1;overflow-y:auto;padding:18px 12px 120px;display:flex;flex-direction:column;gap:12px;background:radial-gradient(circle at 20% 10%,rgba(62,166,255,.1),transparent 30%),radial-gradient(circle at 90% 40%,rgba(124,58,237,.09),transparent 28%),#07101f}
-.empty{margin:auto;color:#8ea0bd;text-align:center;font-size:18px}
-.msg{display:flex;gap:8px;align-items:flex-end;max-width:88%}
-.msg.me{margin-left:auto;flex-direction:row-reverse}
-.avatar-small{width:34px;height:34px;border-radius:50%;background:#172036;display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 auto}
-.bubble{padding:10px 12px;border-radius:18px 18px 18px 6px;background:#172036;border:1px solid rgba(255,255,255,.06);box-shadow:0 10px 30px rgba(0,0,0,.22);max-width:100%}
-.msg.me .bubble{background:linear-gradient(135deg,#258cff,#3ea6ff);border-radius:18px 18px 6px 18px}
-.sender{font-size:13px;color:#62b5ff;font-weight:800;margin-bottom:4px}
-.msg.me .sender{display:none}
-.text{font-size:16px;line-height:1.35;word-break:break-word;white-space:pre-wrap}
-.media{width:100%;max-width:260px;border-radius:14px;margin-top:8px;display:block}
-.time{font-size:11px;opacity:.65;text-align:right;margin-top:4px}
-.composer{position:fixed;left:0;right:0;bottom:0;padding:10px 12px 18px;background:rgba(7,12,24,.96);border-top:1px solid rgba(255,255,255,.07)}
-.form{display:flex;align-items:center;gap:9px;background:#121b31;border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:8px;box-shadow:0 -10px 40px rgba(0,0,0,.38)}
-.attach{width:48px;height:48px;border-radius:50%;background:#1d2943;display:flex;align-items:center;justify-content:center;font-size:25px;cursor:pointer}
-.attach input{display:none}
-.input{flex:1;background:transparent;border:none;outline:none;color:white;font-size:17px;min-width:0}
-.input::placeholder{color:#8ea0bd}
-.send{width:50px;height:50px;border:none;border-radius:50%;background:linear-gradient(135deg,#3ea6ff,#247dff);color:white;font-size:24px;font-weight:900}
-.preview{display:none;margin:0 0 8px 8px;color:#9fb3d1;font-size:13px}
-.preview.show{display:block}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+
+body{
+background:#07101f;
+color:white;
+min-height:100vh;
+overflow-x:hidden;
+}
+
+.chat-screen{
+min-height:100vh;
+display:flex;
+flex-direction:column;
+background:
+radial-gradient(circle at 20% 10%,rgba(62,166,255,.1),transparent 30%),
+radial-gradient(circle at 90% 40%,rgba(124,58,237,.09),transparent 28%),
+#07101f;
+}
+
+.chat-top{
+position:fixed;
+top:0;
+left:0;
+right:0;
+height:78px;
+padding:12px 16px;
+display:flex;
+align-items:center;
+gap:12px;
+background:rgba(10,16,31,.96);
+backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(255,255,255,.07);
+z-index:1000;
+}
+
+.back{
+width:38px;
+height:38px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#111b31;
+font-size:22px;
+text-decoration:none;
+color:white;
+}
+
+.chat-avatar{
+width:52px;
+height:52px;
+border-radius:50%;
+background:linear-gradient(135deg,#3ea6ff,#7c3aed);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:27px;
+box-shadow:0 0 28px rgba(62,166,255,.45);
+}
+
+.chat-name{
+font-size:22px;
+font-weight:900;
+}
+
+.chat-status{
+font-size:13px;
+color:#8ea0bd;
+margin-top:3px;
+}
+
+.messages{
+padding:95px 12px 210px;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.empty{
+margin:auto;
+margin-top:120px;
+color:#8ea0bd;
+text-align:center;
+font-size:18px;
+}
+
+.msg{
+display:flex;
+gap:8px;
+align-items:flex-end;
+max-width:88%;
+animation:fade .2s ease;
+}
+
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(8px);
+}
+to{
+opacity:1;
+transform:none;
+}
+}
+
+.msg.me{
+margin-left:auto;
+flex-direction:row-reverse;
+}
+
+.avatar-small{
+width:34px;
+height:34px;
+border-radius:50%;
+background:#172036;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:16px;
+flex:0 0 auto;
+}
+
+.bubble{
+padding:10px 12px;
+border-radius:18px 18px 18px 6px;
+background:#172036;
+border:1px solid rgba(255,255,255,.06);
+box-shadow:0 10px 30px rgba(0,0,0,.22);
+max-width:100%;
+}
+
+.msg.me .bubble{
+background:linear-gradient(135deg,#258cff,#3ea6ff);
+border-radius:18px 18px 6px 18px;
+}
+
+.sender{
+font-size:13px;
+color:#62b5ff;
+font-weight:800;
+margin-bottom:4px;
+}
+
+.msg.me .sender{
+display:none;
+}
+
+.text{
+font-size:16px;
+line-height:1.35;
+word-break:break-word;
+white-space:pre-wrap;
+}
+
+.media{
+width:100%;
+max-width:260px;
+border-radius:14px;
+margin-top:8px;
+display:block;
+}
+
+.time{
+font-size:11px;
+opacity:.65;
+text-align:right;
+margin-top:4px;
+}
+
+.composer{
+position:fixed;
+left:0;
+right:0;
+bottom:84px;
+padding:10px 12px;
+background:rgba(7,12,24,.96);
+backdrop-filter:blur(20px);
+border-top:1px solid rgba(255,255,255,.07);
+z-index:1000;
+}
+
+.form{
+display:flex;
+align-items:center;
+gap:9px;
+background:#121b31;
+border:1px solid rgba(255,255,255,.08);
+border-radius:28px;
+padding:8px;
+box-shadow:0 -10px 40px rgba(0,0,0,.38);
+}
+
+.attach{
+width:48px;
+height:48px;
+border-radius:50%;
+background:#1d2943;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:25px;
+cursor:pointer;
+}
+
+.attach input{
+display:none;
+}
+
+.input{
+flex:1;
+background:transparent;
+border:none;
+outline:none;
+color:white;
+font-size:17px;
+min-width:0;
+}
+
+.input::placeholder{
+color:#8ea0bd;
+}
+
+.send{
+width:50px;
+height:50px;
+border:none;
+border-radius:50%;
+background:linear-gradient(135deg,#3ea6ff,#247dff);
+color:white;
+font-size:24px;
+font-weight:900;
+}
+
+.preview{
+display:none;
+margin:0 0 8px 8px;
+color:#9fb3d1;
+font-size:13px;
+}
+
+.preview.show{
+display:block;
+}
+
 </style>
 </head>
 
@@ -46,189 +267,286 @@ body{background:#07101f;color:white;min-height:100vh;overflow:hidden}
 <div class="chat-screen">
 
 <div class="chat-top">
-<a href="/" class="back">‹</a>
-<div class="chat-avatar">💬</div>
-<div>
-<div class="chat-name">{{ shop }}</div>
-<div class="chat-status">online chat · ReversedMarket</div>
+
+<a href="/" class="back">
+‹
+</a>
+
+<div class="chat-avatar">
+💬
 </div>
+
+<div>
+<div class="chat-name">
+{{ shop }}
+</div>
+
+<div class="chat-status">
+online chat · ReversedMarket
+</div>
+</div>
+
 </div>
 
 <div class="messages" id="messages">
+
 {% if messages|length == 0 %}
-<div class="empty" id="empty">Напиши первым сообщение 💬</div>
+<div class="empty" id="empty">
+Напиши первым сообщение 💬
+</div>
 {% endif %}
 
 {% for msg in messages %}
+
 <div class="msg" data-tg="{{ msg.sender_tg_id }}">
-<div class="avatar-small">👤</div>
+
+<div class="avatar-small">
+👤
+</div>
+
 <div class="bubble">
-<div class="sender">{{ msg.sender }}</div>
+
+<div class="sender">
+{{ msg.sender }}
+</div>
 
 {% if msg.text %}
-<div class="text">{{ msg.text }}</div>
+<div class="text">
+{{ msg.text }}
+</div>
 {% endif %}
 
 {% if msg.image %}
+
 {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
 <video class="media" controls src="{{ msg.image }}"></video>
 {% else %}
 <img class="media" src="{{ msg.image }}">
 {% endif %}
+
 {% endif %}
 
-<div class="time">{{ msg.created_at.strftime('%H:%M') }}</div>
+<div class="time">
+{{ msg.created_at.strftime('%H:%M') }}
+</div>
+
 </div>
 </div>
+
 {% endfor %}
+
 </div>
 
 <div class="composer">
-<div class="preview" id="preview">Файл выбран</div>
+
+<div class="preview" id="preview">
+Файл выбран
+</div>
 
 <form class="form" id="chatForm">
-<input type="hidden" id="senderInput">
-<input type="hidden" id="tgInput">
 
 <label class="attach">
 📎
 <input type="file" id="fileInput" accept="image/*,video/*">
 </label>
 
-<input class="input" id="messageInput" placeholder="Сообщение..." autocomplete="off">
-<button class="send" type="submit">›</button>
+<input
+class="input"
+id="messageInput"
+placeholder="Сообщение..."
+autocomplete="off"
+>
+
+<button class="send" type="submit">
+›
+</button>
+
 </form>
+
 </div>
 
 </div>
+
+{% include "_nav.html" %}
 
 <script>
+
 const socket = io();
+
 const tg = window.Telegram?.WebApp;
 
 let sender = "Telegram User";
 let sender_tg_id = "";
 
 if(tg){
-    tg.ready();
-    tg.expand();
 
-    const user = tg.initDataUnsafe?.user;
+tg.ready();
+tg.expand();
 
-    if(user){
-        sender = user.first_name || "Telegram User";
-        sender_tg_id = String(user.id);
+const user = tg.initDataUnsafe?.user;
 
-        document.getElementById("senderInput").value = sender;
-        document.getElementById("tgInput").value = sender_tg_id;
-    }
+if(user){
+
+sender = user.first_name || "Telegram User";
+sender_tg_id = String(user.id);
+
+}
+
 }
 
 document.querySelectorAll(".msg").forEach(msg => {
-    if(msg.dataset.tg && msg.dataset.tg === sender_tg_id){
-        msg.classList.add("me");
-    }
+
+if(msg.dataset.tg && msg.dataset.tg === sender_tg_id){
+msg.classList.add("me");
+}
+
 });
 
 function isVideo(url){
-    return url.endsWith(".mp4") || url.endsWith(".mov") || url.endsWith(".webm");
+
+return url.endsWith(".mp4")
+|| url.endsWith(".mov")
+|| url.endsWith(".webm");
+
 }
 
 function appendMessage(data){
-    if(data.shop && data.shop !== "{{ shop }}") return;
 
-    const empty = document.getElementById("empty");
-    if(empty) empty.remove();
+if(data.shop && data.shop !== "{{ shop }}") return;
 
-    const msg = document.createElement("div");
-    msg.className = "msg";
+const empty = document.getElementById("empty");
 
-    if(String(data.sender_tg_id) === String(sender_tg_id)){
-        msg.classList.add("me");
-    }
+if(empty) empty.remove();
 
-    let media = "";
+const msg = document.createElement("div");
 
-    if(data.image){
-        if(isVideo(data.image)){
-            media = `<video class="media" controls src="${data.image}"></video>`;
-        }else{
-            media = `<img class="media" src="${data.image}">`;
-        }
-    }
+msg.className = "msg";
 
-    msg.innerHTML = `
-        <div class="avatar-small">👤</div>
-        <div class="bubble">
-            <div class="sender">${data.sender}</div>
-            ${data.text ? `<div class="text">${data.text}</div>` : ""}
-            ${media}
-            <div class="time">${data.time}</div>
-        </div>
-    `;
+if(String(data.sender_tg_id) === String(sender_tg_id)){
+msg.classList.add("me");
+}
 
-    document.getElementById("messages").appendChild(msg);
-    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+let media = "";
+
+if(data.image){
+
+if(isVideo(data.image)){
+media = `<video class="media" controls src="${data.image}"></video>`;
+}else{
+media = `<img class="media" src="${data.image}">`;
+}
+
+}
+
+msg.innerHTML = `
+<div class="avatar-small">👤</div>
+
+<div class="bubble">
+
+<div class="sender">${data.sender}</div>
+
+${data.text ? `<div class="text">${data.text}</div>` : ""}
+
+${media}
+
+<div class="time">${data.time}</div>
+
+</div>
+`;
+
+document.getElementById("messages").appendChild(msg);
+
+scrollBottom();
+
 }
 
 socket.on("new_message", data => {
-    appendMessage(data);
+
+appendMessage(data);
+
 });
 
 socket.on("system_error", data => {
-    alert(data.text);
+
+alert(data.text);
+
 });
 
 const fileInput = document.getElementById("fileInput");
+
 const preview = document.getElementById("preview");
 
 fileInput.addEventListener("change", () => {
-    if(fileInput.files.length){
-        preview.classList.add("show");
-        preview.innerText = "Файл выбран: " + fileInput.files[0].name;
-    }
+
+if(fileInput.files.length){
+
+preview.classList.add("show");
+
+preview.innerText =
+"Файл выбран: " + fileInput.files[0].name;
+
+}
+
 });
 
 document.getElementById("chatForm").addEventListener("submit", async function(e){
-    e.preventDefault();
 
-    const textInput = document.getElementById("messageInput");
-    const text = textInput.value.trim();
-    const file = fileInput.files[0];
+e.preventDefault();
 
-    if(!text && !file) return;
+const textInput = document.getElementById("messageInput");
 
-    if(file){
-        const formData = new FormData();
-        formData.append("shop", "{{ shop }}");
-        formData.append("sender", sender);
-        formData.append("sender_tg_id", sender_tg_id);
-        formData.append("text", text);
-        formData.append("image_file", file);
+const text = textInput.value.trim();
 
-        await fetch("/chat-upload", {
-            method:"POST",
-            body:formData
-        });
+const file = fileInput.files[0];
 
-        fileInput.value = "";
-        preview.classList.remove("show");
-        textInput.value = "";
-        return;
-    }
+if(!text && !file) return;
 
-    socket.emit("send_message", {
-        shop: "{{ shop }}",
-        sender: sender,
-        sender_tg_id: sender_tg_id,
-        text: text
-    });
+if(file){
 
-    textInput.value = "";
+const formData = new FormData();
+
+formData.append("shop", "{{ shop }}");
+formData.append("sender", sender);
+formData.append("sender_tg_id", sender_tg_id);
+formData.append("text", text);
+formData.append("image_file", file);
+
+await fetch("/chat-upload", {
+method:"POST",
+body:formData
 });
 
+fileInput.value = "";
+preview.classList.remove("show");
+textInput.value = "";
+
+return;
+
+}
+
+socket.emit("send_message", {
+shop:"{{ shop }}",
+sender:sender,
+sender_tg_id:sender_tg_id,
+text:text
+});
+
+textInput.value = "";
+
+});
+
+function scrollBottom(){
+
 const messages = document.getElementById("messages");
+
 messages.scrollTop = messages.scrollHeight;
+
+window.scrollTo(0, document.body.scrollHeight);
+
+}
+
+scrollBottom();
+
 </script>
 
 </body>
