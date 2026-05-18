@@ -332,10 +332,15 @@ button{
     background:linear-gradient(135deg,var(--blue),#247dff);
 }
 
-@media(max-width:420px){
-    .brand{
-        font-size:32px;
-    }
+.media{
+    width:100%;
+    max-width:260px;
+    border-radius:15px;
+    margin-top:8px;
+    display:block;
+    object-fit:cover;
+    background:#000;
+}
 
     .app-title{
         font-size:38px;
@@ -359,8 +364,11 @@ button{
         height:64px;
         font-size:30px;
     }
-}
+ 
 .lang-hidden{
     display:none!important;
 }
 .badge.red{background:#ff4d6d;color:white}
+.messages{
+    overflow-anchor:none;
+}

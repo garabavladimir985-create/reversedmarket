@@ -107,7 +107,14 @@ body{background:#07101f;color:white;min-height:100vh;overflow-x:hidden}
 
 {% if msg.image %}
 {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
-<video class="media" controls src="{{ msg.image }}"></video>
+<video
+class="media"
+controls
+playsinline
+webkit-playsinline
+preload="metadata"
+onclick="this.play()"
+src="
 {% else %}
 <img class="media" src="{{ msg.image }}">
 {% endif %}
@@ -265,9 +272,12 @@ window.seenMessages.add(String(data.id));
     let media = "";
 
     if(data.image){
-        media = isVideo(data.image)
-            ? `<video class="media" controls src="${data.image}"></video>`
-            : `<img class="media" src="${data.image}">`;
+        if(isVideo(data.image)){
+            media = `
+            <video class="media" controls playsinline webkit-playsinline preload="metadata" onclick="this.play()" src="${data.image}"></video>`;
+        }else{
+            media = `<img class="media" src="${data.image}">`;
+        }
     }
 
     wrap.innerHTML = `

@@ -579,7 +579,7 @@ def handle_send_message(data):
         "text": msg.text,
         "image": msg.image,
         "reply_to_id": msg.reply_to_id,
-        "time": (msg.created_at + timedelta(hours=3)).strftime("%H:%M")
+        "time": (msg.created_at ).strftime("%H:%M")
     }, broadcast=True)
 
     db.session.add(msg)
@@ -657,7 +657,7 @@ def chat_upload():
         "text": msg.text,
         "image": msg.image,
         "reply_to_id": msg.reply_to_id,
-        "time": (msg.created_at + timedelta(hours=3)).strftime("%H:%M")
+     "time": msg.created_at.strftime("%H:%M")
     })
 
     return jsonify({"ok": True})
