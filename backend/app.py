@@ -125,6 +125,16 @@ class Message(db.Model):
     text = db.Column(db.Text)
     image = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    reply_to_id = db.Column(db.Integer)
+
+class Reaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.Integer)
+    user_tg_id = db.Column(db.String(120))
+    user_name = db.Column(db.String(120))
+    emoji = db.Column(db.String(20))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 
 class Order(db.Model):
@@ -536,6 +546,7 @@ def handle_send_message(data):
     sender_tg_id = str(data.get("sender_tg_id", ""))
     text = data.get("text", "")
     shop = data.get("shop", "general")
+    reply_to_id = data.get("reply_to_id")
 
     if not text.strip():
         return
@@ -555,8 +566,23 @@ def handle_send_message(data):
         sender=sender,
         sender_tg_id=sender_tg_id,
         text=text,
-        image=""
+        image="",
+        reply_to_id=reply_to_id
     )
+
+    db.session.add(msg)
+    db.session.commit()
+
+    emit("new_message", {
+        "id": msg.id,
+        "shop": shop,
+        "sender": msg.sender,
+        "sender_tg_id": msg.sender_tg_id,
+        "text": msg.text,
+        "image": msg.image,
+        "reply_to_id": msg.reply_to_id,
+        "time": msg.created_at.strftime("%H:%M")
+    }, broadcast=True)
 
     db.session.add(msg)
     db.session.commit()
@@ -578,6 +604,7 @@ def chat_upload():
     sender = request.form.get("sender", "Telegram User")
     sender_tg_id = request.form.get("sender_tg_id", "")
     text = request.form.get("text", "")
+    reply_to_id = request.form.get("reply_to_id")
 
     user = User.query.filter_by(telegram_id=sender_tg_id).first()
 
@@ -588,15 +615,39 @@ def chat_upload():
         return jsonify({"ok": False, "error": "muted"}), 403
 
     file = request.files.get("image_file")
-    image_url = save_file(file)
+    image_url = ""
+
+    if file and file.filename:
+        ext = file.filename.rsplit(".", 1)[-1].lower()
+        filename = secure_filename(f"{datetime.utcnow().timestamp()}_{file.filename}")
+        path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(path)
+        image_url = "/static/uploads/" + filename
 
     msg = Message(
         shop=shop,
         sender=sender,
         sender_tg_id=sender_tg_id,
         text=text,
-        image=image_url or ""
+        image=image_url,
+        reply_to_id=reply_to_id if reply_to_id else None
     )
+
+    db.session.add(msg)
+    db.session.commit()
+
+    socketio.emit("new_message", {
+        "id": msg.id,
+        "shop": shop,
+        "sender": msg.sender,
+        "sender_tg_id": msg.sender_tg_id,
+        "text": msg.text,
+        "image": msg.image,
+        "reply_to_id": msg.reply_to_id,
+        "time": msg.created_at.strftime("%H:%M")
+    })
+
+    return jsonify({"ok": True})
 
     db.session.add(msg)
     db.session.commit()
@@ -802,7 +853,8 @@ def ensure_columns():
             "ALTER TABLE user ADD COLUMN mute_reason TEXT DEFAULT ''",
             "ALTER TABLE user ADD COLUMN last_seen DATETIME",
             "ALTER TABLE message ADD COLUMN sender_tg_id VARCHAR(120)",
-            "ALTER TABLE \"order\" ADD COLUMN delivery TEXT"
+            "ALTER TABLE \"order\" ADD COLUMN delivery TEXT",
+            "ALTER TABLE message ADD COLUMN reply_to_id INTEGER"
         ]
 
         for sql in sql_statements:
@@ -817,6 +869,44 @@ with app.app_context():
     ensure_columns()
 
 print("SERVER STARTED")
+
+
+
+@socketio.on("add_reaction")
+def add_reaction(data):
+    message_id = data.get("message_id")
+    user_tg_id = str(data.get("user_tg_id", ""))
+    user_name = data.get("user_name", "User")
+    emoji = data.get("emoji", "❤️")
+
+    if not message_id or not user_tg_id:
+        return
+
+    old = Reaction.query.filter_by(
+        message_id=message_id,
+        user_tg_id=user_tg_id
+    ).first()
+
+    if old:
+        old.emoji = emoji
+    else:
+        reaction = Reaction(
+            message_id=message_id,
+            user_tg_id=user_tg_id,
+            user_name=user_name,
+            emoji=emoji
+        )
+        db.session.add(reaction)
+
+    db.session.commit()
+
+    reactions = Reaction.query.filter_by(message_id=message_id).all()
+
+    emit("reaction_update", {
+        "message_id": message_id,
+        "count": len(reactions),
+        "emoji": emoji
+    }, broadcast=True)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
