@@ -2,14 +2,12 @@ from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from werkzeug.utils import secure_filename
-from flask_socketio import SocketIO, emit
 import os
 import json
 import requests
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///fashion.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -567,8 +565,22 @@ def handle_send_message(data):
         sender_tg_id=sender_tg_id,
         text=text,
         image="",
-        reply_to_id=reply_to_id
+        reply_to_id=reply_to_id if reply_to_id else None
     )
+
+    db.session.add(msg)
+    db.session.commit()
+
+    emit("new_message", {
+        "id": msg.id,
+        "shop": shop,
+        "sender": msg.sender,
+        "sender_tg_id": msg.sender_tg_id,
+        "text": msg.text,
+        "image": msg.image,
+        "reply_to_id": msg.reply_to_id,
+        "time": (msg.created_at + timedelta(hours=3)).strftime("%H:%M")
+    }, broadcast=True)
 
     db.session.add(msg)
     db.session.commit()
@@ -618,8 +630,9 @@ def chat_upload():
     image_url = ""
 
     if file and file.filename:
-        ext = file.filename.rsplit(".", 1)[-1].lower()
-        filename = secure_filename(f"{datetime.utcnow().timestamp()}_{file.filename}")
+        filename = secure_filename(
+            f"{datetime.utcnow().timestamp()}_{file.filename}"
+        )
         path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(path)
         image_url = "/static/uploads/" + filename
@@ -632,6 +645,22 @@ def chat_upload():
         image=image_url,
         reply_to_id=reply_to_id if reply_to_id else None
     )
+
+    db.session.add(msg)
+    db.session.commit()
+
+    socketio.emit("new_message", {
+        "id": msg.id,
+        "shop": shop,
+        "sender": msg.sender,
+        "sender_tg_id": msg.sender_tg_id,
+        "text": msg.text,
+        "image": msg.image,
+        "reply_to_id": msg.reply_to_id,
+        "time": (msg.created_at + timedelta(hours=3)).strftime("%H:%M")
+    })
+
+    return jsonify({"ok": True})
 
     db.session.add(msg)
     db.session.commit()

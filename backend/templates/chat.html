@@ -75,7 +75,7 @@ body{background:#07101f;color:white;min-height:100vh;overflow-x:hidden}
 <div class="sender">{{ msg.sender }}</div>
 
 {% if msg.reply_to_id %}
-<div class="reply-box">Reply to message #{{ msg.reply_to_id }}</div>
+<div class="reply-box">Reply</div>
 {% endif %}
 
 {% if msg.text %}
@@ -176,6 +176,10 @@ function bindMenus(){
 function openMenu(bubble){
     selectedId = bubble.dataset.id;
     selectedText = bubble.dataset.text || "";
+
+    window.replyTexts = window.replyTexts || {};
+    window.replyTexts[String(selectedId)] = selectedText;
+
     document.getElementById("menu").style.display = "block";
 }
 
@@ -212,6 +216,15 @@ function sendReaction(emoji){
 }
 
 function appendMessage(data){
+    if(window.seenMessages && window.seenMessages.has(String(data.id))){
+    return;
+}
+
+if(!window.seenMessages){
+    window.seenMessages = new Set();
+}
+
+window.seenMessages.add(String(data.id));
     if(data.shop && data.shop !== "{{ shop }}") return;
 
     const empty = document.getElementById("empty");
@@ -239,7 +252,7 @@ function appendMessage(data){
         <div class="avatar">👤</div>
         <div class="bubble" data-id="${data.id}" data-text="${data.text || ""}">
             <div class="sender">${data.sender}</div>
-            ${data.reply_to_id ? `<div class="reply-box">Reply to message #${data.reply_to_id}</div>` : ""}
+            ${data.reply_to_id ? `<div class="reply-box">${window.replyTexts?.[String(data.reply_to_id)] || "Reply"}</div>` : ""}
             ${data.text ? `<div class="text">${data.text}</div>` : ""}
             ${media}
             <div class="reactions" id="react-${data.id}"></div>
