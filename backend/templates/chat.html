@@ -6,306 +6,320 @@
 
 <title>Chat</title>
 
-<link rel="stylesheet" href="/static/css/style.css?v=999">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-body{
-background:#050816;
-color:white;
-font-family:Arial;
+
+*{
 margin:0;
-padding-bottom:150px;
-overflow-x:hidden;
-}
-
-.bottom-nav,
-.navbar,
-.old-bottom-nav{
-display:none!important;
-}
-
-.chat-page{
-padding:26px;
-padding-bottom:160px;
+padding:0;
 box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#0b1020;
+color:white;
+padding-bottom:120px;
+}
+
+.chat-header{
+position:fixed;
+top:0;
+left:0;
+right:0;
+height:74px;
+background:rgba(11,16,32,.92);
+backdrop-filter:blur(20px);
+display:flex;
+align-items:center;
+padding:0 18px;
+z-index:1000;
+border-bottom:1px solid rgba(255,255,255,.05);
 }
 
 .chat-title{
-font-size:62px;
-font-weight:900;
-color:#3ea6ff;
-margin-bottom:34px;
-line-height:1;
-}
-
-.chat-box{
-background:#111827;
-border-radius:30px;
-padding:22px;
-min-height:520px;
-border:1px solid rgba(255,255,255,.08);
-box-shadow:0 0 25px rgba(0,0,0,.25);
-}
-
-.message{
-background:#0d1220;
-border-radius:22px;
-padding:20px;
-margin-bottom:14px;
 font-size:22px;
+font-weight:900;
+margin-left:12px;
 }
 
-.message strong{
-color:#3ea6ff;
+.chat-sub{
+opacity:.6;
+font-size:13px;
+margin-top:2px;
 }
 
-.message img{
-width:100%;
-max-height:260px;
+.chat-body{
+padding:95px 14px 120px;
+display:flex;
+flex-direction:column;
+gap:16px;
+}
+
+.msg{
+display:flex;
+align-items:flex-end;
+gap:10px;
+max-width:100%;
+animation:fade .25s ease;
+}
+
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(8px);
+}
+to{
+opacity:1;
+transform:none;
+}
+}
+
+.avatar{
+width:42px;
+height:42px;
+border-radius:50%;
 object-fit:cover;
+background:#1f2937;
+border:2px solid rgba(255,255,255,.1);
+}
+
+.bubble{
+background:#172036;
+border-radius:22px;
+padding:12px;
+max-width:78%;
+position:relative;
+box-shadow:0 8px 30px rgba(0,0,0,.25);
+}
+
+.username{
+font-size:14px;
+font-weight:800;
+color:#53a8ff;
+margin-bottom:6px;
+}
+
+.text{
+font-size:16px;
+line-height:1.45;
+word-break:break-word;
+}
+
+.msg-image{
+width:100%;
 border-radius:18px;
-margin-top:12px;
+margin-top:10px;
+}
+
+.time{
+font-size:11px;
+opacity:.5;
+text-align:right;
+margin-top:8px;
+}
+
+.chat-input-wrap{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+padding:14px;
+background:rgba(11,16,32,.95);
+backdrop-filter:blur(25px);
+border-top:1px solid rgba(255,255,255,.06);
+z-index:1000;
 }
 
 .chat-form{
-position:relative;
-background:#111827;
-border-radius:30px;
-padding:20px;
-margin-top:24px;
-border:1px solid rgba(255,255,255,.08);
-box-shadow:0 0 25px rgba(0,0,0,.25);
-z-index:3;
-}
-
-.chat-form textarea{
-width:100%;
-min-height:145px;
-padding:22px;
-border:none;
+display:flex;
+align-items:center;
+gap:10px;
+background:#172036;
+padding:10px;
 border-radius:24px;
-background:#0d1220;
-color:white;
-font-size:22px;
-box-sizing:border-box;
-resize:none;
-outline:none;
-margin-bottom:18px;
 }
 
-.file-box{
-background:#0d1220;
-border-radius:22px;
-padding:18px;
-margin-bottom:18px;
-font-size:18px;
-}
-
-.chat-form button{
-width:100%;
-height:62px;
+.attach{
+width:44px;
+height:44px;
+border-radius:50%;
 border:none;
-border-radius:22px;
+background:#24314d;
+color:white;
+font-size:20px;
+}
+
+.chat-input{
+flex:1;
+background:none;
+border:none;
+outline:none;
+color:white;
+font-size:16px;
+}
+
+.send-btn{
+width:46px;
+height:46px;
+border:none;
+border-radius:50%;
 background:#3ea6ff;
 color:white;
-font-size:22px;
+font-size:18px;
 font-weight:900;
 }
 
-.premium-bottom-nav{
-position:fixed!important;
-left:0!important;
-right:0!important;
-bottom:0!important;
-width:100%!important;
-height:104px!important;
-background:rgba(17,24,39,.98)!important;
-backdrop-filter:blur(24px)!important;
-border-radius:30px 30px 0 0!important;
-display:flex!important;
-align-items:center!important;
-justify-content:space-evenly!important;
-padding:6px 4px!important;
-z-index:9999999!important;
-box-shadow:0 -12px 45px rgba(0,0,0,.75)!important;
-border:1px solid rgba(255,255,255,.08)!important;
-box-sizing:border-box!important;
-overflow:visible!important;
+.hidden{
+display:none;
 }
 
-.premium-nav-item{
-width:50px!important;
-min-width:50px!important;
-display:flex!important;
-flex-direction:column!important;
-align-items:center!important;
-justify-content:center!important;
-text-decoration:none!important;
-color:#8d94a8!important;
-font-size:12px!important;
-font-weight:900!important;
-gap:5px!important;
-line-height:1!important;
+.empty{
+opacity:.5;
+text-align:center;
+padding:60px 20px;
 }
 
-.premium-nav-item.active{
-color:#3ea6ff!important;
-}
-
-.premium-icon{
-font-size:28px!important;
-line-height:1!important;
-}
-
-.premium-shop-btn{
-width:76px!important;
-min-width:76px!important;
-margin-top:-48px!important;
-display:flex!important;
-flex-direction:column!important;
-align-items:center!important;
-justify-content:center!important;
-text-decoration:none!important;
-color:#8d94a8!important;
-font-size:11px!important;
-font-weight:900!important;
-gap:4px!important;
-line-height:1!important;
-}
-
-.premium-shop-circle{
-width:78px!important;
-height:78px!important;
-border-radius:50%!important;
-background:#3ea6ff!important;
-display:flex!important;
-align-items:center!important;
-justify-content:center!important;
-font-size:36px!important;
-border:7px solid #050816!important;
-box-shadow:0 0 38px rgba(62,166,255,.95)!important;
-}
-
-@media(max-width:600px){
-.chat-page{
-padding:26px 20px 175px;
-}
-
-.chat-title{
-font-size:58px;
-}
-
-.chat-box{
-min-height:560px;
-padding:22px;
-}
-
-.message{
-font-size:21px;
-padding:20px;
-}
-
-.chat-form{
-margin-top:24px;
-padding:20px;
-}
-
-.chat-form textarea{
-font-size:21px;
-min-height:145px;
-}
-
-.premium-bottom-nav{
-height:104px!important;
-}
-
-.premium-shop-circle{
-width:78px!important;
-height:78px!important;
-font-size:36px!important;
-}
-}
 </style>
 </head>
 
 <body>
 
-<div class="chat-page">
+<div class="chat-header">
 
-<div class="chat-title">
-CHAT
+<img
+src="https://cdn-icons-png.flaticon.com/512/5968/5968776.png"
+class="avatar"
+>
+
+<div>
+<div class="chat-title">{{ shop }}</div>
+<div class="chat-sub">Telegram style chat</div>
 </div>
 
-<div class="chat-box">
+</div>
+
+<div class="chat-body">
 
 {% if messages|length == 0 %}
-<div class="message">
+<div class="empty">
 No messages yet
 </div>
 {% endif %}
 
-{% for message in messages %}
-<div class="message">
-<strong>{{ message.sender }}</strong>
-<p>{{ message.text }}</p>
+{% for msg in messages %}
 
-{% if message.image %}
-<img src="{{ message.image }}">
-{% endif %}
+<div class="msg">
+
+<img
+class="avatar"
+src="https://api.dicebear.com/7.x/thumbs/svg?seed={{ msg.sender }}"
+>
+
+<div class="bubble">
+
+<div class="username">
+{{ msg.sender }}
 </div>
+
+<div class="text">
+{{ msg.text }}
+</div>
+
+{% if msg.image %}
+<img
+src="{{ msg.image }}"
+class="msg-image"
+>
+{% endif %}
+
+<div class="time">
+{{ msg.created_at.strftime('%H:%M') }}
+</div>
+
+</div>
+
+</div>
+
 {% endfor %}
 
 </div>
 
-<form class="chat-form" method="POST" enctype="multipart/form-data">
+<div class="chat-input-wrap">
 
-<input type="hidden" name="sender" id="sender-name" value="Telegram User">
+<form
+class="chat-form"
+method="POST"
+enctype="multipart/form-data"
+>
 
-<textarea name="text" placeholder="Message..."></textarea>
+<input
+type="hidden"
+name="sender"
+id="senderInput"
+>
 
-<div class="file-box">
-<input type="file" name="image_file">
-</div>
+<input
+type="hidden"
+name="sender_tg_id"
+id="tgInput"
+>
 
-<button type="submit">
-Send
+<label class="attach">
+
+📎
+
+<input
+type="file"
+name="image_file"
+accept="image/*,video/*"
+class="hidden"
+>
+
+</label>
+
+<input
+class="chat-input"
+name="text"
+placeholder="Message..."
+autocomplete="off"
+>
+
+<button class="send-btn">
+➤
 </button>
 
 </form>
 
-
+</div>
 
 <script>
+
 const tg = window.Telegram?.WebApp;
 
 if(tg){
-    tg.ready();
-    tg.expand();
 
-    const user = tg.initDataUnsafe?.user;
+tg.ready();
+tg.expand();
 
-    if(user){
-        const name = user.username
-            ? "@" + user.username
-            : (user.first_name || "Telegram User");
+const user = tg.initDataUnsafe?.user;
 
-        document.getElementById("sender-name").value = name;
-    }
-}
-</script>
+if(user){
 
-{% include "_nav.html" %}
-<script>
-function applyGlobalLang(){
-    const lang = localStorage.getItem("lang") || "ru";
+document.getElementById("senderInput").value =
+user.first_name || "Telegram User";
 
-    document.querySelectorAll("[data-ru][data-en]").forEach(el => {
-        el.innerText = el.dataset[lang];
-    });
+document.getElementById("tgInput").value =
+user.id;
+
 }
 
-applyGlobalLang();
+}
+
+window.scrollTo(0, document.body.scrollHeight);
+
 </script>
+
 </body>
 </html>
