@@ -295,7 +295,17 @@ document.getElementById("chatForm").addEventListener("submit", async e => {
         formData.append("reply_to_id", replyToId || "");
         formData.append("image_file", file);
 
-        await fetch("/chat-upload", {method:"POST", body:formData});
+       const res = await fetch("/chat-upload", {
+    method:"POST",
+    body:formData
+});
+
+const result = await res.json();
+
+if(!res.ok || !result.ok){
+    alert("File upload error");
+    return;
+}
         document.getElementById("fileInput").value = "";
     }else{
         socket.emit("send_message", {
@@ -312,12 +322,21 @@ document.getElementById("chatForm").addEventListener("submit", async e => {
     document.getElementById("replyPreview").classList.remove("show");
 });
 
-function scrollBottom(){
-    window.scrollTo(0, document.body.scrollHeight);
+function isNearBottom(){
+    return window.innerHeight + window.scrollY >= document.body.scrollHeight - 180;
+}
+
+function scrollBottom(force=false){
+    if(force || isNearBottom()){
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth"
+        });
+    }
 }
 
 bindMenus();
-scrollBottom();
+scrollBottom(false);
 </script>
 
 </body>
