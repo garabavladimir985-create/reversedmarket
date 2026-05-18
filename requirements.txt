@@ -1,6 +1,7 @@
 flask
 flask_sqlalchemy
 werkzeug
-aiogram
-gunicorn
 requests
+gunicorn
+flask-socketio
+eventlet

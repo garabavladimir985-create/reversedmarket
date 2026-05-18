@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO, emit
 from werkzeug.utils import secure_filename
 import os
 import json
 import requests
 from datetime import datetime, timedelta
-
 
 app = Flask(__name__)
 
@@ -14,6 +14,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["UPLOAD_FOLDER"] = "static/uploads"
 
 db = SQLAlchemy(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
@@ -48,10 +49,7 @@ def notify_admins(text):
         try:
             requests.post(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                data={
-                    "chat_id": admin_id,
-                    "text": text
-                },
+                data={"chat_id": admin_id, "text": text},
                 timeout=5
             )
         except Exception as e:
@@ -106,14 +104,12 @@ class User(db.Model):
     telegram = db.Column(db.String(120))
     city = db.Column(db.String(120))
     avatar = db.Column(db.String(500))
-
     is_vip = db.Column(db.Boolean, default=False)
     is_verified = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_moderator = db.Column(db.Boolean, default=False)
     is_banned = db.Column(db.Boolean, default=False)
     is_muted = db.Column(db.Boolean, default=False)
-
     ban_reason = db.Column(db.Text, default="")
     mute_reason = db.Column(db.Text, default="")
     last_seen = db.Column(db.DateTime)
@@ -150,7 +146,7 @@ def telegram_auth():
     avatar = data.get("photo_url", "")
 
     if not telegram_id:
-        return jsonify({"ok": False, "error": "No Telegram ID"}), 400
+        return jsonify({"ok": False}), 400
 
     user = User.query.filter_by(telegram_id=telegram_id).first()
 
@@ -161,12 +157,7 @@ def telegram_auth():
             username=username,
             telegram=username,
             avatar=avatar,
-            is_vip=False,
-            is_verified=False,
             is_admin=is_admin(telegram_id),
-            is_moderator=False,
-            is_banned=False,
-            is_muted=False,
             last_seen=datetime.utcnow()
         )
         db.session.add(user)
@@ -188,7 +179,7 @@ def telegram_auth():
         "avatar": user.avatar,
         "is_vip": bool(user.is_vip),
         "is_verified": bool(user.is_verified),
-        "is_admin": bool(is_admin(user.telegram_id)),
+        "is_admin": bool(user.is_admin),
         "is_moderator": bool(user.is_moderator),
         "is_banned": bool(user.is_banned),
         "is_muted": bool(user.is_muted)
@@ -198,7 +189,6 @@ def telegram_auth():
 @app.route("/api/stats")
 def api_stats():
     total_users = User.query.count()
-
     online_users = User.query.filter(
         User.last_seen >= datetime.utcnow() - timedelta(minutes=5)
     ).count()
@@ -211,25 +201,9 @@ def api_stats():
 
 @app.route("/")
 def home():
-    q = request.args.get("q", "")
-    category = request.args.get("category", "")
-
-    products_query = Product.query
-
-    if q:
-        products_query = products_query.filter(Product.name.contains(q))
-
-    if category:
-        products_query = products_query.filter(Product.category == category)
-
-    products = products_query.order_by(Product.id.desc()).all()
+    products = Product.query.order_by(Product.id.desc()).all()
     sellers = Seller.query.order_by(Seller.id.desc()).all()
-
-    return render_template(
-        "index.html",
-        products=products,
-        sellers=sellers
-    )
+    return render_template("index.html", products=products, sellers=sellers)
 
 
 @app.route("/catalog")
@@ -298,9 +272,7 @@ def my_shop():
     products = []
 
     if seller:
-        products = Product.query.filter_by(
-            seller_id=seller.id
-        ).order_by(Product.id.desc()).all()
+        products = Product.query.filter_by(seller_id=seller.id).order_by(Product.id.desc()).all()
 
     return render_template(
         "my_shop.html",
@@ -326,7 +298,6 @@ def create_shop():
         return "ACCESS DENIED", 403
 
     old = Seller.query.filter_by(owner_telegram_id=tg_id).first()
-
     if old:
         return redirect(f"/my-shop?tg_id={tg_id}")
 
@@ -348,13 +319,6 @@ def create_shop():
     db.session.add(seller)
     db.session.commit()
 
-    notify_admins(
-        f"🏪 NEW SHOP\n\n"
-        f"Shop: {seller.shop_name}\n"
-        f"Owner TG: {tg_id}\n"
-        f"Telegram: @{seller.telegram}"
-    )
-
     return redirect(f"/my-shop?tg_id={tg_id}")
 
 
@@ -364,7 +328,6 @@ def add_product():
     key = request.form.get("key", "")
 
     admin = is_admin(tg_id) or is_admin_key(key)
-
     seller_id = request.form.get("seller_id")
 
     if seller_id and admin:
@@ -399,13 +362,6 @@ def add_product():
     db.session.add(product)
     db.session.commit()
 
-    notify_admins(
-        f"👕 NEW PRODUCT\n\n"
-        f"Shop: {seller.shop_name}\n"
-        f"Product: {product.name}\n"
-        f"Price: €{product.price}"
-    )
-
     return redirect(f"/my-shop?tg_id={tg_id}")
 
 
@@ -439,7 +395,6 @@ def delete_seller(id):
     seller = Seller.query.get_or_404(id)
 
     Product.query.filter_by(seller_id=seller.id).delete()
-
     db.session.delete(seller)
     db.session.commit()
 
@@ -449,28 +404,15 @@ def delete_seller(id):
 @app.route("/shop/<int:seller_id>")
 def shop(seller_id):
     seller = Seller.query.get_or_404(seller_id)
-
-    products = Product.query.filter_by(
-        seller_id=seller.id
-    ).order_by(Product.id.desc()).all()
-
-    return render_template(
-        "shop.html",
-        seller=seller,
-        products=products
-    )
+    products = Product.query.filter_by(seller_id=seller.id).order_by(Product.id.desc()).all()
+    return render_template("shop.html", seller=seller, products=products)
 
 
 @app.route("/product/<int:id>")
 def product_page(id):
     product = Product.query.get_or_404(id)
     seller = Seller.query.get(product.seller_id)
-
-    return render_template(
-        "product.html",
-        product=product,
-        seller=seller
-    )
+    return render_template("product.html", product=product, seller=seller)
 
 
 @app.route("/cart")
@@ -494,11 +436,11 @@ def create_order():
         "comment": request.form.get("comment", "")
     }
 
-    cart = json.loads(items)
+    cart_items = json.loads(items)
 
     total = sum(
         int(float(item.get("price", 0))) * int(item.get("qty", 1))
-        for item in cart
+        for item in cart_items
     )
 
     order = Order(
@@ -512,23 +454,6 @@ def create_order():
 
     db.session.add(order)
     db.session.commit()
-
-    items_text = ""
-
-    for item in cart:
-        items_text += f"- {item.get('name')} × {item.get('qty', 1)} — €{item.get('price')}\n"
-
-    notify_admins(
-        f"🛒 NEW ORDER #{order.id}\n\n"
-        f"Total: €{total}\n"
-        f"Payment: {payment}\n"
-        f"TG ID: {user_telegram_id}\n\n"
-        f"👤 {delivery['full_name']}\n"
-        f"📞 {delivery['phone']}\n"
-        f"📍 {delivery['country']}, {delivery['city']}, {delivery['address']}\n"
-        f"Postal: {delivery['postal_code']}\n\n"
-        f"Items:\n{items_text}"
-    )
 
     return redirect("/order-success")
 
@@ -554,15 +479,9 @@ def my_orders():
         except Exception:
             items = []
 
-        parsed_orders.append({
-            "order": order,
-            "items": items
-        })
+        parsed_orders.append({"order": order, "items": items})
 
-    return render_template(
-        "my_orders.html",
-        parsed_orders=parsed_orders
-    )
+    return render_template("my_orders.html", parsed_orders=parsed_orders)
 
 
 @app.route("/order/<int:id>")
@@ -579,12 +498,7 @@ def order_detail(id):
     except Exception:
         delivery = {}
 
-    return render_template(
-        "order_detail.html",
-        order=order,
-        items=items,
-        delivery=delivery
-    )
+    return render_template("order_detail.html", order=order, items=items, delivery=delivery)
 
 
 @app.route("/order/<int:id>/status/<status>")
@@ -598,37 +512,8 @@ def update_order_status(id, status):
     return redirect(f"/order/{id}")
 
 
-@app.route("/chat/<shop>", methods=["GET", "POST"])
+@app.route("/chat/<shop>")
 def chat(shop):
-    if request.method == "POST":
-        sender_tg_id = request.form.get("sender_tg_id", "")
-
-        user = User.query.filter_by(
-            telegram_id=sender_tg_id
-        ).first()
-
-        if user and user.is_banned:
-            return "You are banned", 403
-
-        if user and user.is_muted:
-            return "You are muted", 403
-
-        file = request.files.get("image_file")
-        image_url = save_file(file)
-
-        message = Message(
-            shop=shop,
-            sender=request.form.get("sender", "Telegram User"),
-            sender_tg_id=sender_tg_id,
-            text=request.form.get("text", ""),
-            image=image_url
-        )
-
-        db.session.add(message)
-        db.session.commit()
-
-        return redirect(f"/chat/{shop}")
-
     messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
 
     return render_template(
@@ -641,6 +526,90 @@ def chat(shop):
 @app.route("/chat")
 def chat_redirect():
     return redirect("/chat/general")
+
+
+@socketio.on("send_message")
+def handle_send_message(data):
+    sender = data.get("sender", "Telegram User")
+    sender_tg_id = str(data.get("sender_tg_id", ""))
+    text = data.get("text", "")
+    shop = data.get("shop", "general")
+
+    if not text.strip():
+        return
+
+    user = User.query.filter_by(telegram_id=sender_tg_id).first()
+
+    if user and user.is_banned:
+        emit("system_error", {"text": "You are banned"})
+        return
+
+    if user and user.is_muted:
+        emit("system_error", {"text": "You are muted"})
+        return
+
+    msg = Message(
+        shop=shop,
+        sender=sender,
+        sender_tg_id=sender_tg_id,
+        text=text,
+        image=""
+    )
+
+    db.session.add(msg)
+    db.session.commit()
+
+    emit("new_message", {
+        "id": msg.id,
+        "shop": shop,
+        "sender": msg.sender,
+        "sender_tg_id": msg.sender_tg_id,
+        "text": msg.text,
+        "image": msg.image,
+        "time": msg.created_at.strftime("%H:%M")
+    }, broadcast=True)
+
+
+@app.route("/chat-upload", methods=["POST"])
+def chat_upload():
+    shop = request.form.get("shop", "general")
+    sender = request.form.get("sender", "Telegram User")
+    sender_tg_id = request.form.get("sender_tg_id", "")
+    text = request.form.get("text", "")
+
+    user = User.query.filter_by(telegram_id=sender_tg_id).first()
+
+    if user and user.is_banned:
+        return jsonify({"ok": False, "error": "banned"}), 403
+
+    if user and user.is_muted:
+        return jsonify({"ok": False, "error": "muted"}), 403
+
+    file = request.files.get("image_file")
+    image_url = save_file(file)
+
+    msg = Message(
+        shop=shop,
+        sender=sender,
+        sender_tg_id=sender_tg_id,
+        text=text,
+        image=image_url or ""
+    )
+
+    db.session.add(msg)
+    db.session.commit()
+
+    socketio.emit("new_message", {
+        "id": msg.id,
+        "shop": shop,
+        "sender": msg.sender,
+        "sender_tg_id": msg.sender_tg_id,
+        "text": msg.text,
+        "image": msg.image,
+        "time": msg.created_at.strftime("%H:%M")
+    })
+
+    return jsonify({"ok": True})
 
 
 @app.route("/favorites-products")
@@ -671,15 +640,12 @@ def pay_crypto():
 @app.route("/user/<int:id>/ban/<status>")
 def user_ban(id, status):
     key = request.args.get("key", "")
-    reason = request.args.get("reason", "")
 
     if not mod_access(key):
         return "ACCESS DENIED", 403
 
     user = User.query.get_or_404(id)
-
     user.is_banned = status == "on"
-    user.ban_reason = reason if status == "on" else ""
 
     db.session.commit()
 
@@ -692,15 +658,12 @@ def user_ban(id, status):
 @app.route("/user/<int:id>/mute/<status>")
 def user_mute(id, status):
     key = request.args.get("key", "")
-    reason = request.args.get("reason", "")
 
     if not mod_access(key):
         return "ACCESS DENIED", 403
 
     user = User.query.get_or_404(id)
-
     user.is_muted = status == "on"
-    user.mute_reason = reason if status == "on" else ""
 
     db.session.commit()
 
@@ -718,7 +681,6 @@ def user_moderator(id, status):
         return "ACCESS DENIED", 403
 
     user = User.query.get_or_404(id)
-
     user.is_moderator = status == "on"
 
     db.session.commit()
@@ -734,12 +696,7 @@ def update_user_vip(id, status):
         return "ACCESS DENIED", 403
 
     user = User.query.get_or_404(id)
-
-    if status == "on":
-        user.is_vip = True
-
-    if status == "off":
-        user.is_vip = False
+    user.is_vip = status == "on"
 
     db.session.commit()
 
@@ -754,12 +711,7 @@ def update_user_verified(id, status):
         return "ACCESS DENIED", 403
 
     user = User.query.get_or_404(id)
-
-    if status == "on":
-        user.is_verified = True
-
-    if status == "off":
-        user.is_verified = False
+    user.is_verified = status == "on"
 
     db.session.commit()
 
@@ -775,11 +727,7 @@ def moderator():
 
     users = User.query.order_by(User.id.desc()).all()
 
-    return render_template(
-        "moderator.html",
-        users=users,
-        key=key
-    )
+    return render_template("moderator.html", users=users, key=key)
 
 
 @app.route("/admin")
@@ -802,7 +750,7 @@ def admin():
 
     admin_users = [
         user for user in users
-        if str(user.telegram_id) in ADMIN_IDS or user.is_verified or user.is_admin
+        if str(user.telegram_id) in ADMIN_IDS or user.is_verified or user.is_admin or user.is_moderator
     ]
 
     vip_users = [
@@ -811,6 +759,7 @@ def admin():
         and str(user.telegram_id) not in ADMIN_IDS
         and not user.is_verified
         and not user.is_admin
+        and not user.is_moderator
     ]
 
     regular_users = [
@@ -818,6 +767,7 @@ def admin():
         if not user.is_vip
         and not user.is_verified
         and not user.is_admin
+        and not user.is_moderator
         and str(user.telegram_id) not in ADMIN_IDS
     ]
 
@@ -841,7 +791,6 @@ def ensure_columns():
         sql_statements = [
             "ALTER TABLE seller ADD COLUMN owner_telegram_id VARCHAR(120)",
             "ALTER TABLE seller ADD COLUMN verified BOOLEAN DEFAULT 0",
-
             "ALTER TABLE user ADD COLUMN is_verified BOOLEAN DEFAULT 0",
             "ALTER TABLE user ADD COLUMN is_admin BOOLEAN DEFAULT 0",
             "ALTER TABLE user ADD COLUMN is_moderator BOOLEAN DEFAULT 0",
@@ -850,9 +799,7 @@ def ensure_columns():
             "ALTER TABLE user ADD COLUMN ban_reason TEXT DEFAULT ''",
             "ALTER TABLE user ADD COLUMN mute_reason TEXT DEFAULT ''",
             "ALTER TABLE user ADD COLUMN last_seen DATETIME",
-
             "ALTER TABLE message ADD COLUMN sender_tg_id VARCHAR(120)",
-
             "ALTER TABLE \"order\" ADD COLUMN delivery TEXT"
         ]
 
@@ -871,9 +818,8 @@ print("SERVER STARTED")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-
-    app.run(
+    socketio.run(
+        app,
         host="0.0.0.0",
-        port=port,
-        debug=False
+        port=port
     )
