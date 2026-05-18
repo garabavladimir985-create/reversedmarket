@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat</title>
+
+<title>Public Chat</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -15,55 +16,42 @@ margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+-webkit-tap-highlight-color:transparent;
 }
 
 body{
 background:#07101f;
 color:white;
-min-height:100vh;
 overflow-x:hidden;
-}
-
-.chat-screen{
 min-height:100vh;
-display:flex;
-flex-direction:column;
-background:
-radial-gradient(circle at 20% 10%,rgba(62,166,255,.1),transparent 30%),
-radial-gradient(circle at 90% 40%,rgba(124,58,237,.09),transparent 28%),
-#07101f;
 }
 
-.chat-top{
+.chat-bg{
+position:fixed;
+inset:0;
+background:
+radial-gradient(circle at top left,rgba(62,166,255,.13),transparent 30%),
+radial-gradient(circle at bottom right,rgba(124,58,237,.11),transparent 30%),
+#07101f;
+z-index:-1;
+}
+
+.topbar{
 position:fixed;
 top:0;
 left:0;
 right:0;
 height:78px;
-padding:12px 16px;
 display:flex;
 align-items:center;
-gap:12px;
-background:rgba(10,16,31,.96);
-backdrop-filter:blur(20px);
-border-bottom:1px solid rgba(255,255,255,.07);
+padding:0 16px;
+background:rgba(9,14,26,.92);
+backdrop-filter:blur(18px);
+border-bottom:1px solid rgba(255,255,255,.06);
 z-index:1000;
 }
 
-.back{
-width:38px;
-height:38px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#111b31;
-font-size:22px;
-text-decoration:none;
-color:white;
-}
-
-.chat-avatar{
+.chat-icon{
 width:52px;
 height:52px;
 border-radius:50%;
@@ -71,48 +59,50 @@ background:linear-gradient(135deg,#3ea6ff,#7c3aed);
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:27px;
-box-shadow:0 0 28px rgba(62,166,255,.45);
+font-size:24px;
+margin-right:12px;
+box-shadow:0 0 30px rgba(62,166,255,.45);
 }
 
-.chat-name{
-font-size:22px;
+.chat-title{
+font-size:23px;
 font-weight:900;
 }
 
-.chat-status{
+.chat-sub{
 font-size:13px;
 color:#8ea0bd;
-margin-top:3px;
+margin-top:2px;
 }
 
 .messages{
-padding:95px 12px 210px;
+padding:95px 12px 220px;
 display:flex;
 flex-direction:column;
-gap:12px;
+gap:14px;
 }
 
-.empty{
-margin:auto;
-margin-top:120px;
-color:#8ea0bd;
-text-align:center;
-font-size:18px;
+.day-separator{
+margin:10px auto;
+padding:7px 16px;
+background:rgba(255,255,255,.06);
+border-radius:30px;
+font-size:13px;
+color:#9eb3d1;
+backdrop-filter:blur(10px);
 }
 
-.msg{
+.msg-wrap{
 display:flex;
-gap:8px;
-align-items:flex-end;
+flex-direction:column;
 max-width:88%;
-animation:fade .2s ease;
+animation:fade .18s ease;
 }
 
 @keyframes fade{
 from{
 opacity:0;
-transform:translateY(8px);
+transform:translateY(10px);
 }
 to{
 opacity:1;
@@ -120,59 +110,77 @@ transform:none;
 }
 }
 
-.msg.me{
+.me{
 margin-left:auto;
+align-items:flex-end;
+}
+
+.msg{
+display:flex;
+gap:8px;
+align-items:flex-end;
+}
+
+.me .msg{
 flex-direction:row-reverse;
 }
 
-.avatar-small{
-width:34px;
-height:34px;
+.avatar{
+width:38px;
+height:38px;
 border-radius:50%;
 background:#172036;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:16px;
-flex:0 0 auto;
+font-size:17px;
+flex-shrink:0;
+overflow:hidden;
+}
+
+.avatar img{
+width:100%;
+height:100%;
+object-fit:cover;
 }
 
 .bubble{
-padding:10px 12px;
-border-radius:18px 18px 18px 6px;
 background:#172036;
-border:1px solid rgba(255,255,255,.06);
-box-shadow:0 10px 30px rgba(0,0,0,.22);
+padding:11px 13px;
+border-radius:20px 20px 20px 8px;
 max-width:100%;
+box-shadow:0 10px 30px rgba(0,0,0,.25);
+position:relative;
+border:1px solid rgba(255,255,255,.05);
 }
 
-.msg.me .bubble{
-background:linear-gradient(135deg,#258cff,#3ea6ff);
-border-radius:18px 18px 6px 18px;
+.me .bubble{
+background:linear-gradient(135deg,#248cff,#3ea6ff);
+border-radius:20px 20px 8px 20px;
 }
 
-.sender{
+.username{
 font-size:13px;
-color:#62b5ff;
-font-weight:800;
+font-weight:900;
+color:#67b6ff;
 margin-bottom:4px;
 }
 
-.msg.me .sender{
+.me .username{
 display:none;
 }
 
 .text{
 font-size:16px;
 line-height:1.35;
-word-break:break-word;
 white-space:pre-wrap;
+word-break:break-word;
 }
 
 .media{
 width:100%;
 max-width:260px;
-border-radius:14px;
+border-radius:15px;
 margin-top:8px;
 display:block;
 }
@@ -181,30 +189,63 @@ display:block;
 font-size:11px;
 opacity:.65;
 text-align:right;
-margin-top:4px;
+margin-top:5px;
+}
+
+.reactions{
+display:flex;
+align-items:center;
+gap:6px;
+margin-top:7px;
+flex-wrap:wrap;
+}
+
+.reaction{
+padding:5px 9px;
+border-radius:20px;
+background:rgba(255,255,255,.07);
+font-size:14px;
+display:flex;
+align-items:center;
+gap:4px;
+backdrop-filter:blur(10px);
+}
+
+.react-users{
+display:flex;
+align-items:center;
+margin-left:4px;
+}
+
+.react-user{
+width:16px;
+height:16px;
+border-radius:50%;
+background:#3ea6ff;
+border:2px solid #172036;
+margin-left:-4px;
 }
 
 .composer{
 position:fixed;
 left:0;
 right:0;
-bottom:84px;
+bottom:82px;
 padding:10px 12px;
-background:rgba(7,12,24,.96);
-backdrop-filter:blur(20px);
-border-top:1px solid rgba(255,255,255,.07);
-z-index:1000;
+background:rgba(7,12,24,.94);
+backdrop-filter:blur(18px);
+border-top:1px solid rgba(255,255,255,.06);
+z-index:999;
 }
 
 .form{
 display:flex;
 align-items:center;
-gap:9px;
+gap:10px;
 background:#121b31;
-border:1px solid rgba(255,255,255,.08);
 border-radius:28px;
 padding:8px;
-box-shadow:0 -10px 40px rgba(0,0,0,.38);
+border:1px solid rgba(255,255,255,.05);
 }
 
 .attach{
@@ -215,7 +256,7 @@ background:#1d2943;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:25px;
+font-size:24px;
 cursor:pointer;
 }
 
@@ -225,16 +266,11 @@ display:none;
 
 .input{
 flex:1;
-background:transparent;
+background:none;
 border:none;
 outline:none;
 color:white;
-font-size:17px;
-min-width:0;
-}
-
-.input::placeholder{
-color:#8ea0bd;
+font-size:16px;
 }
 
 .send{
@@ -242,17 +278,57 @@ width:50px;
 height:50px;
 border:none;
 border-radius:50%;
-background:linear-gradient(135deg,#3ea6ff,#247dff);
+background:linear-gradient(135deg,#3ea6ff,#2481ff);
 color:white;
-font-size:24px;
+font-size:23px;
 font-weight:900;
+}
+
+.context-menu{
+position:fixed;
+left:50%;
+bottom:120px;
+transform:translateX(-50%);
+width:260px;
+background:#121b31;
+border-radius:24px;
+padding:10px;
+z-index:9999;
+display:none;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 20px 50px rgba(0,0,0,.5);
+animation:menu .18s ease;
+}
+
+@keyframes menu{
+from{
+opacity:0;
+transform:translateX(-50%) scale(.92);
+}
+to{
+opacity:1;
+transform:translateX(-50%) scale(1);
+}
+}
+
+.context-item{
+padding:14px;
+border-radius:16px;
+font-size:16px;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.context-item:active{
+background:rgba(255,255,255,.07);
 }
 
 .preview{
 display:none;
-margin:0 0 8px 8px;
-color:#9fb3d1;
+margin:0 0 7px 10px;
 font-size:13px;
+color:#9fb3d1;
 }
 
 .preview.show{
@@ -264,25 +340,21 @@ display:block;
 
 <body>
 
-<div class="chat-screen">
+<div class="chat-bg"></div>
 
-<div class="chat-top">
+<div class="topbar">
 
-<a href="/" class="back">
-‹
-</a>
-
-<div class="chat-avatar">
+<div class="chat-icon">
 💬
 </div>
 
 <div>
-<div class="chat-name">
-{{ shop }}
+<div class="chat-title">
+Public Chat
 </div>
 
-<div class="chat-status">
-online chat · ReversedMarket
+<div class="chat-sub">
+Realtime community chat
 </div>
 </div>
 
@@ -290,23 +362,34 @@ online chat · ReversedMarket
 
 <div class="messages" id="messages">
 
+<div class="day-separator">
+Today
+</div>
+
 {% if messages|length == 0 %}
-<div class="empty" id="empty">
-Напиши первым сообщение 💬
+<div style="text-align:center;color:#8ea0bd;margin-top:90px;">
+No messages yet
 </div>
 {% endif %}
 
 {% for msg in messages %}
 
-<div class="msg" data-tg="{{ msg.sender_tg_id }}">
+<div
+class="msg-wrap"
+data-id="{{ msg.id }}"
+data-text="{{ msg.text }}"
+data-user="{{ msg.sender_tg_id }}"
+>
 
-<div class="avatar-small">
+<div class="msg">
+
+<div class="avatar">
 👤
 </div>
 
 <div class="bubble">
 
-<div class="sender">
+<div class="username">
 {{ msg.sender }}
 </div>
 
@@ -326,11 +409,29 @@ online chat · ReversedMarket
 
 {% endif %}
 
+<div class="reactions">
+
+<div class="reaction">
+❤️ 2
+
+<div class="react-users">
+<div class="react-user"></div>
+<div class="react-user"></div>
+<div class="react-user"></div>
+</div>
+
+</div>
+
+</div>
+
 <div class="time">
 {{ msg.created_at.strftime('%H:%M') }}
 </div>
 
 </div>
+
+</div>
+
 </div>
 
 {% endfor %}
@@ -340,7 +441,7 @@ online chat · ReversedMarket
 <div class="composer">
 
 <div class="preview" id="preview">
-Файл выбран
+File selected
 </div>
 
 <form class="form" id="chatForm">
@@ -353,16 +454,30 @@ online chat · ReversedMarket
 <input
 class="input"
 id="messageInput"
-placeholder="Сообщение..."
+placeholder="Message..."
 autocomplete="off"
 >
 
 <button class="send" type="submit">
-›
+➤
 </button>
 
 </form>
 
+</div>
+
+<div class="context-menu" id="menu">
+
+<div class="context-item">
+↩️ Reply
+</div>
+
+<div class="context-item" id="copyBtn">
+📋 Copy
+</div>
+
+<div class="context-item">
+❤️ React
 </div>
 
 </div>
@@ -394,13 +509,65 @@ sender_tg_id = String(user.id);
 
 }
 
-document.querySelectorAll(".msg").forEach(msg => {
+document.querySelectorAll(".msg-wrap").forEach(msg => {
 
-if(msg.dataset.tg && msg.dataset.tg === sender_tg_id){
+if(msg.dataset.user === sender_tg_id){
 msg.classList.add("me");
 }
 
 });
+
+const menu = document.getElementById("menu");
+
+let selectedText = "";
+
+document.querySelectorAll(".bubble").forEach(bubble => {
+
+bubble.addEventListener("contextmenu", e => {
+
+e.preventDefault();
+
+selectedText =
+bubble.querySelector(".text")?.innerText || "";
+
+menu.style.display = "block";
+
+});
+
+bubble.addEventListener("touchstart", () => {
+
+holdTimer = setTimeout(() => {
+
+selectedText =
+bubble.querySelector(".text")?.innerText || "";
+
+menu.style.display = "block";
+
+}, 500);
+
+});
+
+bubble.addEventListener("touchend", () => {
+clearTimeout(holdTimer);
+});
+
+});
+
+document.body.addEventListener("click", e => {
+
+if(!e.target.closest(".context-menu")){
+menu.style.display = "none";
+}
+
+});
+
+document.getElementById("copyBtn").onclick = () => {
+
+navigator.clipboard.writeText(selectedText);
+
+menu.style.display = "none";
+
+};
 
 function isVideo(url){
 
@@ -412,18 +579,12 @@ return url.endsWith(".mp4")
 
 function appendMessage(data){
 
-if(data.shop && data.shop !== "{{ shop }}") return;
+const wrap = document.createElement("div");
 
-const empty = document.getElementById("empty");
+wrap.className = "msg-wrap";
 
-if(empty) empty.remove();
-
-const msg = document.createElement("div");
-
-msg.className = "msg";
-
-if(String(data.sender_tg_id) === String(sender_tg_id)){
-msg.classList.add("me");
+if(String(data.sender_tg_id) === sender_tg_id){
+wrap.classList.add("me");
 }
 
 let media = "";
@@ -438,23 +599,48 @@ media = `<img class="media" src="${data.image}">`;
 
 }
 
-msg.innerHTML = `
-<div class="avatar-small">👤</div>
+wrap.innerHTML = `
+
+<div class="msg">
+
+<div class="avatar">
+👤
+</div>
 
 <div class="bubble">
 
-<div class="sender">${data.sender}</div>
+<div class="username">
+${data.sender}
+</div>
 
 ${data.text ? `<div class="text">${data.text}</div>` : ""}
 
 ${media}
 
-<div class="time">${data.time}</div>
+<div class="reactions">
+
+<div class="reaction">
+❤️ 1
+
+<div class="react-users">
+<div class="react-user"></div>
+</div>
 
 </div>
+
+</div>
+
+<div class="time">
+${data.time}
+</div>
+
+</div>
+
+</div>
+
 `;
 
-document.getElementById("messages").appendChild(msg);
+document.getElementById("messages").appendChild(wrap);
 
 scrollBottom();
 
@@ -463,12 +649,6 @@ scrollBottom();
 socket.on("new_message", data => {
 
 appendMessage(data);
-
-});
-
-socket.on("system_error", data => {
-
-alert(data.text);
 
 });
 
@@ -483,7 +663,7 @@ if(fileInput.files.length){
 preview.classList.add("show");
 
 preview.innerText =
-"Файл выбран: " + fileInput.files[0].name;
+"Selected: " + fileInput.files[0].name;
 
 }
 
@@ -537,11 +717,16 @@ textInput.value = "";
 
 function scrollBottom(){
 
-const messages = document.getElementById("messages");
+const messages =
+document.getElementById("messages");
 
-messages.scrollTop = messages.scrollHeight;
+messages.scrollTop =
+messages.scrollHeight;
 
-window.scrollTo(0, document.body.scrollHeight);
+window.scrollTo(
+0,
+document.body.scrollHeight
+);
 
 }
 
