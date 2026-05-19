@@ -10,6 +10,33 @@
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style>
+    .open-media{
+    display:block;
+    margin-top:6px;
+    color:#fff;
+    opacity:.75;
+    font-size:13px;
+    text-decoration:none;
+}
+
+.media{
+    width:100%;
+    max-width:260px;
+    border-radius:15px;
+    margin-top:8px;
+    display:block;
+    background:#000;
+}
+.avatar{
+    overflow:hidden;
+}
+
+.avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:50%;
+}
 body{background:#07101f;color:white;min-height:100vh;overflow-x:hidden}
 .bubble,
 .bubble *{
@@ -91,6 +118,14 @@ body{background:#07101f;color:white;min-height:100vh;overflow-x:hidden}
 {% endif %}
 
 {% for msg in messages %}
+<div class="avatar">
+    {% set u = users_map.get(msg.sender_tg_id|string) %}
+    {% if u and u.avatar %}
+        <img src="{{ u.avatar }}">
+    {% else %}
+        👤
+    {% endif %}
+</div>
 <div class="msg-wrap" data-id="{{ msg.id }}" data-user="{{ msg.sender_tg_id }}">
 <div class="msg">
 <div class="avatar">
@@ -127,7 +162,9 @@ preload="metadata"
 onclick="this.play()"
 src="
 {% else %}
-<img class="media" src="{{ msg.image }}">
+<a href="{{ msg.image }}" target="_blank">
+    <img class="media" src="{{ msg.image }}">
+</a>
 {% endif %}
 {% endif %}
 
@@ -282,14 +319,9 @@ window.seenMessages.add(String(data.id));
 
     let media = "";
 
-    if(data.image){
-        if(isVideo(data.image)){
-            media = `
-            <video class="media" controls playsinline webkit-playsinline preload="metadata" onclick="this.play()" src="${data.image}"></video>`;
-        }else{
-            media = `<img class="media" src="${data.image}">`;
-        }
-    }
+media = isVideo(data.image)
+    ? `<video class="media" controls playsinline webkit-playsinline preload="metadata" src="${data.image}"></video><a href="${data.image}" target="_blank" class="open-media">Open video</a>`
+    : `<a href="${data.image}" target="_blank"><img class="media" src="${data.image}"></a>`;
 
     wrap.innerHTML = `
     <div class="msg">
