@@ -3,427 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Public Chat</title>
-
-<link rel="stylesheet" href="/static/css/style.css?v=16000">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
-<style>
-    .open-media{
-    display:block;
-    margin-top:6px;
-    color:#fff;
-    opacity:.75;
-    font-size:13px;
-    text-decoration:none;
-}
-
-.media{
-    width:100%;
-    max-width:260px;
-    border-radius:15px;
-    margin-top:8px;
-    display:block;
-    background:#000;
-}
-.avatar{
-    overflow:hidden;
-}
-
-.avatar img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    border-radius:50%;
-}
-body{background:#07101f;color:white;min-height:100vh;overflow-x:hidden}
-.bubble,
-.bubble *{
-    user-select:none;
-    -webkit-user-select:none;
-    -webkit-touch-callout:none;
-}
-.chat-page{padding-bottom:240px;min-height:100vh;background:radial-gradient(circle at top left,rgba(62,166,255,.14),transparent 30%),#07101f}
-.chat-head{height:116px;padding:22px;display:flex;align-items:center;gap:16px;background:#0b1220;border-bottom:1px solid rgba(255,255,255,.08)}
-.chat-logo{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#3ea6ff,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:34px}
-.chat-title{font-size:30px;font-weight:900}
-.chat-sub{color:#9fa8bd;margin-top:5px;font-size:16px}
-.messages{padding:22px 14px 250px;display:flex;flex-direction:column;gap:14px}
-.day{margin:10px auto;padding:8px 18px;border-radius:999px;background:rgba(255,255,255,.07);color:#aeb8ce}
-.empty{text-align:center;color:#9fa8bd;margin-top:120px;font-size:20px}
-.msg-wrap{max-width:88%;display:flex;flex-direction:column}
-.msg-wrap.me{margin-left:auto;align-items:flex-end}
-.msg{display:flex;gap:8px;align-items:flex-end}
-.msg-wrap.me .msg{flex-direction:row-reverse}
-.avatar{width:36px;height:36px;border-radius:50%;background:#172036;display:flex;align-items:center;justify-content:center}
-.bubble{background:#172036;border-radius:20px 20px 20px 8px;padding:11px 13px;border:1px solid rgba(255,255,255,.06)}
-.msg-wrap.me .bubble{background:linear-gradient(135deg,#248cff,#3ea6ff);border-radius:20px 20px 8px 20px}
-.sender{color:#67b6ff;font-weight:900;font-size:13px;margin-bottom:4px}
-.msg-wrap.me .sender{display:none}
-.reply-box{font-size:13px;opacity:.8;border-left:3px solid #67b6ff;padding-left:8px;margin-bottom:6px}
-.text{font-size:16px;line-height:1.35;white-space:pre-wrap;word-break:break-word}
-.media{width:100%;max-width:260px;border-radius:15px;margin-top:8px;display:block}
-.time{font-size:11px;opacity:.65;text-align:right;margin-top:5px}
-.reactions{display:flex;gap:6px;margin-top:7px}
-.reaction-pill{background:rgba(255,255,255,.12);border-radius:999px;padding:5px 9px;font-size:14px}
-.composer{position:fixed;left:0;right:0;bottom:96px;padding:10px 12px;background:rgba(7,12,24,.96);z-index:999}
-.reply-preview{display:none;margin-bottom:8px;padding:10px 14px;border-radius:16px;background:#121b31;color:#9fb3d1}
-.reply-preview.show{display:block}
-.chat-form{display:flex;align-items:center;gap:10px;background:#121b31;border-radius:28px;padding:8px}
-.attach{width:50px;height:50px;border-radius:50%;background:#1d2943;display:flex;align-items:center;justify-content:center;font-size:25px}
-.attach input{display:none}
-.chat-input{flex:1;border:none;outline:none;background:transparent;color:white;font-size:17px}
-.send{width:52px;height:52px;border:none;border-radius:50%;background:#3ea6ff;color:white;font-size:24px}
-.context-menu{
-    position:fixed;
-    left:50%;
-    bottom:185px;
-    transform:translateX(-50%);
-    width:260px;
-    background:#121b31;
-    border-radius:24px;
-    padding:10px;
-    z-index:99999;
-    display:none;
-    box-shadow:0 20px 50px rgba(0,0,0,.5);
-}
-.context-item{padding:14px;border-radius:16px;font-size:16px}
-.context-item:active{background:rgba(255,255,255,.08)}
-.emoji-row{
-    display:flex;
-    gap:14px;
-    padding:8px 12px 10px;
-    font-size:28px;
-}
-</style>
+<title>Chat</title>
+<link rel="stylesheet" href="/static/css/style.css?v=99999">
 </head>
-
 <body>
 
-<div class="chat-page">
-<div class="chat-head">
-<div class="chat-logo">💬</div>
-<div>
-<div class="chat-title">Public Chat</div>
-<div class="chat-sub">Realtime community chat</div>
-</div>
-</div>
+<div class="app-page">
+    <h1 class="app-title">Public Chat</h1>
 
-<div class="messages" id="messages">
-<div class="day">Today</div>
+    <div class="card">
+        {% if messages|length == 0 %}
+            <p>No messages yet</p>
+        {% else %}
+            {% for msg in messages %}
+                <div style="margin-bottom:14px;padding:12px;border-radius:16px;background:#111827;">
+                    <b>{{ msg.sender }}</b>
+                    <p>{{ msg.text }}</p>
 
-{% if messages|length == 0 %}
-<div class="empty" id="empty">No messages yet</div>
-{% endif %}
+                    {% if msg.image %}
+                        {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
+                            <video src="{{ msg.image }}" controls style="width:100%;border-radius:14px;"></video>
+                        {% else %}
+                            <img src="{{ msg.image }}" style="width:100%;border-radius:14px;">
+                        {% endif %}
+                    {% endif %}
 
-{% for msg in messages %}
-<div class="avatar">
-    {% set u = users_map.get(msg.sender_tg_id|string) %}
-    {% if u and u.avatar %}
-        <img src="{{ u.avatar }}">
-    {% else %}
-        👤
-    {% endif %}
-</div>
-<div class="msg-wrap" data-id="{{ msg.id }}" data-user="{{ msg.sender_tg_id }}">
-<div class="msg">
-<div class="avatar">
-{% if msg.sender_tg_id %}
-    {% set u = users_map.get(msg.sender_tg_id|string) if users_map else None %}
-    {% if u and u.avatar %}
-        <img src="{{ u.avatar }}">
-    {% else %}
-        👤
-    {% endif %}
-{% else %}
-    👤
-{% endif %}
-</div>
-<div class="bubble" data-id="{{ msg.id }}" data-text="{{ msg.text }}">
-<div class="sender">{{ msg.sender }}</div>
+                    <small>{{ msg.created_at.strftime('%H:%M') }}</small>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
-{% if msg.reply_to_id %}
-<div class="reply-box">Reply</div>
-{% endif %}
+    <form action="/chat-upload" method="POST" enctype="multipart/form-data" class="card">
+        <input type="hidden" name="shop" value="{{ shop }}">
+        <input type="hidden" name="sender" value="User">
+        <input type="hidden" name="sender_tg_id" value="">
 
-{% if msg.text %}
-<div class="text">{{ msg.text }}</div>
-{% endif %}
+        <input class="input" name="text" placeholder="Message...">
+        <input class="input" type="file" name="image_file" accept="image/*,video/*">
 
-{% if msg.image %}
-{% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
-<video
-class="media"
-controls
-playsinline
-webkit-playsinline
-preload="metadata"
-onclick="this.play()"
-src="
-{% else %}
-<a href="{{ msg.image }}" target="_blank">
-    <img class="media" src="{{ msg.image }}">
-</a>
-{% endif %}
-{% endif %}
-
-<div class="reactions" id="react-{{ msg.id }}"></div>
-<div class="time">{{ msg.created_at.strftime('%H:%M') }}</div>
-</div>
-</div>
-</div>
-{% endfor %}
-</div>
-</div>
-
-<div class="composer">
-<div class="reply-preview" id="replyPreview"></div>
-
-<form class="chat-form" id="chatForm">
-<label class="attach">
-📎
-<input type="file" id="fileInput" accept="image/*,video/*">
-</label>
-
-<input class="chat-input" id="messageInput" placeholder="Message..." autocomplete="off">
-<button class="send" type="submit">➤</button>
-</form>
-</div>
-
-<div class="context-menu" id="menu">
-<div class="context-item" id="replyBtn">↩️ Reply</div>
-<div class="context-item" id="copyBtn">📋 Copy</div>
-<div class="emoji-row">
-<span onclick="sendReaction('❤️')">❤️</span>
-<span onclick="sendReaction('👍')">👍</span>
-<span onclick="sendReaction('🔥')">🔥</span>
-<span onclick="sendReaction('😂')">😂</span>
-<span onclick="sendReaction('💯')">💯</span>
-</div>
+        <button class="btn" type="submit">Send</button>
+    </form>
 </div>
 
 {% include "_nav.html" %}
 
-<script>
-const socket = io();
-const tg = window.Telegram?.WebApp;
-
-let sender = "Telegram User";
-let sender_tg_id = "";
-let selectedId = null;
-let selectedText = "";
-let replyToId = null;
-let holdTimer = null;
-
-if(tg){
-    tg.ready();
-    tg.expand();
-    const user = tg.initDataUnsafe?.user;
-    if(user){
-        sender = user.first_name || "Telegram User";
-        sender_tg_id = String(user.id);
-    }
-}
-
-document.querySelectorAll(".msg-wrap").forEach(msg => {
-    if(msg.dataset.user === sender_tg_id){
-        msg.classList.add("me");
-    }
-});
-
-function isVideo(url){
-    return url.endsWith(".mp4") || url.endsWith(".mov") || url.endsWith(".webm");
-}
-
-function bindMenus(){
-    document.querySelectorAll(".bubble").forEach(bubble => {
-        bubble.oncontextmenu = e => {
-            e.preventDefault();
-            openMenu(bubble);
-        };
-
-        bubble.ontouchstart = () => {
-            holdTimer = setTimeout(() => openMenu(bubble), 500);
-        };
-
-        bubble.ontouchend = () => clearTimeout(holdTimer);
-    });
-}
-
-function openMenu(bubble){
-    selectedId = bubble.dataset.id;
-    selectedText = bubble.dataset.text || "";
-
-    window.replyTexts = window.replyTexts || {};
-    window.replyTexts[String(selectedId)] = selectedText;
-
-    document.getElementById("menu").style.display = "block";
-}
-
-document.body.addEventListener("click", e => {
-    if(!e.target.closest(".context-menu") && !e.target.closest(".bubble")){
-        document.getElementById("menu").style.display = "none";
-    }
-});
-
-document.getElementById("replyBtn").onclick = () => {
-    replyToId = selectedId;
-    const box = document.getElementById("replyPreview");
-    box.classList.add("show");
-    box.innerText = "Reply to: " + selectedText.slice(0, 60);
-    document.getElementById("menu").style.display = "none";
-};
-
-document.getElementById("copyBtn").onclick = () => {
-    navigator.clipboard.writeText(selectedText);
-    document.getElementById("menu").style.display = "none";
-};
-
-function sendReaction(emoji){
-    if(!selectedId) return;
-
-    socket.emit("add_reaction", {
-        message_id:selectedId,
-        user_tg_id:sender_tg_id,
-        user_name:sender,
-        emoji:emoji
-    });
-
-    document.getElementById("menu").style.display = "none";
-}
-
-function appendMessage(data){
-    if(window.seenMessages && window.seenMessages.has(String(data.id))){
-    return;
-}
-
-if(!window.seenMessages){
-    window.seenMessages = new Set();
-}
-
-window.seenMessages.add(String(data.id));
-    if(data.shop && data.shop !== "{{ shop }}") return;
-
-    const empty = document.getElementById("empty");
-    if(empty) empty.remove();
-
-    const wrap = document.createElement("div");
-    wrap.className = "msg-wrap";
-    wrap.dataset.id = data.id;
-    wrap.dataset.user = data.sender_tg_id;
-
-    if(String(data.sender_tg_id) === sender_tg_id){
-        wrap.classList.add("me");
-    }
-
-    let media = "";
-
-media = isVideo(data.image)
-    ? `<video class="media" controls playsinline webkit-playsinline preload="metadata" src="${data.image}"></video><a href="${data.image}" target="_blank" class="open-media">Open video</a>`
-    : `<a href="${data.image}" target="_blank"><img class="media" src="${data.image}"></a>`;
-
-    wrap.innerHTML = `
-    <div class="msg">
-<div class="avatar">
-{% if msg.sender_tg_id %}
-    {% set u = users_map.get(msg.sender_tg_id|string) if users_map else None %}
-    {% if u and u.avatar %}
-        <img src="{{ u.avatar }}">
-    {% else %}
-        👤
-    {% endif %}
-{% else %}
-    👤
-{% endif %}
-</div>
-        <div class="bubble" data-id="${data.id}" data-text="${data.text || ""}">
-            <div class="sender">${data.sender}</div>
-            ${data.reply_to_id ? `<div class="reply-box">${window.replyTexts?.[String(data.reply_to_id)] || "Reply"}</div>` : ""}
-            ${data.text ? `<div class="text">${data.text}</div>` : ""}
-            ${media}
-            <div class="reactions" id="react-${data.id}"></div>
-            <div class="time">${data.time}</div>
-        </div>
-    </div>
-    `;
-
-    document.getElementById("messages").appendChild(wrap);
-    bindMenus();
-    scrollBottom();
-}
-
-socket.on("new_message", data => appendMessage(data));
-
-socket.on("reaction_update", data => {
-    const box = document.getElementById("react-" + data.message_id);
-    if(box){
-        box.innerHTML = `<div class="reaction-pill">${data.emoji} ${data.count}</div>`;
-    }
-});
-
-socket.on("system_error", data => alert(data.text));
-
-document.getElementById("chatForm").addEventListener("submit", async e => {
-    e.preventDefault();
-
-    const input = document.getElementById("messageInput");
-    const file = document.getElementById("fileInput").files[0];
-    const text = input.value.trim();
-
-    if(!text && !file) return;
-
-    if(file){
-        const formData = new FormData();
-        formData.append("shop", "{{ shop }}");
-        formData.append("sender", sender);
-        formData.append("sender_tg_id", sender_tg_id);
-        formData.append("text", text);
-        formData.append("reply_to_id", replyToId || "");
-        formData.append("image_file", file);
-
-       const res = await fetch("/chat-upload", {
-    method:"POST",
-    body:formData
-});
-
-const result = await res.json();
-
-if(!res.ok || !result.ok){
-    alert("File upload error");
-    return;
-}
-        document.getElementById("fileInput").value = "";
-    }else{
-        socket.emit("send_message", {
-            shop:"{{ shop }}",
-            sender,
-            sender_tg_id,
-            text,
-            reply_to_id:replyToId
-        });
-    }
-
-    input.value = "";
-    replyToId = null;
-    document.getElementById("replyPreview").classList.remove("show");
-});
-
-function isNearBottom(){
-    return window.innerHeight + window.scrollY >= document.body.scrollHeight - 180;
-}
-
-function scrollBottom(force=false){
-    if(force || isNearBottom()){
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth"
-        });
-    }
-}
-
-bindMenus();
-scrollBottom(true);
-</script>
 </body>
 </html>

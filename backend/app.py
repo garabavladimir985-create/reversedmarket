@@ -550,40 +550,14 @@ def chat(shop):
         users_map=users_map
     )
 
-@app.route("/chat")
-def chat_redirect():
-    return redirect("/chat/general")
+@app.route("/chat/<shop>")
+def chat(shop):
+    messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
 
-
-@socketio.on("send_message")
-def handle_send_message(data):
-    sender = data.get("sender", "Telegram User")
-    sender_tg_id = str(data.get("sender_tg_id", ""))
-    text = data.get("text", "")
-    shop = data.get("shop", "general")
-    reply_to_id = data.get("reply_to_id")
-
-    if not text.strip():
-        return
-
-    user = User.query.filter_by(telegram_id=sender_tg_id).first()
-    avatar = user.avatar if user and user.avatar else ""
-
-    if user and user.is_banned:
-        emit("system_error", {"text": "You are banned"})
-        return
-
-    if user and user.is_muted:
-        emit("system_error", {"text": "You are muted"})
-        return
-
-    msg = Message(
-        shop=shop,
-        sender=sender,
-        sender_tg_id=sender_tg_id,
-        text=text,
-        image="",
-        reply_to_id=reply_to_id if reply_to_id else None
+    return render_template(
+        "chat.html",
+        messages=messages,
+        shop=shop
     )
 
     db.session.add(msg)
