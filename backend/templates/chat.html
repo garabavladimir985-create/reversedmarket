@@ -92,10 +92,20 @@ body{background:#07101f;color:white;min-height:100vh;overflow-x:hidden}
 {% endif %}
 
 {% if msg.image %}
+{% set full_url = 'https://reversedmarket.onrender.com' + msg.image %}
 {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
-<video class="media" controls playsinline webkit-playsinline preload="metadata" src="{{ msg.image }}"></video>
+<video class="media" controls playsinline webkit-playsinline preload="metadata" src="{{ full_url }}"></video>
 <div class="media-actions">
-<a href="https://reversedmarket.onrender.com{{ msg.image }}" target="_blank" class="open-media">
+<a href="{{ full_url }}" target="_blank" class="open-media">Open video</a>
+<button type="button" class="open-media" onclick="openMedia('{{ full_url }}','video')">Fullscreen</button>
+</div>
+{% else %}
+<img class="media" src="{{ full_url }}" onclick="openMedia('{{ full_url }}','image')">
+<div class="media-actions">
+<a href="{{ full_url }}" target="_blank" class="open-media">Open photo</a>
+</div>
+{% endif %}
+{% endif %}
     Open photo
 </a>
     Open video
@@ -286,7 +296,25 @@ function appendMessage(data){
     }
 
     let media = "";
-    if(data.image){
+  if(data.image){
+    const fullImage = data.image.startsWith("http")
+        ? data.image
+        : "https://reversedmarket.onrender.com" + data.image;
+
+    if(isVideo(data.image)){
+        media = `
+        <video class="media" controls playsinline webkit-playsinline preload="metadata" src="${fullImage}"></video>
+        <div class="media-actions">
+            <a href="${fullImage}" target="_blank" class="open-media">Open video</a>
+            <button type="button" class="open-media" onclick="openMedia('${fullImage}','video')">Fullscreen</button>
+        </div>`;
+    }else{
+        media = `
+        <img class="media" src="${fullImage}" onclick="openMedia('${fullImage}','image')">
+        <div class="media-actions">
+            <a href="${fullImage}" target="_blank" class="open-media">Open photo</a>
+        </div>`;
+    }
         if(isVideo(data.image)){
             media = `
             <video class="media" controls playsinline webkit-playsinline preload="metadata" src="${data.image}"></video>
