@@ -220,6 +220,7 @@ def home():
 
 @app.route("/catalog")
 def catalog():
+    sort = request.args.get("sort", "")
     q = request.args.get("q", "")
     category = request.args.get("category", "")
     brand = request.args.get("brand", "")
@@ -248,7 +249,10 @@ def catalog():
         except Exception:
             pass
 
-    products = products_query.order_by(Product.id.desc()).all()
+    if sort == "rating":
+        products = products_query.order_by(Product.likes.desc()).all()
+    else:
+        products = products_query.order_by(Product.id.desc()).all()
 
     categories = db.session.query(Product.category).distinct().all()
     categories = [c[0] for c in categories if c[0]]
