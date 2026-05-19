@@ -533,25 +533,7 @@ def update_order_status(id, status):
     return redirect(f"/order/{id}")
 
 @app.route("/chat/<shop>")
-def chat(shop):
-    messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
-
-    return render_template(
-        "chat.html",
-        messages=messages,
-        shop=shop,
-        users_map={}
-    )
-
-    return render_template(
-        "chat.html",
-        messages=messages,
-        shop=shop,
-        users_map=users_map
-    )
-
-@app.route("/chat/<shop>")
-def chat(shop):
+def chat_room(shop):
     messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
 
     return render_template(
@@ -560,51 +542,10 @@ def chat(shop):
         shop=shop
     )
 
-    db.session.add(msg)
-    db.session.commit()
 
-    emit("new_message", {
-        "id": msg.id,
-        "avatar": avatar,
-        "shop": shop,
-        "sender": msg.sender,
-        "sender_tg_id": msg.sender_tg_id,
-        "text": msg.text,
-        "image": msg.image,
-        "reply_to_id": msg.reply_to_id,
-        "time": (msg.created_at ).strftime("%H:%M")
-    }, broadcast=True)
-
-    db.session.add(msg)
-    db.session.commit()
-
-    emit("new_message", {
-        "id": msg.id,
-        "avatar": avatar,
-        "shop": shop,
-        "sender": msg.sender,
-        "sender_tg_id": msg.sender_tg_id,
-        "text": msg.text,
-        "image": msg.image,
-        "reply_to_id": msg.reply_to_id,
-        "time": msg.created_at.strftime("%H:%M")
-    }, broadcast=True)
-
-    db.session.add(msg)
-    db.session.commit()
-
-    emit("new_message", {
-        "id": msg.id,
-        "avatar": avatar,
-        "shop": shop,
-        "sender": msg.sender,
-        "sender_tg_id": msg.sender_tg_id,
-        "text": msg.text,
-        "image": msg.image,
-        "time": msg.created_at.strftime("%H:%M")
-    }, broadcast=True)
-
-
+@app.route("/chat")
+def chat_redirect():
+    return redirect("/chat/general")
 @app.route("/chat-upload", methods=["POST"])
 def chat_upload():
     shop = request.form.get("shop", "general")
