@@ -252,6 +252,11 @@ def catalog():
     if sort == "rating":
         products = products_query.order_by(Product.likes.desc()).all()
     else:
+            sort = request.args.get("sort", "")
+
+    if sort == "rating":
+        products = products_query.order_by(Product.id.desc()).all()
+    else:
         products = products_query.order_by(Product.id.desc()).all()
 
     categories = db.session.query(Product.category).distinct().all()
