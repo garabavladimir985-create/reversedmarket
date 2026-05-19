@@ -536,14 +536,11 @@ def update_order_status(id, status):
 def chat(shop):
     messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
 
-    users = User.query.all()
-    users_map = {str(u.telegram_id): u for u in users}
-
     return render_template(
         "chat.html",
         messages=messages,
         shop=shop,
-        users_map=users_map
+        users_map={}
     )
 
     return render_template(
