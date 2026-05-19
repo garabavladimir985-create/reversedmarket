@@ -3,13 +3,12 @@ from aiogram.filters import CommandStart
 from aiogram.types import (
     ReplyKeyboardMarkup,
     KeyboardButton,
-    WebAppInfo,
+    ReplyKeyboardRemove,
     LabeledPrice,
     PreCheckoutQuery
 )
 
 import asyncio
-import urllib.parse
 import os
 import requests
 
@@ -56,28 +55,22 @@ async def main():
 
     @dp.message(CommandStart())
     async def start(message: types.Message):
-        user_id = message.from_user.id
-        first_name = message.from_user.first_name or "User"
-        username = message.from_user.username or ""
-
-        app_url = (
-            f"{WEBAPP_URL}/?"
-            f"tg_id={user_id}&"
-            f"name={urllib.parse.quote(first_name)}&"
-            f"username={urllib.parse.quote(username)}"
+        await message.answer(
+            "Меню обновлено ✅",
+            reply_markup=ReplyKeyboardRemove()
         )
 
         kb = ReplyKeyboardMarkup(
-    keyboard=[
-        [
-            KeyboardButton(text="⭐ Buy VIP")
-        ]
-    ],
-    resize_keyboard=True
-)
+            keyboard=[
+                [
+                    KeyboardButton(text="⭐ Buy VIP")
+                ]
+            ],
+            resize_keyboard=True
+        )
 
         await message.answer(
-            "Fashion Marketplace 👕",
+            "ReversedMarket 💎",
             reply_markup=kb
         )
 
@@ -112,7 +105,7 @@ async def main():
     async def vip_payment(message: types.Message):
         await message.answer_invoice(
             title="VIP Access",
-            description="VIP доступ к приватным магазинам и товарам",
+            description="VIP access to private shops and products",
             payload="vip_access",
             provider_token="",
             currency="XTR",
@@ -135,7 +128,7 @@ async def main():
     @dp.message(lambda message: message.successful_payment is not None)
     async def successful_payment(message: types.Message):
         await message.answer(
-            "✅ VIP успешно активирован!"
+            "✅ VIP activated successfully!"
         )
 
     print("BOT STARTED")
