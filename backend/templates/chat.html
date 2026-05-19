@@ -93,7 +93,18 @@ body{background:#07101f;color:white;min-height:100vh;overflow-x:hidden}
 {% for msg in messages %}
 <div class="msg-wrap" data-id="{{ msg.id }}" data-user="{{ msg.sender_tg_id }}">
 <div class="msg">
-<div class="avatar">👤</div>
+<div class="avatar">
+{% if msg.sender_tg_id %}
+    {% set u = users_map.get(msg.sender_tg_id|string) if users_map else None %}
+    {% if u and u.avatar %}
+        <img src="{{ u.avatar }}">
+    {% else %}
+        👤
+    {% endif %}
+{% else %}
+    👤
+{% endif %}
+</div>
 <div class="bubble" data-id="{{ msg.id }}" data-text="{{ msg.text }}">
 <div class="sender">{{ msg.sender }}</div>
 
@@ -282,7 +293,18 @@ window.seenMessages.add(String(data.id));
 
     wrap.innerHTML = `
     <div class="msg">
-        <div class="avatar">👤</div>
+<div class="avatar">
+{% if msg.sender_tg_id %}
+    {% set u = users_map.get(msg.sender_tg_id|string) if users_map else None %}
+    {% if u and u.avatar %}
+        <img src="{{ u.avatar }}">
+    {% else %}
+        👤
+    {% endif %}
+{% else %}
+    👤
+{% endif %}
+</div>
         <div class="bubble" data-id="${data.id}" data-text="${data.text || ""}">
             <div class="sender">${data.sender}</div>
             ${data.reply_to_id ? `<div class="reply-box">${window.replyTexts?.[String(data.reply_to_id)] || "Reply"}</div>` : ""}

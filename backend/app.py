@@ -1,3 +1,5 @@
+from pyexpat.errors import messages
+
 from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
@@ -521,17 +523,27 @@ def update_order_status(id, status):
 
     return redirect(f"/order/{id}")
 
-
 @app.route("/chat/<shop>")
 def chat(shop):
-    messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
+    messages = Message.query.filter_by(
+        shop=shop
+    ).order_by(
+        Message.id.asc()
+    ).all()
+
+    users = User.query.all()
+
+    users_map = {
+        str(u.telegram_id): u
+        for u in users
+    }
 
     return render_template(
         "chat.html",
         messages=messages,
-        shop=shop
+        shop=shop,
+        users_map=users_map
     )
-
 
 @app.route("/chat")
 def chat_redirect():
@@ -550,6 +562,7 @@ def handle_send_message(data):
         return
 
     user = User.query.filter_by(telegram_id=sender_tg_id).first()
+    avatar = user.avatar if user and user.avatar else ""
 
     if user and user.is_banned:
         emit("system_error", {"text": "You are banned"})
@@ -573,6 +586,7 @@ def handle_send_message(data):
 
     emit("new_message", {
         "id": msg.id,
+        "avatar": avatar,
         "shop": shop,
         "sender": msg.sender,
         "sender_tg_id": msg.sender_tg_id,
@@ -587,6 +601,7 @@ def handle_send_message(data):
 
     emit("new_message", {
         "id": msg.id,
+        "avatar": avatar,
         "shop": shop,
         "sender": msg.sender,
         "sender_tg_id": msg.sender_tg_id,
@@ -601,6 +616,7 @@ def handle_send_message(data):
 
     emit("new_message", {
         "id": msg.id,
+        "avatar": avatar,
         "shop": shop,
         "sender": msg.sender,
         "sender_tg_id": msg.sender_tg_id,
@@ -619,6 +635,7 @@ def chat_upload():
     reply_to_id = request.form.get("reply_to_id")
 
     user = User.query.filter_by(telegram_id=sender_tg_id).first()
+    avatar = user.avatar if user and user.avatar else ""
 
     if user and user.is_banned:
         return jsonify({"ok": False, "error": "banned"}), 403
@@ -651,6 +668,7 @@ def chat_upload():
 
     socketio.emit("new_message", {
         "id": msg.id,
+        "avatar": avatar,
         "shop": shop,
         "sender": msg.sender,
         "sender_tg_id": msg.sender_tg_id,
@@ -667,6 +685,7 @@ def chat_upload():
 
     socketio.emit("new_message", {
         "id": msg.id,
+        "avatar": avatar,
         "shop": shop,
         "sender": msg.sender,
         "sender_tg_id": msg.sender_tg_id,
@@ -683,6 +702,7 @@ def chat_upload():
 
     socketio.emit("new_message", {
         "id": msg.id,
+        "avatar": avatar,
         "shop": shop,
         "sender": msg.sender,
         "sender_tg_id": msg.sender_tg_id,
