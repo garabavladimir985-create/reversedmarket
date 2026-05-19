@@ -392,3 +392,63 @@ button{
     object-fit:cover;
     border-radius:50%;
 }
+a, button, .btn, .square-btn, .nav-link, .product-card, .category-card{
+    transition: transform .18s ease, opacity .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+a:active, button:active, .btn:active, .square-btn:active, .product-card:active, .category-card:active{
+    transform: scale(.96);
+    opacity:.82;
+}
+
+.app-page{
+    animation: pageIn .22s ease;
+}
+
+@keyframes pageIn{
+    from{
+        opacity:0;
+        transform: translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform: translateY(0);
+    }
+}
+
+.nav-link{
+    position:relative;
+}
+
+.nav-link::after{
+    content:"";
+    position:absolute;
+    bottom:-7px;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#3ea6ff;
+    opacity:0;
+    transform:scale(.4);
+    transition:.2s ease;
+}
+
+.nav-link:active::after{
+    opacity:1;
+    transform:scale(1);
+}
+
+.app-nav{
+    animation: navUp .28s ease;
+}
+
+@keyframes navUp{
+    from{
+        opacity:0;
+        transform:translateX(-50%) translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(-50%) translateY(0);
+    }
+}
