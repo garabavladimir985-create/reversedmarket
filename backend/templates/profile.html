@@ -18,7 +18,10 @@
 <h1 class="app-title" data-ru="ПРОФИЛЬ" data-en="PROFILE">ПРОФИЛЬ</h1>
 
 <div class="card profile-hero">
-<div class="profile-avatar-big" id="profile-avatar">👤</div>
+<div class="profile-avatar-big" id="profile-avatar">
+    <img id="profile-avatar-img" src="" style="display:none;">
+    <span id="profile-avatar-icon">👤</span>
+</div>
 <h2 id="profile-name">Telegram User</h2>
 <p id="profile-id" style="color:#9fa8bd;margin-top:8px;">Loading...</p>
 <div id="vip-status" style="margin-top:12px;color:#3ea6ff;font-weight:900;">NO VIP</div>
@@ -66,7 +69,17 @@ async function loadProfile(){
     });
 
     const data = await res.json();
+const avatarImg = document.getElementById("profile-avatar-img");
+const avatarIcon = document.getElementById("profile-avatar-icon");
 
+if(data.avatar){
+    avatarImg.src = data.avatar;
+    avatarImg.style.display = "block";
+    avatarIcon.style.display = "none";
+}else{
+    avatarImg.style.display = "none";
+    avatarIcon.style.display = "block";
+}
     const name = data.name || user.first_name || "Telegram User";
     const username = data.username ? "@" + data.username : "@unknown";
     const verified = data.is_verified ? `<span class="verified-badge" onclick="openVerify()">✓</span>` : "";
