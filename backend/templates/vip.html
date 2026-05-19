@@ -4,94 +4,141 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VIP</title>
-<link rel="stylesheet" href="/static/css/style.css?v=13000">
+<link rel="stylesheet" href="/static/css/style.css?v=16000">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
+
 <body>
 
 <div class="app-page">
+
 <h1 class="app-title">VIP</h1>
 
-<div id="vip-loading" class="card" data-ru="Проверяем VIP статус..." data-en="Checking VIP status...">
-Проверяем VIP статус...
+<div id="vip-loading" class="card">
+    <span data-ru="Проверяем VIP статус..." data-en="Checking VIP status...">
+        Проверяем VIP статус...
+    </span>
 </div>
 
 <div id="vip-active" style="display:none;">
-<div class="card">
-<h2 data-ru="👑 VIP активен" data-en="👑 VIP Active">👑 VIP активен</h2>
-<p style="color:#c9d2e3;line-height:1.6;margin-top:12px;"
-data-ru="У тебя активирован VIP статус. Теперь тебе доступны привилегии."
-data-en="Your VIP status is active. Your privileges are unlocked.">
-У тебя активирован VIP статус. Теперь тебе доступны привилегии.
-</p>
-</div>
 
-<div class="card">
-<h2 data-ru="🔥 VIP привилегии" data-en="🔥 VIP privileges">🔥 VIP привилегии</h2>
-<p style="color:#c9d2e3;line-height:1.9;margin-top:12px;">
-✅ <span data-ru="Создание собственного Shop" data-en="Create your own Shop">Создание собственного Shop</span><br>
-✅ <span data-ru="Добавление товаров" data-en="Add products">Добавление товаров</span><br>
-✅ <span data-ru="Доступ к VIP товарам" data-en="Access VIP products">Доступ к VIP товарам</span><br>
-✅ <span data-ru="Приоритет в каталоге" data-en="Catalog priority">Приоритет в каталоге</span><br>
-✅ <span data-ru="VIP статус в профиле" data-en="VIP status in profile">VIP статус в профиле</span><br>
-✅ <span data-ru="Приватные функции" data-en="Private features">Приватные функции</span>
-</p>
-<a href="/my-shop" id="vip-shop-link" class="btn" data-ru="Открыть мой Shop" data-en="Open My Shop">Открыть мой Shop</a>
-<a href="/catalog" class="btn dark" data-ru="Открыть каталог" data-en="Open Catalog">Открыть каталог</a>
-</div>
+    <div class="card">
+        <h2 data-ru="👑 VIP активен" data-en="👑 VIP Active">
+            👑 VIP активен
+        </h2>
+
+        <p style="color:#c9d2e3;line-height:1.6;margin-top:12px;"
+           data-ru="У тебя активирован VIP статус. Теперь тебе доступны привилегии."
+           data-en="Your VIP status is active. Your privileges are unlocked.">
+            У тебя активирован VIP статус. Теперь тебе доступны привилегии.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2 data-ru="🔥 VIP привилегии" data-en="🔥 VIP privileges">
+            🔥 VIP привилегии
+        </h2>
+
+        <p style="color:#c9d2e3;line-height:1.9;margin-top:12px;">
+            ✅ <span data-ru="Создание собственного Shop" data-en="Create your own Shop">Создание собственного Shop</span><br>
+            ✅ <span data-ru="Добавление товаров" data-en="Add products">Добавление товаров</span><br>
+            ✅ <span data-ru="Доступ к VIP товарам" data-en="Access VIP products">Доступ к VIP товарам</span><br>
+            ✅ <span data-ru="Приоритет в каталоге" data-en="Catalog priority">Приоритет в каталоге</span><br>
+            ✅ <span data-ru="VIP статус в профиле" data-en="VIP status in profile">VIP статус в профиле</span><br>
+            ✅ <span data-ru="Приватные функции" data-en="Private features">Приватные функции</span>
+        </p>
+
+        <a href="/my-shop" id="vip-shop-link" class="btn"
+           data-ru="Открыть мой Shop" data-en="Open My Shop">
+            Открыть мой Shop
+        </a>
+
+        <a href="/catalog" class="btn dark"
+           data-ru="Открыть каталог" data-en="Open Catalog">
+            Открыть каталог
+        </a>
+    </div>
+
 </div>
 
 <div id="vip-pay" class="card" style="display:none;">
-<h2 data-ru="⭐ VIP подписка" data-en="⭐ VIP Subscription">⭐ VIP подписка</h2>
-<p style="color:#c9d2e3;line-height:1.6;margin-top:12px;"
-data-ru="VIP даёт доступ к магазинам, скидкам, приватным товарам и созданию своего Shop."
-data-en="VIP gives access to shops, discounts, private products and creating your own Shop.">
-VIP даёт доступ к магазинам, скидкам, приватным товарам и созданию своего Shop.
-</p>
-<a class="btn" href="https://t.me/Reversedz_Market_bot" data-ru="Оплатить Telegram Stars" data-en="Pay with Telegram Stars">Оплатить Telegram Stars</a>
-<a class="btn" href="/pay-card" data-ru="Оплатить картой" data-en="Pay by Card">Оплатить картой</a>
-<a class="btn" href="/pay-crypto" data-ru="Оплатить криптой" data-en="Pay by Crypto">Оплатить криптой</a>
+    <h2 data-ru="⭐ VIP подписка" data-en="⭐ VIP Subscription">
+        ⭐ VIP подписка
+    </h2>
+
+    <p style="color:#c9d2e3;line-height:1.6;margin-top:12px;"
+       data-ru="VIP даёт доступ к магазинам, скидкам, приватным товарам и созданию своего Shop."
+       data-en="VIP gives access to shops, discounts, private products and creating your own Shop.">
+        VIP даёт доступ к магазинам, скидкам, приватным товарам и созданию своего Shop.
+    </p>
+
+    <a class="btn" href="https://t.me/Reversedz_Market_bot"
+       data-ru="Оплатить Telegram Stars" data-en="Pay with Telegram Stars">
+        Оплатить Telegram Stars
+    </a>
+
+    <a class="btn" href="/pay-card"
+       data-ru="Оплатить картой" data-en="Pay by Card">
+        Оплатить картой
+    </a>
+
+    <a class="btn" href="/pay-crypto"
+       data-ru="Оплатить криптой" data-en="Pay by Crypto">
+        Оплатить криптой
+    </a>
 </div>
+
 </div>
 
 {% include "_nav.html" %}
 
 <script>
 const tg = window.Telegram?.WebApp;
-if(tg){tg.ready();tg.expand();}
+
+if(tg){
+    tg.ready();
+    tg.expand();
+}
 
 async function checkVip(){
     const user = tg?.initDataUnsafe?.user;
 
     if(!user){
-        document.getElementById("vip-loading").style.display="none";
-        document.getElementById("vip-pay").style.display="block";
-        applyGlobalLang();
+        document.getElementById("vip-loading").style.display = "none";
+        document.getElementById("vip-pay").style.display = "block";
+        applyLang();
         return;
     }
 
     const res = await fetch("/api/telegram-auth", {
         method:"POST",
-        headers:{"Content-Type":"application/json"},
+        headers:{
+            "Content-Type":"application/json"
+        },
         body:JSON.stringify(user)
     });
 
     const data = await res.json();
 
-    document.getElementById("vip-loading").style.display="none";
+    document.getElementById("vip-loading").style.display = "none";
 
     const shopLink = document.getElementById("vip-shop-link");
-    if(shopLink) shopLink.href = "/my-shop?tg_id=" + data.telegram_id;
 
-    if(data.is_vip || data.is_verified || data.is_admin){
-        document.getElementById("vip-active").style.display="block";
-    }else{
-        document.getElementById("vip-pay").style.display="block";
+    if(shopLink){
+        shopLink.href = "/my-shop?tg_id=" + data.telegram_id;
     }
 
-    applyGlobalLang();
+    if(data.is_vip || data.is_verified || data.is_admin){
+        document.getElementById("vip-active").style.display = "block";
+    }else{
+        document.getElementById("vip-pay").style.display = "block";
+    }
+
+    applyLang();
 }
+
 checkVip();
 </script>
+
 </body>
 </html>

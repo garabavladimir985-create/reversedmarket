@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReversedMarket</title>
-<link rel="stylesheet" href="/static/css/style.css?v=14000">
+<link rel="stylesheet" href="/static/css/style.css?v=16000">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -16,17 +16,27 @@
 
     <div class="search-row">
         <form action="/catalog">
-            <input class="input" name="q" placeholder="Search shop...">
+            <input
+                class="input"
+                name="q"
+                placeholder="Поиск магазина..."
+                data-placeholder-ru="Поиск магазина..."
+                data-placeholder-en="Search shop..."
+            >
         </form>
 
         <a href="/favorites-products" class="square-btn active">❤️</a>
         <a href="/catalog" class="square-btn">⭐</a>
     </div>
 
-    <div class="section-title">Latest Items</div>
+    <div class="section-title" data-ru="Новые товары" data-en="Latest Items">
+        Новые товары
+    </div>
 
     {% if products|length == 0 %}
-        <div class="empty-box">No items yet</div>
+        <div class="empty-box" data-ru="Пока нет товаров" data-en="No items yet">
+            Пока нет товаров
+        </div>
     {% else %}
         <div class="products-grid">
             {% for product in products %}
@@ -125,7 +135,6 @@ function updateFavButtons(){
 }
 
 updateFavButtons();
-applyGlobalLang();
 </script>
 
 </body>
