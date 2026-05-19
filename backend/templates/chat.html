@@ -95,13 +95,22 @@ body{background:#07101f;color:white;min-height:100vh;overflow-x:hidden}
 {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
 <video class="media" controls playsinline webkit-playsinline preload="metadata" src="{{ msg.image }}"></video>
 <div class="media-actions">
-<a href="{{ msg.image }}" target="_blank" class="open-media">Open video</a>
-<button class="open-media" onclick="openMedia('{{ msg.image }}','video')">Fullscreen</button>
+<a href="https://reversedmarket.onrender.com{{ msg.image }}" target="_blank" class="open-media">
+    Open photo
+</a>
+    Open video
+</a>
+
+<button class="open-media" onclick="openMedia('https://reversedmarket.onrender.com{{ msg.image }}','video')">
+    Fullscreen
+</button>
 </div>
 {% else %}
 <img class="media" src="{{ msg.image }}" onclick="openMedia('{{ msg.image }}','image')">
 <div class="media-actions">
-<a href="{{ msg.image }}" target="_blank" class="open-media">Open photo</a>
+<a href="https://reversedmarket.onrender.com{{ msg.image }}" target="_blank" class="open-media">
+    Open photo
+</a>
 </div>
 {% endif %}
 {% endif %}
@@ -282,14 +291,28 @@ function appendMessage(data){
             media = `
             <video class="media" controls playsinline webkit-playsinline preload="metadata" src="${data.image}"></video>
             <div class="media-actions">
-                <a href="${data.image}" target="_blank" class="open-media">Open video</a>
+             <a href="https://reversedmarket.onrender.com${data.image}" target="_blank" class="open-media">
+    Open video
+</a>
+
+<button class="open-media"
+onclick="openMedia('https://reversedmarket.onrender.com${data.image}','video')">
+    Fullscreen
+</button>
                 <button class="open-media" onclick="openMedia('${data.image}','video')">Fullscreen</button>
             </div>`;
         }else{
             media = `
             <img class="media" src="${data.image}" onclick="openMedia('${data.image}','image')">
             <div class="media-actions">
-                <a href="${data.image}" target="_blank" class="open-media">Open photo</a>
+           <a href="https://reversedmarket.onrender.com${data.image}" target="_blank" class="open-media">
+    Open video
+</a>
+
+<button class="open-media"
+onclick="openMedia('https://reversedmarket.onrender.com${data.image}','video')">
+    Fullscreen
+</button>
             </div>`;
         }
     }
