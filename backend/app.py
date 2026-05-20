@@ -1,10 +1,9 @@
-from pyexpat.errors import messages
-
 from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from werkzeug.utils import secure_filename
 import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 import json
 import requests
 from datetime import datetime, timedelta
@@ -64,7 +63,7 @@ def save_file(file):
         return ""
 
     filename = secure_filename(
-        f"{datetime.utcnow().timestamp()}_{file.filename}"
+        f"{int(datetime.utcnow().timestamp())}_{file.filename}"
     )
 
     upload_folder = app.config["UPLOAD_FOLDER"]
@@ -255,16 +254,7 @@ def catalog():
         except Exception:
             pass
 
-    if sort == "rating":
-        products = products_query.order_by(Product.likes.desc()).all()
-    else:
-            sort = request.args.get("sort", "")
-
-    if sort == "rating":
-        products = products_query.order_by(Product.id.desc()).all()
-    else:
-        products = products_query.order_by(Product.id.desc()).all()
-
+    products = products_query.order_by(Product.id.desc()).all()
     categories = db.session.query(Product.category).distinct().all()
     categories = [c[0] for c in categories if c[0]]
 
@@ -552,13 +542,60 @@ def chat_room(shop):
 @app.route("/chat")
 def chat_redirect():
     return redirect("/chat/general")
+@socketio.on("send_message")
+def handle_send_message(data):
+    shop = data.get("shop", "general")
+    sender = data.get("sender", "Telegram User")
+    sender_tg_id = str(data.get("sender_tg_id", ""))
+    text = data.get("text", "")
+    reply_to_id = data.get("reply_to_id")
+
+    if not text.strip():
+        return
+
+    user = User.query.filter_by(telegram_id=sender_tg_id).first()
+    avatar = user.avatar if user and user.avatar else ""
+
+    if user and user.is_banned:
+        emit("system_error", {"text": "You are banned"})
+        return
+
+    if user and user.is_muted:
+        emit("system_error", {"text": "You are muted"})
+        return
+
+    msg = Message(
+        shop=shop,
+        sender=sender,
+        sender_tg_id=sender_tg_id,
+        text=text,
+        image="",
+        reply_to_id=reply_to_id if reply_to_id else None
+    )
+
+    db.session.add(msg)
+    db.session.commit()
+
+    emit("new_message", {
+        "id": msg.id,
+        "avatar": avatar,
+        "shop": msg.shop,
+        "sender": msg.sender,
+        "sender_tg_id": msg.sender_tg_id,
+        "text": msg.text,
+        "image": msg.image,
+        "reply_to_id": msg.reply_to_id,
+        "time": msg.created_at.strftime("%H:%M")
+    }, broadcast=True)
+
+
 @app.route("/chat-upload", methods=["POST"])
 def chat_upload():
     shop = request.form.get("shop", "general")
     sender = request.form.get("sender", "Telegram User")
-    sender_tg_id = request.form.get("sender_tg_id", "")
+    sender_tg_id = str(request.form.get("sender_tg_id", ""))
     text = request.form.get("text", "")
-    reply_to_id = request.form.get("reply_to_id")
+    reply_to_id = request.form.get("reply_to_id", "")
 
     user = User.query.filter_by(telegram_id=sender_tg_id).first()
     avatar = user.avatar if user and user.avatar else ""
@@ -570,15 +607,10 @@ def chat_upload():
         return jsonify({"ok": False, "error": "muted"}), 403
 
     file = request.files.get("image_file")
-    image_url = ""
+    image_url = save_file(file)
 
-    if file and file.filename:
-        filename = secure_filename(
-            f"{datetime.utcnow().timestamp()}_{file.filename}"
-        )
-        path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        file.save(path)
-        image_url = "/static/uploads/" + filename
+    if not text.strip() and not image_url:
+        return jsonify({"ok": False, "error": "empty"}), 400
 
     msg = Message(
         shop=shop,
@@ -595,45 +627,12 @@ def chat_upload():
     socketio.emit("new_message", {
         "id": msg.id,
         "avatar": avatar,
-        "shop": shop,
+        "shop": msg.shop,
         "sender": msg.sender,
         "sender_tg_id": msg.sender_tg_id,
         "text": msg.text,
         "image": msg.image,
         "reply_to_id": msg.reply_to_id,
-     "time": msg.created_at.strftime("%H:%M")
-    })
-
-    return jsonify({"ok": True})
-
-    db.session.add(msg)
-    db.session.commit()
-
-    socketio.emit("new_message", {
-        "id": msg.id,
-        "avatar": avatar,
-        "shop": shop,
-        "sender": msg.sender,
-        "sender_tg_id": msg.sender_tg_id,
-        "text": msg.text,
-        "image": msg.image,
-        "reply_to_id": msg.reply_to_id,
-        "time": msg.created_at.strftime("%H:%M")
-    })
-
-    return jsonify({"ok": True})
-
-    db.session.add(msg)
-    db.session.commit()
-
-    socketio.emit("new_message", {
-        "id": msg.id,
-        "avatar": avatar,
-        "shop": shop,
-        "sender": msg.sender,
-        "sender_tg_id": msg.sender_tg_id,
-        "text": msg.text,
-        "image": msg.image,
         "time": msg.created_at.strftime("%H:%M")
     })
 
