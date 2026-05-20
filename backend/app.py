@@ -532,10 +532,14 @@ def update_order_status(id, status):
 def chat_room(shop):
     messages = Message.query.filter_by(shop=shop).order_by(Message.id.asc()).all()
 
+    users = User.query.all()
+    users_map = {str(u.telegram_id): u for u in users}
+
     return render_template(
         "chat.html",
         messages=messages,
-        shop=shop
+        shop=shop,
+        users_map=users_map
     )
 
 
@@ -634,7 +638,7 @@ def chat_upload():
         if reply_msg:
             reply_text = reply_msg.text or "Media"
             reply_sender = reply_msg.sender
-            
+
     msg = Message(
         shop=shop,
         sender=sender,
@@ -883,12 +887,11 @@ def add_reaction(data):
 
     old = Reaction.query.filter_by(
         message_id=message_id,
-        user_tg_id=user_tg_id
+        user_tg_id=user_tg_id,
+        emoji=emoji
     ).first()
 
-    if old:
-        old.emoji = emoji
-    else:
+    if not old:
         reaction = Reaction(
             message_id=message_id,
             user_tg_id=user_tg_id,
@@ -896,17 +899,20 @@ def add_reaction(data):
             emoji=emoji
         )
         db.session.add(reaction)
-
-    db.session.commit()
+        db.session.commit()
 
     reactions = Reaction.query.filter_by(message_id=message_id).all()
 
+    counts = {}
+
+    for r in reactions:
+        counts[r.emoji] = counts.get(r.emoji, 0) + 1
+
     emit("reaction_update", {
         "message_id": message_id,
-        "count": len(reactions),
-        "emoji": emoji
+        "counts": counts
     }, broadcast=True)
-
+    
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     socketio.run(app, host="0.0.0.0", port=port)

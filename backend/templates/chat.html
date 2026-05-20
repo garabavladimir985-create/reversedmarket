@@ -10,6 +10,12 @@
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style>
+    .avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:50%;
+}
 body{margin:0;background:#07101f;color:white;font-family:Arial,sans-serif}
 *{-webkit-tap-highlight-color:transparent}
 .chat-page{min-height:100vh;padding-bottom:230px;background:#07101f}
@@ -63,7 +69,14 @@ body{margin:0;background:#07101f;color:white;font-family:Arial,sans-serif}
             <div id="empty" style="text-align:center;color:#9fa8bd;margin-top:120px;">No messages yet</div>
         {% endif %}
 
-        {% for msg in messages %}
+       <div class="avatar">
+{% set u = users_map.get(msg.sender_tg_id|string) if users_map else None %}
+{% if u and u.avatar %}
+<img src="{{ u.avatar }}">
+{% else %}
+👤
+{% endif %}
+</div>
         <div class="msg" data-id="{{ msg.id }}" data-user="{{ msg.sender_tg_id }}">
             <div class="avatar">👤</div>
 
@@ -280,7 +293,7 @@ function appendMessage(data){
     }
 
     wrap.innerHTML = `
-        <div class="avatar">👤</div>
+        <div class="avatar">${data.avatar ? `<img src="${data.avatar}">` : "👤"}</div>
         <div class="bubble" data-id="${data.id || ""}" data-text="${esc(data.text || "")}">
             <div class="sender">${esc(data.sender || "User")}</div>
            ${data.reply_text ? `
@@ -305,7 +318,16 @@ socket.on("new_message", data => appendMessage(data));
 
 socket.on("reaction_update", data => {
     const box = document.getElementById("react-" + data.message_id);
-    if(box) box.innerHTML = `<div class="reaction-pill">${data.emoji} ${data.count}</div>`;
+
+    if(!box) return;
+
+    let html = "";
+
+    Object.keys(data.counts).forEach(emoji => {
+        html += `<div class="reaction-pill">${emoji} ${data.counts[emoji]}</div>`;
+    });
+
+    box.innerHTML = html;
 });
 
 socket.on("system_error", data => alert(data.text));
