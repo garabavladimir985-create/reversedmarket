@@ -3,149 +3,274 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Public Chat</title>
+<title>Chat</title>
 
-<link rel="stylesheet" href="/static/css/style.css?v=50000">
+<link rel="stylesheet" href="/static/css/style.css?v=60000">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style>
-body{margin:0;background:#07101f;color:white;font-family:Arial,sans-serif;overflow-x:hidden}
-*{-webkit-tap-highlight-color:transparent}
-.chat-page{min-height:100vh;padding-bottom:245px;background:radial-gradient(circle at top left,rgba(62,166,255,.16),transparent 35%),#07101f}
-.chat-head{height:105px;padding:18px;display:flex;gap:14px;align-items:center;background:rgba(10,17,34,.92);border-bottom:1px solid rgba(255,255,255,.08)}
-.chat-logo{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3ea6ff,#7c3aed);font-size:32px}
-.chat-title{font-size:28px;font-weight:900}
-.chat-sub{color:#9fa8bd;margin-top:4px}
-.messages{padding:18px 12px 250px;display:flex;flex-direction:column;gap:13px}
-.day{margin:10px auto;padding:8px 18px;border-radius:999px;background:rgba(255,255,255,.08);color:#b6c2d8;font-size:13px}
-.empty{text-align:center;color:#9fa8bd;margin-top:100px;font-size:19px}
-.msg-wrap{max-width:88%;display:flex;flex-direction:column}
-.msg-wrap.me{margin-left:auto;align-items:flex-end}
-.msg{display:flex;gap:8px;align-items:flex-end}
-.msg-wrap.me .msg{flex-direction:row-reverse}
-.avatar{width:36px;height:36px;border-radius:50%;background:#172036;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
-.avatar img{width:100%;height:100%;object-fit:cover}
-.bubble{background:#172036;border-radius:20px 20px 20px 8px;padding:11px 13px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.msg-wrap.me .bubble{background:linear-gradient(135deg,#248cff,#3ea6ff);border-radius:20px 20px 8px 20px}
-.sender{color:#67b6ff;font-weight:900;font-size:13px;margin-bottom:4px}
-.msg-wrap.me .sender{display:none}
-.reply-box{font-size:13px;opacity:.82;border-left:3px solid #67b6ff;padding-left:8px;margin-bottom:7px}
-.text{font-size:16px;line-height:1.36;white-space:pre-wrap;word-break:break-word}
-.media{width:100%;max-width:270px;border-radius:16px;margin-top:8px;display:block;background:#000}
-.media-actions{display:flex;gap:8px;margin-top:7px;flex-wrap:wrap}
-.open-media{display:inline-flex;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:13px;text-decoration:none;border:none}
-.time{font-size:11px;opacity:.68;text-align:right;margin-top:5px}
-.reactions{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
-.reaction-pill{background:rgba(255,255,255,.14);border-radius:999px;padding:5px 9px;font-size:14px}
-.composer{position:fixed;left:0;right:0;bottom:96px;padding:10px 12px;background:rgba(7,12,24,.96);z-index:999;border-top:1px solid rgba(255,255,255,.06)}
-.reply-preview,.file-preview{display:none;margin-bottom:8px;padding:10px 14px;border-radius:16px;background:#121b31;color:#9fb3d1;font-size:13px}
-.reply-preview.show,.file-preview.show{display:block}
-.chat-form{display:flex;align-items:center;gap:10px;background:#121b31;border-radius:28px;padding:8px}
-.attach{width:50px;height:50px;border-radius:50%;background:#1d2943;display:flex;align-items:center;justify-content:center;font-size:25px}
-.attach input{display:none}
-.chat-input{flex:1;border:none;outline:none;background:transparent;color:white;font-size:17px;min-width:0}
-.send{width:52px;height:52px;border:none;border-radius:50%;background:#3ea6ff;color:white;font-size:24px}
-.context-menu{position:fixed;left:50%;bottom:185px;transform:translateX(-50%);width:270px;background:#121b31;border-radius:24px;padding:10px;z-index:99999;display:none;box-shadow:0 20px 50px rgba(0,0,0,.55)}
-.context-item{padding:13px;border-radius:16px;font-size:16px}
-.context-item:active{background:rgba(255,255,255,.08)}
-.emoji-row{display:flex;gap:13px;padding:8px 12px 10px;font-size:27px;flex-wrap:wrap}
-.media-modal{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:999999;display:none;align-items:center;justify-content:center;padding:18px}
-.media-modal.show{display:flex}
-.media-modal img,.media-modal video{max-width:100%;max-height:86vh;border-radius:18px}
-.close-modal{position:fixed;top:18px;right:18px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:white;font-size:24px}
+body{
+    margin:0;
+    background:#07101f;
+    color:white;
+    font-family:Arial,sans-serif;
+}
+
+.chat-page{
+    min-height:100vh;
+    padding-bottom:220px;
+    background:#07101f;
+}
+
+.chat-head{
+    padding:20px;
+    background:#0b1220;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.chat-title{
+    font-size:28px;
+    font-weight:900;
+}
+
+.chat-sub{
+    color:#9fa8bd;
+    margin-top:5px;
+}
+
+.messages{
+    padding:15px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.msg{
+    max-width:85%;
+    display:flex;
+    gap:8px;
+    align-items:flex-end;
+}
+
+.msg.me{
+    margin-left:auto;
+    flex-direction:row-reverse;
+}
+
+.avatar{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:#172036;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+}
+
+.bubble{
+    background:#172036;
+    padding:12px;
+    border-radius:18px 18px 18px 6px;
+}
+
+.msg.me .bubble{
+    background:#2d9cff;
+    border-radius:18px 18px 6px 18px;
+}
+
+.sender{
+    font-size:13px;
+    font-weight:900;
+    color:#67b6ff;
+    margin-bottom:5px;
+}
+
+.msg.me .sender{
+    display:none;
+}
+
+.text{
+    font-size:16px;
+    line-height:1.35;
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+.media{
+    margin-top:8px;
+    width:100%;
+    max-width:280px;
+    border-radius:14px;
+    background:#000;
+    display:block;
+}
+
+.open-media{
+    display:inline-block;
+    margin-top:8px;
+    color:white;
+    background:rgba(255,255,255,.15);
+    padding:7px 10px;
+    border-radius:999px;
+    text-decoration:none;
+    font-size:13px;
+}
+
+.time{
+    font-size:11px;
+    opacity:.7;
+    text-align:right;
+    margin-top:6px;
+}
+
+.composer{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:96px;
+    padding:10px;
+    background:#07101f;
+    z-index:1000;
+}
+
+.chat-form{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    background:#121b31;
+    border-radius:30px;
+    padding:8px;
+}
+
+.attach{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:#1d2943;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+}
+
+.attach input{
+    display:none;
+}
+
+.chat-input{
+    flex:1;
+    border:none;
+    outline:none;
+    background:transparent;
+    color:white;
+    font-size:17px;
+}
+
+.send{
+    width:50px;
+    height:50px;
+    border:none;
+    border-radius:50%;
+    background:#2d9cff;
+    color:white;
+    font-size:24px;
+}
+
+.file-preview{
+    display:none;
+    margin-bottom:8px;
+    padding:10px;
+    border-radius:14px;
+    background:#121b31;
+    color:#9fa8bd;
+    font-size:13px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="chat-page">
-<div class="chat-head">
-<div class="chat-logo">💬</div>
-<div>
-<div class="chat-title">Public Chat</div>
-<div class="chat-sub">Realtime community chat</div>
-</div>
-</div>
 
-<div class="messages" id="messages">
-<div class="day">Today</div>
+    <div class="chat-head">
+        <div class="chat-title">Public Chat</div>
+        <div class="chat-sub">Realtime community chat</div>
+    </div>
 
-{% if messages|length == 0 %}
-<div class="empty" id="empty">No messages yet</div>
-{% endif %}
+    <div class="messages" id="messages">
 
-{% for msg in messages %}
-<div class="msg-wrap" data-id="{{ msg.id }}" data-user="{{ msg.sender_tg_id }}">
-<div class="msg">
-<div class="avatar">👤</div>
-<div class="bubble" data-id="{{ msg.id }}" data-text="{{ msg.text or '' }}">
-<div class="sender">{{ msg.sender }}</div>
+        {% if messages|length == 0 %}
+            <div style="text-align:center;color:#9fa8bd;margin-top:120px;">
+                No messages yet
+            </div>
+        {% endif %}
 
-{% if msg.reply_to_id %}
-<div class="reply-box">Reply</div>
-{% endif %}
+        {% for msg in messages %}
+        <div class="msg" data-user="{{ msg.sender_tg_id }}">
+            <div class="avatar">👤</div>
 
-{% if msg.text %}
-<div class="text">{{ msg.text }}</div>
-{% endif %}
+            <div class="bubble">
+                <div class="sender">{{ msg.sender }}</div>
 
-{% if msg.image %}
-{% set full = 'https://reversedmarket.onrender.com' + msg.image %}
-{% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
-<video class="media" controls playsinline webkit-playsinline preload="metadata" src="{{ full }}"></video>
-<div class="media-actions">
-<a href="{{ full }}" target="_blank" class="open-media">Open video</a>
-<button type="button" class="open-media" onclick="openMedia('{{ full }}','video')">Fullscreen</button>
-</div>
-{% else %}
-<img class="media" src="{{ full }}" onclick="openMedia('{{ full }}','image')">
-<div class="media-actions">
-<a href="{{ full }}" target="_blank" class="open-media">Open photo</a>
-</div>
-{% endif %}
-{% endif %}
+                {% if msg.text %}
+                    <div class="text">{{ msg.text }}</div>
+                {% endif %}
 
-<div class="reactions" id="react-{{ msg.id }}"></div>
-<div class="time">{{ msg.created_at.strftime('%H:%M') }}</div>
-</div>
-</div>
-</div>
-{% endfor %}
-</div>
+                {% if msg.image %}
+                    {% set full = 'https://reversedmarket.onrender.com' + msg.image %}
+
+                    {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
+                        <video
+                            class="media"
+                            controls
+                            playsinline
+                            webkit-playsinline
+                            preload="metadata"
+                            src="{{ full }}">
+                        </video>
+
+                        <a class="open-media" href="{{ full }}" target="_blank">
+                            Open video
+                        </a>
+                    {% else %}
+                        <a href="{{ full }}" target="_blank">
+                            <img class="media" src="{{ full }}">
+                        </a>
+
+                        <a class="open-media" href="{{ full }}" target="_blank">
+                            Open photo
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+                <div class="time">{{ msg.created_at.strftime('%H:%M') }}</div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
 </div>
 
 <div class="composer">
-<div class="reply-preview" id="replyPreview"></div>
-<div class="file-preview" id="filePreview"></div>
+    <div class="file-preview" id="filePreview"></div>
 
-<form class="chat-form" id="chatForm">
-<label class="attach">
-📎
-<input type="file" id="fileInput" accept="image/*,video/*">
-</label>
+    <form class="chat-form" id="chatForm">
+        <label class="attach">
+            📎
+            <input type="file" id="fileInput" accept="image/*,video/*">
+        </label>
 
-<input class="chat-input" id="messageInput" placeholder="Message..." autocomplete="off">
-<button class="send" type="submit">➤</button>
-</form>
-</div>
+        <input
+            class="chat-input"
+            id="messageInput"
+            placeholder="Message..."
+            autocomplete="off">
 
-<div class="context-menu" id="menu">
-<div class="context-item" id="replyBtn">↩️ Reply</div>
-<div class="context-item" id="copyBtn">📋 Copy</div>
-<div class="emoji-row">
-<span onclick="sendReaction('❤️')">❤️</span>
-<span onclick="sendReaction('👍')">👍</span>
-<span onclick="sendReaction('🔥')">🔥</span>
-<span onclick="sendReaction('😂')">😂</span>
-<span onclick="sendReaction('💎')">💎</span>
-<span onclick="sendReaction('💯')">💯</span>
-</div>
-</div>
-
-<div class="media-modal" id="mediaModal">
-<button class="close-modal" onclick="closeMedia()">×</button>
-<div id="mediaBox"></div>
+        <button class="send" type="submit">➤</button>
+    </form>
 </div>
 
 {% include "_nav.html" %}
@@ -157,19 +282,6 @@ const tg = window.Telegram?.WebApp;
 
 let sender = "Telegram User";
 let sender_tg_id = "";
-let avatar = "";
-let selectedId = null;
-let selectedText = "";
-let replyToId = null;
-let holdTimer = null;
-window.seenMessages = new Set();
-
-function makeUrl(url){
-    if(!url) return "";
-    if(url.startsWith("http://") || url.startsWith("https://")) return url;
-    if(url.startsWith("/")) return BASE_URL + url;
-    return BASE_URL + "/" + url;
-}
 
 if(tg){
     tg.ready();
@@ -180,7 +292,6 @@ if(tg){
     if(user){
         sender = user.first_name || "Telegram User";
         sender_tg_id = String(user.id);
-        avatar = user.photo_url || "";
 
         fetch("/api/telegram-auth", {
             method:"POST",
@@ -190,14 +301,22 @@ if(tg){
     }
 }
 
-document.querySelectorAll(".msg-wrap").forEach(msg => {
+document.querySelectorAll(".msg").forEach(msg => {
     if(msg.dataset.user === sender_tg_id){
         msg.classList.add("me");
     }
-    if(msg.dataset.id){
-        window.seenMessages.add(String(msg.dataset.id));
-    }
 });
+
+function makeUrl(url){
+    if(!url) return "";
+    if(url.startsWith("http")) return url;
+    return BASE_URL + url;
+}
+
+function isVideo(url){
+    const clean = String(url || "").toLowerCase();
+    return clean.endsWith(".mp4") || clean.endsWith(".mov") || clean.endsWith(".webm");
+}
 
 function escapeHtml(text){
     const div = document.createElement("div");
@@ -205,97 +324,13 @@ function escapeHtml(text){
     return div.innerHTML;
 }
 
-function isVideo(url){
-    const clean = String(url || "").split("?")[0].toLowerCase();
-    return clean.endsWith(".mp4") || clean.endsWith(".mov") || clean.endsWith(".webm");
-}
-
-function openMedia(url,type){
-    const full = makeUrl(url);
-    const box = document.getElementById("mediaBox");
-
-    if(type === "video"){
-        box.innerHTML = `<video controls autoplay playsinline webkit-playsinline src="${full}"></video>`;
-    }else{
-        box.innerHTML = `<img src="${full}">`;
-    }
-
-    document.getElementById("mediaModal").classList.add("show");
-}
-
-function closeMedia(){
-    document.getElementById("mediaBox").innerHTML = "";
-    document.getElementById("mediaModal").classList.remove("show");
-}
-
-function bindMenus(){
-    document.querySelectorAll(".bubble").forEach(bubble => {
-        bubble.oncontextmenu = e => {
-            e.preventDefault();
-            openMenu(bubble);
-        };
-
-        bubble.ontouchstart = () => {
-            holdTimer = setTimeout(() => openMenu(bubble), 500);
-        };
-
-        bubble.ontouchend = () => clearTimeout(holdTimer);
-        bubble.ontouchmove = () => clearTimeout(holdTimer);
-    });
-}
-
-function openMenu(bubble){
-    selectedId = bubble.dataset.id;
-    selectedText = bubble.dataset.text || "";
-    document.getElementById("menu").style.display = "block";
-}
-
-document.body.addEventListener("click", e => {
-    if(!e.target.closest(".context-menu") && !e.target.closest(".bubble")){
-        document.getElementById("menu").style.display = "none";
-    }
-});
-
-document.getElementById("replyBtn").onclick = () => {
-    replyToId = selectedId;
-
-    const box = document.getElementById("replyPreview");
-    box.classList.add("show");
-    box.innerText = "Reply to: " + (selectedText || "message").slice(0, 60);
-
-    document.getElementById("menu").style.display = "none";
-};
-
-document.getElementById("copyBtn").onclick = () => {
-    navigator.clipboard.writeText(selectedText || "");
-    document.getElementById("menu").style.display = "none";
-};
-
-function sendReaction(emoji){
-    if(!selectedId) return;
-
-    socket.emit("add_reaction", {
-        message_id:selectedId,
-        user_tg_id:sender_tg_id,
-        user_name:sender,
-        emoji:emoji
-    });
-
-    document.getElementById("menu").style.display = "none";
-}
-
 function appendMessage(data){
     if(data.shop && data.shop !== "{{ shop }}") return;
 
-    if(data.id && window.seenMessages.has(String(data.id))) return;
-    if(data.id) window.seenMessages.add(String(data.id));
-
-    const empty = document.getElementById("empty");
-    if(empty) empty.remove();
+    const messages = document.getElementById("messages");
 
     const wrap = document.createElement("div");
-    wrap.className = "msg-wrap";
-    wrap.dataset.id = data.id || "";
+    wrap.className = "msg";
     wrap.dataset.user = data.sender_tg_id || "";
 
     if(String(data.sender_tg_id) === sender_tg_id){
@@ -303,66 +338,73 @@ function appendMessage(data){
     }
 
     let media = "";
-    const fullImage = makeUrl(data.image || "");
 
     if(data.image){
+        const full = makeUrl(data.image);
+
         if(isVideo(data.image)){
             media = `
-            <video class="media" controls playsinline webkit-playsinline preload="metadata" src="${fullImage}"></video>
-            <div class="media-actions">
-                <a href="${fullImage}" target="_blank" class="open-media">Open video</a>
-                <button type="button" class="open-media" onclick="openMedia('${fullImage}','video')">Fullscreen</button>
-            </div>`;
+                <video
+                    class="media"
+                    controls
+                    playsinline
+                    webkit-playsinline
+                    preload="metadata"
+                    src="${full}">
+                </video>
+
+                <a class="open-media" href="${full}" target="_blank">
+                    Open video
+                </a>
+            `;
         }else{
             media = `
-            <img class="media" src="${fullImage}" onclick="openMedia('${fullImage}','image')">
-            <div class="media-actions">
-                <a href="${fullImage}" target="_blank" class="open-media">Open photo</a>
-            </div>`;
+                <a href="${full}" target="_blank">
+                    <img class="media" src="${full}">
+                </a>
+
+                <a class="open-media" href="${full}" target="_blank">
+                    Open photo
+                </a>
+            `;
         }
     }
 
-    const safeText = escapeHtml(data.text || "");
-    const safeSender = escapeHtml(data.sender || "User");
-
     wrap.innerHTML = `
-    <div class="msg">
-        <div class="avatar">${data.avatar ? `<img src="${data.avatar}">` : "👤"}</div>
-        <div class="bubble" data-id="${data.id || ""}" data-text="${safeText}">
-            <div class="sender">${safeSender}</div>
-            ${data.reply_to_id ? `<div class="reply-box">Reply</div>` : ""}
-            ${safeText ? `<div class="text">${safeText}</div>` : ""}
+        <div class="avatar">👤</div>
+
+        <div class="bubble">
+            <div class="sender">${escapeHtml(data.sender || "User")}</div>
+
+            ${data.text ? `<div class="text">${escapeHtml(data.text)}</div>` : ""}
+
             ${media}
-            <div class="reactions" id="react-${data.id || ""}"></div>
+
             <div class="time">${data.time || ""}</div>
         </div>
-    </div>`;
+    `;
 
-    document.getElementById("messages").appendChild(wrap);
-    bindMenus();
-    scrollBottom(false);
+    messages.appendChild(wrap);
+
+    window.scrollTo({
+        top:document.body.scrollHeight,
+        behavior:"smooth"
+    });
 }
 
-socket.on("new_message", data => appendMessage(data));
-
-socket.on("reaction_update", data => {
-    const box = document.getElementById("react-" + data.message_id);
-    if(box){
-        box.innerHTML = `<div class="reaction-pill">${data.emoji} ${data.count}</div>`;
-    }
+socket.on("new_message", data => {
+    appendMessage(data);
 });
-
-socket.on("system_error", data => alert(data.text));
 
 const fileInput = document.getElementById("fileInput");
 const filePreview = document.getElementById("filePreview");
 
 fileInput.addEventListener("change", () => {
     if(fileInput.files.length){
-        filePreview.classList.add("show");
+        filePreview.style.display = "block";
         filePreview.innerText = "Selected: " + fileInput.files[0].name;
     }else{
-        filePreview.classList.remove("show");
+        filePreview.style.display = "none";
     }
 });
 
@@ -370,8 +412,8 @@ document.getElementById("chatForm").addEventListener("submit", async e => {
     e.preventDefault();
 
     const input = document.getElementById("messageInput");
-    const file = fileInput.files[0];
     const text = input.value.trim();
+    const file = fileInput.files[0];
 
     if(!text && !file) return;
 
@@ -382,7 +424,6 @@ document.getElementById("chatForm").addEventListener("submit", async e => {
         formData.append("sender", sender);
         formData.append("sender_tg_id", sender_tg_id);
         formData.append("text", text);
-        formData.append("reply_to_id", replyToId || "");
         formData.append("image_file", file);
 
         const res = await fetch("/chat-upload", {
@@ -393,43 +434,23 @@ document.getElementById("chatForm").addEventListener("submit", async e => {
         const result = await res.json();
 
         if(!res.ok || !result.ok){
-            alert("File upload error");
+            alert("Upload error");
             return;
         }
 
         fileInput.value = "";
-        filePreview.classList.remove("show");
+        filePreview.style.display = "none";
     }else{
         socket.emit("send_message", {
             shop:"{{ shop }}",
             sender:sender,
             sender_tg_id:sender_tg_id,
-            text:text,
-            reply_to_id:replyToId,
-            avatar:avatar
+            text:text
         });
     }
 
     input.value = "";
-    replyToId = null;
-    document.getElementById("replyPreview").classList.remove("show");
 });
-
-function isNearBottom(){
-    return window.innerHeight + window.scrollY >= document.body.scrollHeight - 180;
-}
-
-function scrollBottom(force=false){
-    if(force || isNearBottom()){
-        window.scrollTo({
-            top:document.body.scrollHeight,
-            behavior:"smooth"
-        });
-    }
-}
-
-bindMenus();
-scrollBottom(true);
 </script>
 
 </body>
