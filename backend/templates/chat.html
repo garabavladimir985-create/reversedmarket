@@ -231,17 +231,17 @@ body{
                             src="{{ full }}">
                         </video>
 
-                        <a class="open-media" href="{{ full }}" target="_blank">
-                            Open video
-                        </a>
+                        <button type="button" class="open-media" onclick="openMedia('{{ full }}','video')">
+    Open video
+</button>
                     {% else %}
                         <a href="{{ full }}" target="_blank">
                             <img class="media" src="{{ full }}">
                         </a>
 
-                        <a class="open-media" href="{{ full }}" target="_blank">
-                            Open photo
-                        </a>
+                       <button type="button" class="open-media" onclick="openMedia('{{ full }}','video')">
+    Open video
+</button>
                     {% endif %}
                 {% endif %}
 
@@ -353,9 +353,9 @@ function appendMessage(data){
                     src="${full}">
                 </video>
 
-                <a class="open-media" href="${full}" target="_blank">
-                    Open video
-                </a>
+              <button type="button" class="open-media" onclick="openMedia('${full}','video')">
+    Open video
+</button>
             `;
         }else{
             media = `
@@ -363,9 +363,9 @@ function appendMessage(data){
                     <img class="media" src="${full}">
                 </a>
 
-                <a class="open-media" href="${full}" target="_blank">
-                    Open photo
-                </a>
+               <button type="button" class="open-media" onclick="openMedia('${full}','video')">
+    Open video
+</button>
             `;
         }
     }
@@ -451,6 +451,47 @@ document.getElementById("chatForm").addEventListener("submit", async e => {
 
     input.value = "";
 });
+function openMedia(url, type){
+    const modal = document.createElement("div");
+
+    modal.style.cssText = `
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.95);
+        z-index:999999;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:16px;
+    `;
+
+    modal.innerHTML = `
+        <button onclick="this.parentElement.remove()" style="
+            position:absolute;
+            top:20px;
+            right:20px;
+            width:44px;
+            height:44px;
+            border-radius:50%;
+            border:0;
+            background:#222;
+            color:white;
+            font-size:28px;
+        ">×</button>
+
+        <video
+            src="${url}"
+            controls
+            autoplay
+            playsinline
+            webkit-playsinline
+            style="max-width:100%;max-height:85vh;border-radius:18px;background:#000;">
+        </video>
+    `;
+
+    document.body.appendChild(modal);
+}
+
 </script>
 
 </body>
