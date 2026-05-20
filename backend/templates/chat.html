@@ -68,45 +68,46 @@ body{margin:0;background:#07101f;color:white;font-family:Arial,sans-serif}
         {% if messages|length == 0 %}
             <div id="empty" style="text-align:center;color:#9fa8bd;margin-top:120px;">No messages yet</div>
         {% endif %}
+{% for msg in messages %}
+<div class="msg" data-id="{{ msg.id }}" data-user="{{ msg.sender_tg_id }}">
 
-       <div class="avatar">
-{% set u = users_map.get(msg.sender_tg_id|string) if users_map else None %}
-{% if u and u.avatar %}
-<img src="{{ u.avatar }}">
-{% else %}
-👤
-{% endif %}
+    <div class="avatar">
+        {% set u = users_map.get(msg.sender_tg_id|string) if users_map else None %}
+        {% if u and u.avatar %}
+            <img src="{{ u.avatar }}">
+        {% else %}
+            👤
+        {% endif %}
+    </div>
+
+    <div class="bubble" data-id="{{ msg.id }}" data-text="{{ msg.text or '' }}">
+        <div class="sender">{{ msg.sender }}</div>
+
+        {% if msg.reply_to_id %}
+            <div class="reply-box">Reply</div>
+        {% endif %}
+
+        {% if msg.text %}
+            <div class="text">{{ msg.text }}</div>
+        {% endif %}
+
+        {% if msg.image %}
+            {% set full = 'https://reversedmarket.onrender.com' + msg.image %}
+
+            {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
+                <video class="media" controls playsinline webkit-playsinline preload="metadata" src="{{ full }}"></video>
+            {% else %}
+                <img class="media" src="{{ full }}" onclick="openMedia('{{ full }}','image')">
+                <button class="media-btn" onclick="openMedia('{{ full }}','image')">Open photo</button>
+            {% endif %}
+        {% endif %}
+
+        <div class="reactions" id="react-{{ msg.id }}"></div>
+        <div class="time">{{ msg.created_at.strftime('%H:%M') }}</div>
+    </div>
+
 </div>
-        <div class="msg" data-id="{{ msg.id }}" data-user="{{ msg.sender_tg_id }}">
-            <div class="avatar">👤</div>
-
-            <div class="bubble" data-id="{{ msg.id }}" data-text="{{ msg.text or '' }}">
-                <div class="sender">{{ msg.sender }}</div>
-
-                {% if msg.reply_to_id %}
-                    <div class="reply-box">Reply</div>
-                {% endif %}
-
-                {% if msg.text %}
-                    <div class="text">{{ msg.text }}</div>
-                {% endif %}
-
-                {% if msg.image %}
-                    {% set full = 'https://reversedmarket.onrender.com' + msg.image %}
-
-                    {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
-                        <video class="media" controls playsinline webkit-playsinline preload="metadata" src="{{ full }}"></video>
-                    {% else %}
-                        <img class="media" src="{{ full }}" onclick="openMedia('{{ full }}','image')">
-                        <button class="media-btn" onclick="openMedia('{{ full }}','image')">Open photo</button>
-                    {% endif %}
-                {% endif %}
-
-                <div class="reactions" id="react-{{ msg.id }}"></div>
-                <div class="time">{{ msg.created_at.strftime('%H:%M') }}</div>
-            </div>
-        </div>
-        {% endfor %}
+{% endfor %}
     </div>
 </div>
 
