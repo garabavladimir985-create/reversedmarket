@@ -5,214 +5,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chat</title>
 
-<link rel="stylesheet" href="/static/css/style.css?v=60000">
+<link rel="stylesheet" href="/static/css/style.css?v=77777">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style>
-body{
-    margin:0;
-    background:#07101f;
-    color:white;
-    font-family:Arial,sans-serif;
-}
-
-.chat-page{
-    min-height:100vh;
-    padding-bottom:220px;
-    background:#07101f;
-}
-
-.chat-head{
-    padding:20px;
-    background:#0b1220;
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
-
-.chat-title{
-    font-size:28px;
-    font-weight:900;
-}
-
-.chat-sub{
-    color:#9fa8bd;
-    margin-top:5px;
-}
-
-.messages{
-    padding:15px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-}
-
-.msg{
-    max-width:85%;
-    display:flex;
-    gap:8px;
-    align-items:flex-end;
-}
-
-.msg.me{
-    margin-left:auto;
-    flex-direction:row-reverse;
-}
-
-.avatar{
-    width:36px;
-    height:36px;
-    border-radius:50%;
-    background:#172036;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-shrink:0;
-}
-
-.bubble{
-    background:#172036;
-    padding:12px;
-    border-radius:18px 18px 18px 6px;
-}
-
-.msg.me .bubble{
-    background:#2d9cff;
-    border-radius:18px 18px 6px 18px;
-}
-
-.sender{
-    font-size:13px;
-    font-weight:900;
-    color:#67b6ff;
-    margin-bottom:5px;
-}
-
-.msg.me .sender{
-    display:none;
-}
-
-.text{
-    font-size:16px;
-    line-height:1.35;
-    white-space:pre-wrap;
-    word-break:break-word;
-}
-
-.media{
-    margin-top:8px;
-    width:100%;
-    max-width:280px;
-    border-radius:14px;
-    background:#000;
-    display:block;
-}
-
-.open-media{
-    display:inline-block;
-    margin-top:8px;
-    color:white;
-    background:rgba(255,255,255,.15);
-    padding:7px 10px;
-    border-radius:999px;
-    text-decoration:none;
-    font-size:13px;
-}
-
-.time{
-    font-size:11px;
-    opacity:.7;
-    text-align:right;
-    margin-top:6px;
-}
-
-.composer{
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:96px;
-    padding:10px;
-    background:#07101f;
-    z-index:1000;
-}
-
-.chat-form{
-    display:flex;
-    gap:8px;
-    align-items:center;
-    background:#121b31;
-    border-radius:30px;
-    padding:8px;
-}
-
-.attach{
-    width:48px;
-    height:48px;
-    border-radius:50%;
-    background:#1d2943;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:24px;
-}
-
-.attach input{
-    display:none;
-}
-
-.chat-input{
-    flex:1;
-    border:none;
-    outline:none;
-    background:transparent;
-    color:white;
-    font-size:17px;
-}
-
-.send{
-    width:50px;
-    height:50px;
-    border:none;
-    border-radius:50%;
-    background:#2d9cff;
-    color:white;
-    font-size:24px;
-}
-
-.file-preview{
-    display:none;
-    margin-bottom:8px;
-    padding:10px;
-    border-radius:14px;
-    background:#121b31;
-    color:#9fa8bd;
-    font-size:13px;
-}
+body{margin:0;background:#07101f;color:white;font-family:Arial,sans-serif}
+*{-webkit-tap-highlight-color:transparent}
+.chat-page{min-height:100vh;padding-bottom:230px;background:#07101f}
+.chat-head{padding:20px;background:#0b1220;border-bottom:1px solid rgba(255,255,255,.08)}
+.chat-title{font-size:28px;font-weight:900}
+.chat-sub{color:#9fa8bd;margin-top:5px}
+.messages{padding:15px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:86%;display:flex;gap:8px;align-items:flex-end}
+.msg.me{margin-left:auto;flex-direction:row-reverse}
+.avatar{width:36px;height:36px;border-radius:50%;background:#172036;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bubble{background:#172036;padding:12px;border-radius:18px 18px 18px 6px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.msg.me .bubble{background:#2d9cff;border-radius:18px 18px 6px 18px}
+.sender{font-size:13px;font-weight:900;color:#67b6ff;margin-bottom:5px}
+.msg.me .sender{display:none}
+.reply-box{border-left:3px solid #67b6ff;padding-left:8px;margin-bottom:7px;font-size:13px;opacity:.8}
+.text{font-size:16px;line-height:1.35;white-space:pre-wrap;word-break:break-word}
+.media{margin-top:8px;width:100%;max-width:280px;border-radius:14px;background:#000;display:block}
+.media-btn{display:inline-block;margin-top:8px;color:white;background:rgba(255,255,255,.15);padding:7px 10px;border-radius:999px;border:0;text-decoration:none;font-size:13px}
+.time{font-size:11px;opacity:.7;text-align:right;margin-top:6px}
+.reactions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.reaction-pill{background:rgba(255,255,255,.16);padding:5px 8px;border-radius:999px;font-size:14px}
+.composer{position:fixed;left:0;right:0;bottom:96px;padding:10px;background:#07101f;z-index:1000}
+.reply-preview,.file-preview{display:none;margin-bottom:8px;padding:10px;border-radius:14px;background:#121b31;color:#9fa8bd;font-size:13px}
+.reply-preview.show,.file-preview.show{display:block}
+.chat-form{display:flex;gap:8px;align-items:center;background:#121b31;border-radius:30px;padding:8px}
+.attach{width:48px;height:48px;border-radius:50%;background:#1d2943;display:flex;align-items:center;justify-content:center;font-size:24px}
+.attach input{display:none}
+.chat-input{flex:1;border:none;outline:none;background:transparent;color:white;font-size:17px}
+.send{width:50px;height:50px;border:none;border-radius:50%;background:#2d9cff;color:white;font-size:24px}
+.menu{display:none;position:fixed;left:50%;bottom:180px;transform:translateX(-50%);width:280px;background:#121b31;border-radius:24px;padding:12px;z-index:99999;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.menu-item{padding:13px;border-radius:14px;font-size:16px}
+.menu-item:active{background:rgba(255,255,255,.08)}
+.emoji-row{display:flex;gap:12px;font-size:27px;padding:8px;flex-wrap:wrap}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:999999;align-items:center;justify-content:center;padding:15px}
+.modal.show{display:flex}
+.modal video,.modal img{max-width:100%;max-height:85vh;border-radius:16px;background:#000}
+.close{position:absolute;top:18px;right:18px;width:44px;height:44px;border-radius:50%;border:0;background:#222;color:white;font-size:28px}
 </style>
 </head>
 
 <body>
 
 <div class="chat-page">
-
     <div class="chat-head">
         <div class="chat-title">Public Chat</div>
         <div class="chat-sub">Realtime community chat</div>
     </div>
 
     <div class="messages" id="messages">
-
         {% if messages|length == 0 %}
-            <div style="text-align:center;color:#9fa8bd;margin-top:120px;">
-                No messages yet
-            </div>
+            <div id="empty" style="text-align:center;color:#9fa8bd;margin-top:120px;">No messages yet</div>
         {% endif %}
 
         {% for msg in messages %}
-        <div class="msg" data-user="{{ msg.sender_tg_id }}">
+        <div class="msg" data-id="{{ msg.id }}" data-user="{{ msg.sender_tg_id }}">
             <div class="avatar">👤</div>
 
-            <div class="bubble">
+            <div class="bubble" data-id="{{ msg.id }}" data-text="{{ msg.text or '' }}">
                 <div class="sender">{{ msg.sender }}</div>
+
+                {% if msg.reply_to_id %}
+                    <div class="reply-box">Reply</div>
+                {% endif %}
 
                 {% if msg.text %}
                     <div class="text">{{ msg.text }}</div>
@@ -222,55 +82,49 @@ body{
                     {% set full = 'https://reversedmarket.onrender.com' + msg.image %}
 
                     {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
-                        <video
-                            class="media"
-                            controls
-                            playsinline
-                            webkit-playsinline
-                            preload="metadata"
-                            src="{{ full }}">
-                        </video>
-
-                        <button type="button" class="open-media" onclick="openMedia('{{ full }}','video')">
-    Open video
-</button>
+                        <video class="media" controls playsinline webkit-playsinline preload="metadata" src="{{ full }}"></video>
+                        <button class="media-btn" onclick="openMedia('{{ full }}','video')">Open video</button>
                     {% else %}
-                        <a href="{{ full }}" target="_blank">
-                            <img class="media" src="{{ full }}">
-                        </a>
-
-                       <button type="button" class="open-media" onclick="openMedia('{{ full }}','video')">
-    Open video
-</button>
+                        <img class="media" src="{{ full }}" onclick="openMedia('{{ full }}','image')">
+                        <button class="media-btn" onclick="openMedia('{{ full }}','image')">Open photo</button>
                     {% endif %}
                 {% endif %}
 
+                <div class="reactions" id="react-{{ msg.id }}"></div>
                 <div class="time">{{ msg.created_at.strftime('%H:%M') }}</div>
             </div>
         </div>
         {% endfor %}
-
     </div>
-
 </div>
 
 <div class="composer">
+    <div class="reply-preview" id="replyPreview"></div>
     <div class="file-preview" id="filePreview"></div>
 
     <form class="chat-form" id="chatForm">
-        <label class="attach">
-            📎
-            <input type="file" id="fileInput" accept="image/*,video/*">
-        </label>
-
-        <input
-            class="chat-input"
-            id="messageInput"
-            placeholder="Message..."
-            autocomplete="off">
-
+        <label class="attach">📎<input type="file" id="fileInput" accept="image/*,video/*"></label>
+        <input class="chat-input" id="messageInput" placeholder="Message..." autocomplete="off">
         <button class="send" type="submit">➤</button>
     </form>
+</div>
+
+<div class="menu" id="menu">
+    <div class="menu-item" id="replyBtn">↩️ Reply</div>
+    <div class="menu-item" id="copyBtn">📋 Copy</div>
+    <div class="emoji-row">
+        <span onclick="sendReaction('❤️')">❤️</span>
+        <span onclick="sendReaction('👍')">👍</span>
+        <span onclick="sendReaction('🔥')">🔥</span>
+        <span onclick="sendReaction('😂')">😂</span>
+        <span onclick="sendReaction('💎')">💎</span>
+        <span onclick="sendReaction('💯')">💯</span>
+    </div>
+</div>
+
+<div class="modal" id="modal">
+    <button class="close" onclick="closeMedia()">×</button>
+    <div id="modalBox"></div>
 </div>
 
 {% include "_nav.html" %}
@@ -282,13 +136,17 @@ const tg = window.Telegram?.WebApp;
 
 let sender = "Telegram User";
 let sender_tg_id = "";
+let selectedId = null;
+let selectedText = "";
+let replyToId = null;
+let holdTimer = null;
+const seen = new Set();
 
 if(tg){
     tg.ready();
     tg.expand();
 
     const user = tg.initDataUnsafe?.user;
-
     if(user){
         sender = user.first_name || "Telegram User";
         sender_tg_id = String(user.id);
@@ -301,10 +159,9 @@ if(tg){
     }
 }
 
-document.querySelectorAll(".msg").forEach(msg => {
-    if(msg.dataset.user === sender_tg_id){
-        msg.classList.add("me");
-    }
+document.querySelectorAll(".msg").forEach(m => {
+    if(m.dataset.user === sender_tg_id) m.classList.add("me");
+    if(m.dataset.id) seen.add(String(m.dataset.id));
 });
 
 function makeUrl(url){
@@ -318,24 +175,95 @@ function isVideo(url){
     return clean.endsWith(".mp4") || clean.endsWith(".mov") || clean.endsWith(".webm");
 }
 
-function escapeHtml(text){
-    const div = document.createElement("div");
-    div.innerText = text || "";
-    return div.innerHTML;
+function esc(text){
+    const d = document.createElement("div");
+    d.innerText = text || "";
+    return d.innerHTML;
+}
+
+function openMedia(url,type){
+    const box = document.getElementById("modalBox");
+    if(type === "video"){
+        box.innerHTML = `<video src="${url}" controls autoplay playsinline webkit-playsinline></video>`;
+    }else{
+        box.innerHTML = `<img src="${url}">`;
+    }
+    document.getElementById("modal").classList.add("show");
+}
+
+function closeMedia(){
+    document.getElementById("modalBox").innerHTML = "";
+    document.getElementById("modal").classList.remove("show");
+}
+
+function bindMenu(){
+    document.querySelectorAll(".bubble").forEach(b => {
+        b.oncontextmenu = e => {
+            e.preventDefault();
+            openMenu(b);
+        };
+
+        b.ontouchstart = () => {
+            holdTimer = setTimeout(() => openMenu(b), 500);
+        };
+
+        b.ontouchend = () => clearTimeout(holdTimer);
+        b.ontouchmove = () => clearTimeout(holdTimer);
+    });
+}
+
+function openMenu(b){
+    selectedId = b.dataset.id;
+    selectedText = b.dataset.text || "";
+    document.getElementById("menu").style.display = "block";
+}
+
+document.body.addEventListener("click", e => {
+    if(!e.target.closest(".menu") && !e.target.closest(".bubble")){
+        document.getElementById("menu").style.display = "none";
+    }
+});
+
+document.getElementById("replyBtn").onclick = () => {
+    replyToId = selectedId;
+    const box = document.getElementById("replyPreview");
+    box.classList.add("show");
+    box.innerText = "Reply to: " + (selectedText || "message").slice(0,60);
+    document.getElementById("menu").style.display = "none";
+};
+
+document.getElementById("copyBtn").onclick = () => {
+    navigator.clipboard.writeText(selectedText || "");
+    document.getElementById("menu").style.display = "none";
+};
+
+function sendReaction(emoji){
+    if(!selectedId) return;
+
+    socket.emit("add_reaction", {
+        message_id:selectedId,
+        user_tg_id:sender_tg_id,
+        user_name:sender,
+        emoji:emoji
+    });
+
+    document.getElementById("menu").style.display = "none";
 }
 
 function appendMessage(data){
     if(data.shop && data.shop !== "{{ shop }}") return;
+    if(data.id && seen.has(String(data.id))) return;
+    if(data.id) seen.add(String(data.id));
 
-    const messages = document.getElementById("messages");
+    const empty = document.getElementById("empty");
+    if(empty) empty.remove();
 
     const wrap = document.createElement("div");
     wrap.className = "msg";
+    wrap.dataset.id = data.id || "";
     wrap.dataset.user = data.sender_tg_id || "";
 
-    if(String(data.sender_tg_id) === sender_tg_id){
-        wrap.classList.add("me");
-    }
+    if(String(data.sender_tg_id) === sender_tg_id) wrap.classList.add("me");
 
     let media = "";
 
@@ -344,67 +272,50 @@ function appendMessage(data){
 
         if(isVideo(data.image)){
             media = `
-                <video
-                    class="media"
-                    controls
-                    playsinline
-                    webkit-playsinline
-                    preload="metadata"
-                    src="${full}">
-                </video>
-
-              <button type="button" class="open-media" onclick="openMedia('${full}','video')">
-    Open video
-</button>
-            `;
+            <video class="media" controls playsinline webkit-playsinline preload="metadata" src="${full}"></video>
+            <button class="media-btn" onclick="openMedia('${full}','video')">Open video</button>`;
         }else{
             media = `
-                <a href="${full}" target="_blank">
-                    <img class="media" src="${full}">
-                </a>
-
-               <button type="button" class="open-media" onclick="openMedia('${full}','video')">
-    Open video
-</button>
-            `;
+            <img class="media" src="${full}" onclick="openMedia('${full}','image')">
+            <button class="media-btn" onclick="openMedia('${full}','image')">Open photo</button>`;
         }
     }
 
     wrap.innerHTML = `
         <div class="avatar">👤</div>
-
-        <div class="bubble">
-            <div class="sender">${escapeHtml(data.sender || "User")}</div>
-
-            ${data.text ? `<div class="text">${escapeHtml(data.text)}</div>` : ""}
-
+        <div class="bubble" data-id="${data.id || ""}" data-text="${esc(data.text || "")}">
+            <div class="sender">${esc(data.sender || "User")}</div>
+            ${data.reply_to_id ? `<div class="reply-box">Reply</div>` : ""}
+            ${data.text ? `<div class="text">${esc(data.text)}</div>` : ""}
             ${media}
-
+            <div class="reactions" id="react-${data.id || ""}"></div>
             <div class="time">${data.time || ""}</div>
         </div>
     `;
 
-    messages.appendChild(wrap);
-
-    window.scrollTo({
-        top:document.body.scrollHeight,
-        behavior:"smooth"
-    });
+    document.getElementById("messages").appendChild(wrap);
+    bindMenu();
+    window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
 }
 
-socket.on("new_message", data => {
-    appendMessage(data);
+socket.on("new_message", data => appendMessage(data));
+
+socket.on("reaction_update", data => {
+    const box = document.getElementById("react-" + data.message_id);
+    if(box) box.innerHTML = `<div class="reaction-pill">${data.emoji} ${data.count}</div>`;
 });
+
+socket.on("system_error", data => alert(data.text));
 
 const fileInput = document.getElementById("fileInput");
 const filePreview = document.getElementById("filePreview");
 
 fileInput.addEventListener("change", () => {
     if(fileInput.files.length){
-        filePreview.style.display = "block";
+        filePreview.classList.add("show");
         filePreview.innerText = "Selected: " + fileInput.files[0].name;
     }else{
-        filePreview.style.display = "none";
+        filePreview.classList.remove("show");
     }
 });
 
@@ -418,17 +329,17 @@ document.getElementById("chatForm").addEventListener("submit", async e => {
     if(!text && !file) return;
 
     if(file){
-        const formData = new FormData();
-
-        formData.append("shop", "{{ shop }}");
-        formData.append("sender", sender);
-        formData.append("sender_tg_id", sender_tg_id);
-        formData.append("text", text);
-        formData.append("image_file", file);
+        const fd = new FormData();
+        fd.append("shop", "{{ shop }}");
+        fd.append("sender", sender);
+        fd.append("sender_tg_id", sender_tg_id);
+        fd.append("text", text);
+        fd.append("reply_to_id", replyToId || "");
+        fd.append("image_file", file);
 
         const res = await fetch("/chat-upload", {
             method:"POST",
-            body:formData
+            body:fd
         });
 
         const result = await res.json();
@@ -439,59 +350,25 @@ document.getElementById("chatForm").addEventListener("submit", async e => {
         }
 
         fileInput.value = "";
-        filePreview.style.display = "none";
+        filePreview.classList.remove("show");
+
     }else{
         socket.emit("send_message", {
             shop:"{{ shop }}",
             sender:sender,
             sender_tg_id:sender_tg_id,
-            text:text
+            text:text,
+            reply_to_id:replyToId || ""
         });
     }
 
     input.value = "";
+    replyToId = null;
+    document.getElementById("replyPreview").classList.remove("show");
 });
-function openMedia(url, type){
-    const modal = document.createElement("div");
 
-    modal.style.cssText = `
-        position:fixed;
-        inset:0;
-        background:rgba(0,0,0,.95);
-        z-index:999999;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:16px;
-    `;
-
-    modal.innerHTML = `
-        <button onclick="this.parentElement.remove()" style="
-            position:absolute;
-            top:20px;
-            right:20px;
-            width:44px;
-            height:44px;
-            border-radius:50%;
-            border:0;
-            background:#222;
-            color:white;
-            font-size:28px;
-        ">×</button>
-
-        <video
-            src="${url}"
-            controls
-            autoplay
-            playsinline
-            webkit-playsinline
-            style="max-width:100%;max-height:85vh;border-radius:18px;background:#000;">
-        </video>
-    `;
-
-    document.body.appendChild(modal);
-}
-
+bindMenu();
+window.scrollTo(0,document.body.scrollHeight);
 </script>
 
 </body>
