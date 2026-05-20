@@ -285,7 +285,12 @@ function appendMessage(data){
         <div class="avatar">👤</div>
         <div class="bubble" data-id="${data.id || ""}" data-text="${esc(data.text || "")}">
             <div class="sender">${esc(data.sender || "User")}</div>
-            ${data.reply_to_id ? `<div class="reply-box">Reply</div>` : ""}
+           ${data.reply_text ? `
+<div class="reply-box">
+    <b>${esc(data.reply_sender || "User")}</b><br>
+    ${esc(data.reply_text).slice(0,80)}
+</div>
+` : ""}
             ${data.text ? `<div class="text">${esc(data.text)}</div>` : ""}
             ${media}
             <div class="reactions" id="react-${data.id || ""}"></div>

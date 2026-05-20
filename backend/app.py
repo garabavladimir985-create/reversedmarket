@@ -542,6 +542,9 @@ def chat_room(shop):
 @app.route("/chat")
 def chat_redirect():
     return redirect("/chat/general")
+
+
+
 @socketio.on("send_message")
 def handle_send_message(data):
     shop = data.get("shop", "general")
@@ -564,6 +567,15 @@ def handle_send_message(data):
         emit("system_error", {"text": "You are muted"})
         return
 
+    reply_text = ""
+    reply_sender = ""
+
+    if reply_to_id:
+        reply_msg = Message.query.get(reply_to_id)
+        if reply_msg:
+            reply_text = reply_msg.text or "Media"
+            reply_sender = reply_msg.sender
+
     msg = Message(
         shop=shop,
         sender=sender,
@@ -585,6 +597,8 @@ def handle_send_message(data):
         "text": msg.text,
         "image": msg.image,
         "reply_to_id": msg.reply_to_id,
+        "reply_text": reply_text,
+        "reply_sender": reply_sender,
         "time": msg.created_at.strftime("%H:%M")
     }, broadcast=True)
 
@@ -612,6 +626,15 @@ def chat_upload():
     if not text.strip() and not image_url:
         return jsonify({"ok": False, "error": "empty"}), 400
 
+    reply_text = ""
+    reply_sender = ""
+
+    if reply_to_id:
+        reply_msg = Message.query.get(reply_to_id)
+        if reply_msg:
+            reply_text = reply_msg.text or "Media"
+            reply_sender = reply_msg.sender
+            
     msg = Message(
         shop=shop,
         sender=sender,
@@ -625,16 +648,18 @@ def chat_upload():
     db.session.commit()
 
     socketio.emit("new_message", {
-        "id": msg.id,
-        "avatar": avatar,
-        "shop": msg.shop,
-        "sender": msg.sender,
-        "sender_tg_id": msg.sender_tg_id,
-        "text": msg.text,
-        "image": msg.image,
-        "reply_to_id": msg.reply_to_id,
-        "time": msg.created_at.strftime("%H:%M")
-    })
+    "id": msg.id,
+    "avatar": avatar,
+    "shop": msg.shop,
+    "sender": msg.sender,
+    "sender_tg_id": msg.sender_tg_id,
+    "text": msg.text,
+    "image": msg.image,
+    "reply_to_id": msg.reply_to_id,
+    "reply_text": reply_text,
+    "reply_sender": reply_sender,
+    "time": msg.created_at.strftime("%H:%M")
+}, broadcast=True)
 
     return jsonify({"ok": True})
 
