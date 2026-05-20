@@ -13,7 +13,8 @@ app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///fashion.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["UPLOAD_FOLDER"] = "static/uploads"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads")
 
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -60,14 +61,19 @@ def notify_admins(text):
 
 def save_file(file):
     if not file or file.filename == "":
-        return None
+        return ""
 
-    filename = secure_filename(file.filename)
-    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(path)
+    filename = secure_filename(
+        f"{datetime.utcnow().timestamp()}_{file.filename}"
+    )
+
+    upload_folder = app.config["UPLOAD_FOLDER"]
+    os.makedirs(upload_folder, exist_ok=True)
+
+    filepath = os.path.join(upload_folder, filename)
+    file.save(filepath)
 
     return "/static/uploads/" + filename
-
 
 class Seller(db.Model):
     id = db.Column(db.Integer, primary_key=True)
