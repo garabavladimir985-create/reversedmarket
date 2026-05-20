@@ -83,7 +83,6 @@ body{margin:0;background:#07101f;color:white;font-family:Arial,sans-serif}
 
                     {% if msg.image.endswith('.mp4') or msg.image.endswith('.mov') or msg.image.endswith('.webm') %}
                         <video class="media" controls playsinline webkit-playsinline preload="metadata" src="{{ full }}"></video>
-                        <button class="media-btn" onclick="openMedia('{{ full }}','video')">Open video</button>
                     {% else %}
                         <img class="media" src="{{ full }}" onclick="openMedia('{{ full }}','image')">
                         <button class="media-btn" onclick="openMedia('{{ full }}','image')">Open photo</button>
@@ -272,8 +271,7 @@ function appendMessage(data){
 
         if(isVideo(data.image)){
             media = `
-            <video class="media" controls playsinline webkit-playsinline preload="metadata" src="${full}"></video>
-            <button class="media-btn" onclick="openMedia('${full}','video')">Open video</button>`;
+            <video class="media" controls playsinline webkit-playsinline preload="metadata" src="${full}"></video>`;
         }else{
             media = `
             <img class="media" src="${full}" onclick="openMedia('${full}','image')">
